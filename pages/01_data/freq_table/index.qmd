@@ -167,6 +167,6 @@ for i, c in enumerate(counts):
 :::
 
 ::: {.hs-prevnext}
-[← 홈](../../../index.qmd)
+[← 이전: 정보의 구조화](../structure/index.qmd)
 [다음: 대푯값 →](../center/index.qmd)
 :::
