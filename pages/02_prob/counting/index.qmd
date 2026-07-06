@@ -148,5 +148,5 @@ $336 = 56 \times 3!$ — 같은 3명을 세 자리에 배치하는 방법이 $3!
 
 ::: {.hs-prevnext}
 [← 이전: 산점도와 상관관계](../../01_data/scatter/index.qmd)
-[다음: 확률의 뜻 →](../prob_basic/index.qmd)
+[다음: 여러 가지 순열 →](../perm_various/index.qmd)
 :::

@@ -1,0 +1,143 @@
+---
+title: "이항정리"
+---
+
+::: {.hs-back}
+[← 빛스탯 HS 홈](../../../index.qmd)
+:::
+
+::: {.hs-meta}
+단원 02 경우의 수와 확률 · 「확률과 통계」 · 조합의 응용
+:::
+
+## 개념
+
+$(a+b)^n$을 펼치면 각 항은 $n$개의 괄호 $(a+b)$에서 $a$ 또는 $b$를 하나씩
+골라 곱한 것입니다. $b$를 $r$번 고르는 방법이 곧 ${}_n\mathrm{C}_r$가지이므로,
+$a^{\,n-r}b^{\,r}$의 계수는 ${}_n\mathrm{C}_r$가 됩니다. 이것이 **이항정리**입니다.
+
+$$(a+b)^n = \sum_{r=0}^{n} {}_n\mathrm{C}_r\, a^{\,n-r} b^{\,r}$$
+
+::: {.column-margin}
+계수 ${}_n\mathrm{C}_0,\,{}_n\mathrm{C}_1,\,\dots,\,{}_n\mathrm{C}_n$을
+**이항계수**라고 합니다. 조합의 수가 전개식의 계수로 그대로 나타나는 것이
+경우의 수와 대수를 잇는 다리입니다.
+:::
+
+이항계수를 위에서부터 차례로 쌓으면 **파스칼의 삼각형**이 됩니다. 각 수는 바로
+위 두 수의 합이고(${}_{n-1}\mathrm{C}_{r-1} + {}_{n-1}\mathrm{C}_{r} = {}_n\mathrm{C}_r$),
+좌우 대칭입니다(${}_n\mathrm{C}_r = {}_n\mathrm{C}_{n-r}$). 아래 앱에서 차수 $n$을
+바꾸며 삼각형의 한 줄이 $(a+b)^n$의 계수와 정확히 일치함을 확인해 보세요.
+
+## 만지며 배우기
+
+::: {.panel-tabset}
+
+### 인터랙티브 앱
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 640
+
+from math import comb
+from shiny import App, render, ui
+
+ACCENT = "#2563eb"
+
+app_ui = ui.page_sidebar(
+    ui.sidebar(
+        ui.input_slider("n", "차수 n — (a+b)ⁿ", min=1, max=8, value=4, step=1),
+        width=250,
+    ),
+    ui.card(
+        ui.card_header("파스칼의 삼각형 — 파란 줄이 (a+b)ⁿ의 계수입니다"),
+        ui.output_ui("triangle"),
+    ),
+    ui.card(ui.output_ui("readout")),
+    fillable=True,
+)
+
+def server(input, output, session):
+    @render.ui
+    def triangle():
+        n = input.n()
+        rows = ""
+        for i in range(n + 1):
+            hi = (i == n)
+            cells = ""
+            for r in range(i + 1):
+                c = comb(i, r)
+                color = "white" if hi else "#374151"
+                bg = ACCENT if hi else "transparent"
+                cells += (
+                    f'<span style="display:inline-block; min-width:34px;'
+                    f' margin:2px; padding:2px 4px; text-align:center;'
+                    f' border-radius:4px; background:{bg}; color:{color};'
+                    f' font-size:0.85em;">{c}</span>'
+                )
+            rows += f'<div style="white-space:nowrap;">{cells}</div>'
+        return ui.HTML(
+            '<div style="text-align:center; overflow-x:auto;'
+            f' padding:0.5em 0;">{rows}</div>'
+        )
+
+    @render.ui
+    def readout():
+        n = input.n()
+        coeffs = [comb(n, r) for r in range(n + 1)]
+        terms = []
+        for r in range(n + 1):
+            c = coeffs[r]
+            cs = "" if c == 1 else str(c)
+            ap = "" if n - r == 0 else ("a" if n - r == 1 else f"a^{n-r}")
+            bp = "" if r == 0 else ("b" if r == 1 else f"b^{r}")
+            body = (ap + bp) or "1"
+            terms.append(cs + body)
+        expr = " + ".join(terms)
+        return ui.HTML(
+            '<p class="hs-readline">'
+            f"(a+b)^{n} 의 계수는 {coeffs} 입니다. 삼각형의 아래에서 첫째 줄(파란색)과 "
+            f"정확히 같습니다.<br><b>(a+b)^{n} = {expr}</b><br>"
+            f"계수를 모두 더하면 {sum(coeffs):,} = 2^{n} 인데, 이는 (a+b)에 a=b=1을 "
+            f"넣은 값과 같습니다.</p>"
+        )
+
+app = App(app_ui, server)
+```
+
+### 파이썬 코드
+
+이항계수는 조합 함수 `comb` 로 한 줄에 얻습니다.
+
+```python
+from math import comb
+
+n = 5
+coeffs = [comb(n, r) for r in range(n + 1)]
+print(coeffs)                        # [1, 5, 10, 10, 5, 1]
+
+# (x+2)^4 에서 x^2 의 계수: r=2 항의 계수 × 2^2
+print(comb(4, 2) * 2 ** 2)           # 6 × 4 = 24
+```
+
+:::
+
+## 스스로 확인
+
+::: {.callout-tip collapse="true" title="문제 1 — (x+2)⁴ 의 전개식에서 x² 의 계수는?"}
+$a=x,\,b=2,\,n=4$에서 $x^2$ 항은 $r=2$일 때이므로 계수는
+${}_4\mathrm{C}_2 \times 2^2 = 6 \times 4 = 24$입니다. 파스칼의 삼각형
+넷째 줄 $1,4,6,4,1$에서 가운데 $6$에 $b=2$의 거듭제곱 $2^2$를 곱한 값입니다.
+:::
+
+::: {.callout-tip collapse="true" title="문제 2 — 이항계수를 한 줄 모두 더하면 왜 2ⁿ 이 되는가?"}
+이항정리 $(a+b)^n = \sum {}_n\mathrm{C}_r\,a^{n-r}b^r$에 $a=b=1$을 넣으면
+좌변은 $2^n$, 우변은 이항계수의 합이 됩니다. 즉
+${}_n\mathrm{C}_0 + {}_n\mathrm{C}_1 + \cdots + {}_n\mathrm{C}_n = 2^n$입니다.
+이는 원소가 $n$개인 집합의 부분집합이 $2^n$개인 것과도 같은 사실입니다.
+:::
+
+::: {.hs-prevnext}
+[← 이전: 중복조합](../combi_repeat/index.qmd)
+[다음: 확률의 뜻 →](../prob_basic/index.qmd)
+:::

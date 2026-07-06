@@ -1,0 +1,161 @@
+---
+title: "확률의 덧셈정리"
+---
+
+::: {.hs-back}
+[← 빛스탯 HS 홈](../../../index.qmd)
+:::
+
+::: {.hs-meta}
+단원 02 경우의 수와 확률 · 「확률과 통계」 · 확률의 계산
+:::
+
+## 개념
+
+두 사건 $A$ 또는 $B$가 일어날 확률은 각각을 더한 뒤, 겹치는 부분을 한 번 빼서
+구합니다. 겹치는 $A\cap B$를 그냥 더하면 두 번 세어지기 때문입니다. 이것이
+**확률의 덧셈정리**입니다.
+
+$$\mathrm{P}(A\cup B) = \mathrm{P}(A) + \mathrm{P}(B) - \mathrm{P}(A\cap B)$$
+
+::: {.column-margin}
+1부터 20까지 카드에서 "3의 배수 또는 5의 배수"를 세어 봅시다. 3의 배수는
+6장, 5의 배수는 4장이지만, 15는 둘 다이므로 한 번만 세야 합니다.
+그래서 $6 + 4 - 1 = 9$장입니다.
+:::
+
+두 사건이 **동시에 일어날 수 없으면**(배반사건) 겹치는 부분이 없으므로
+$\mathrm{P}(A\cap B)=0$이 되어, 덧셈정리는 간단히 다음이 됩니다.
+
+$$\mathrm{P}(A\cup B) = \mathrm{P}(A) + \mathrm{P}(B)\quad(\text{배반사건})$$
+
+아래 앱에서 두 배수 조건을 바꾸며, 겹치는 카드가 있을 때와 없을 때
+합집합의 크기가 어떻게 달라지는지 색으로 확인해 보세요.
+
+## 만지며 배우기
+
+::: {.panel-tabset}
+
+### 인터랙티브 앱
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 660
+
+from fractions import Fraction
+from shiny import App, render, ui
+
+N = 20
+A_COLOR = "#2563eb"   # A만
+B_COLOR = "#f59e0b"   # B만
+BOTH = "#7c3aed"      # 교집합
+NONE = "#e5e7eb"      # 해당 없음
+
+app_ui = ui.page_sidebar(
+    ui.sidebar(
+        ui.input_select("a", "사건 A: 이 수의 배수",
+                        {str(k): f"{k}의 배수" for k in (2, 3, 4, 5)},
+                        selected="3"),
+        ui.input_select("b", "사건 B: 이 수의 배수",
+                        {str(k): f"{k}의 배수" for k in (2, 3, 4, 5)},
+                        selected="5"),
+        width=250,
+    ),
+    ui.card(
+        ui.card_header("1~20 카드 — 파랑=A, 주황=B, 보라=둘 다"),
+        ui.output_ui("grid"),
+    ),
+    ui.card(ui.output_ui("readout")),
+    fillable=True,
+)
+
+def server(input, output, session):
+    def sets():
+        a, b = int(input.a()), int(input.b())
+        A = {k for k in range(1, N + 1) if k % a == 0}
+        B = {k for k in range(1, N + 1) if k % b == 0}
+        return a, b, A, B
+
+    @render.ui
+    def grid():
+        a, b, A, B = sets()
+        cells = ""
+        for k in range(1, N + 1):
+            inA, inB = k in A, k in B
+            if inA and inB:
+                bg, fg = BOTH, "white"
+            elif inA:
+                bg, fg = A_COLOR, "white"
+            elif inB:
+                bg, fg = B_COLOR, "white"
+            else:
+                bg, fg = NONE, "#6b7280"
+            cells += (
+                f'<div style="width:38px; height:38px; border-radius:6px;'
+                f' background:{bg}; color:{fg}; display:flex;'
+                f' align-items:center; justify-content:center;'
+                f' font-size:0.9em; font-weight:600;">{k}</div>'
+            )
+        return ui.HTML(
+            '<div style="display:flex; flex-wrap:wrap; gap:6px;'
+            f' padding:0.4em 0.2em;">{cells}</div>'
+        )
+
+    @render.ui
+    def readout():
+        a, b, A, B = sets()
+        both = A & B
+        union = A | B
+        pa, pb = Fraction(len(A), N), Fraction(len(B), N)
+        pab = Fraction(len(both), N)
+        pu = Fraction(len(union), N)
+        disjoint = "겹치는 카드가 없어 배반사건입니다. " if not both else ""
+        return ui.HTML(
+            '<p class="hs-readline">'
+            f"P(A) = {len(A)}/{N}, P(B) = {len(B)}/{N}, "
+            f"P(A∩B) = {len(both)}/{N} 이므로<br>"
+            f"P(A∪B) = {pa} + {pb} − {pab} = <b>{pu}</b> "
+            f"(카드 {len(union)}장). {disjoint}"
+            "겹치는 부분을 빼지 않으면 그만큼 확률이 부풀려집니다.</p>"
+        )
+
+app = App(app_ui, server)
+```
+
+### 파이썬 코드
+
+집합 연산으로 덧셈정리를 그대로 확인할 수 있습니다.
+
+```python
+from fractions import Fraction
+
+N = 20
+A = {k for k in range(1, N + 1) if k % 3 == 0}   # 3의 배수
+B = {k for k in range(1, N + 1) if k % 5 == 0}   # 5의 배수
+
+union = Fraction(len(A | B), N)
+by_rule = Fraction(len(A), N) + Fraction(len(B), N) - Fraction(len(A & B), N)
+print(union, by_rule)                # 9/20 9/20 — 일치
+```
+
+:::
+
+## 스스로 확인
+
+::: {.callout-tip collapse="true" title="문제 1 — 1~20 카드에서 '2의 배수 또는 3의 배수'일 확률은?"}
+2의 배수는 10장, 3의 배수는 6장, 둘 다인 6의 배수는 3장(6·12·18)입니다.
+덧셈정리로 $\dfrac{10}{20} + \dfrac{6}{20} - \dfrac{3}{20} = \dfrac{13}{20}$입니다.
+겹치는 6의 배수를 빼 주는 것이 핵심입니다.
+:::
+
+::: {.callout-tip collapse="true" title="문제 2 — 언제 P(A∪B)=P(A)+P(B) 로 그냥 더해도 되는가?"}
+두 사건이 **동시에 일어날 수 없을 때**(배반사건, $A\cap B=\varnothing$)입니다.
+예를 들어 한 장을 뽑아 "3의 배수"와 "3으로 나눈 나머지가 1"은 동시에 성립할 수
+없으므로, 두 확률을 그냥 더하면 됩니다. 겹침이 조금이라도 있으면 반드시
+$\mathrm{P}(A\cap B)$를 빼야 합니다.
+:::
+
+::: {.hs-prevnext}
+[← 이전: 확률의 뜻](../prob_basic/index.qmd)
+[다음: 조건부확률과 독립 →](../conditional/index.qmd)
+:::
