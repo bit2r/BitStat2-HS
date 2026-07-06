@@ -1,0 +1,194 @@
+---
+title: "데이터 탐색기"
+---
+
+::: {.hs-back}
+[← 빛스탯 HS 홈](../../../index.qmd)
+:::
+
+::: {.hs-meta}
+단원 05 통계와 사회 · 「통계와 사회」 · 1차시(45분)
+:::
+
+## 개념
+
+자료를 손에 넣었을 때 가장 먼저 할 일은 **탐색**입니다. 탐색의 기본은
+자료를 세 가지 방식으로 보는 것입니다. **표**로 원자료를 하나하나 확인하고,
+**그래프**로 분포의 전체 모양을 살피고, 평균·중앙값·표준편차 같은
+**요약값**으로 특징을 숫자 몇 개로 압축합니다.
+
+::: {.column-margin}
+아래 데이터는 교육용으로 만든 **가상 데이터**입니다. 실제 탐구에서는
+우리 반 친구들에게 직접 설문해서 나만의 데이터를 모아 보세요.
+:::
+
+세 방식은 서로를 보완합니다. 표만 보면 전체 모양이 안 보이고, 요약값만
+보면 특이한 값이 숨습니다. 아래 앱에서 가상의 고등학생 25명 데이터를
+변수별로 골라 표·그래프·요약값을 한 번에 살펴보세요.
+
+## 만지며 배우기
+
+::: {.panel-tabset}
+
+### 인터랙티브 앱
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 760
+
+from shiny import App, render, ui
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+
+matplotlib.rcParams["font.size"] = 10
+
+ACCENT = "#2563eb"
+INK = "#111827"
+MUTED = "#6b7280"
+
+# 교육용 예시(가상) 데이터 — 고등학생 25명
+DATA = {
+    "키(cm)": [172.5, 158.3, 165.0, 181.2, 160.4, 175.8, 168.9, 155.2,
+               178.4, 162.7, 170.1, 152.8, 183.6, 166.3, 159.5, 174.2,
+               161.8, 169.4, 187.0, 157.6, 171.3, 164.5, 176.9, 153.9, 167.2],
+    "통학시간(분)": [15, 30, 10, 45, 25, 5, 60, 20, 35, 12, 40, 8, 55,
+                    18, 22, 70, 28, 14, 33, 48, 9, 26, 38, 16, 52],
+    "수면시간(시간)": [6.5, 7.2, 5.8, 6.0, 7.5, 8.0, 5.5, 6.8, 7.0, 6.2,
+                      8.5, 7.8, 5.2, 6.4, 7.1, 6.6, 8.2, 5.9, 6.1, 7.4,
+                      6.9, 5.6, 7.7, 6.3, 8.8],
+    "성별": ["남", "여", "여", "남", "여", "남", "남", "여", "남", "여",
+             "남", "여", "남", "여", "여", "남", "여", "남", "남", "여",
+             "남", "여", "남", "여", "남"],
+}
+
+# 그림 축 라벨은 영어만 사용 (한글 변수명 → 영어 라벨)
+AXIS = {
+    "키(cm)": "height (cm)",
+    "통학시간(분)": "commute (min)",
+    "수면시간(시간)": "sleep (h)",
+    "성별": "gender",
+}
+
+def tufte(ax):
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color("#9ca3af")
+    ax.tick_params(colors=MUTED, labelsize=9)
+
+app_ui = ui.page_sidebar(
+    ui.sidebar(
+        ui.input_select("var", "변수", {k: k for k in DATA}),
+        width=240,
+    ),
+    ui.card(
+        ui.card_header("데이터 표"),
+        ui.output_ui("table"),
+    ),
+    ui.card(
+        ui.card_header("분포"),
+        ui.output_plot("dist", height="280px"),
+    ),
+    ui.card(ui.output_ui("readout")),
+    fillable=True,
+)
+
+def server(input, output, session):
+    @render.ui
+    def table():
+        keys = list(DATA.keys())
+        th = 'style="padding:2px 6px;border-bottom:1px solid #9ca3af;text-align:center;"'
+        td = 'style="padding:2px 6px;border-bottom:1px solid #e5e7eb;text-align:center;"'
+        head = "".join(f"<th {th}>{k}</th>" for k in ["번호"] + keys)
+        rows = []
+        for i in range(25):
+            cells = f"<td {td}>{i + 1}</td>" + "".join(
+                f"<td {td}>{DATA[k][i]}</td>" for k in keys
+            )
+            rows.append(f"<tr>{cells}</tr>")
+        return ui.HTML(
+            '<div style="max-height:220px;overflow-y:auto;">'
+            '<table style="width:100%;border-collapse:collapse;font-size:0.8rem;">'
+            f"<thead><tr>{head}</tr></thead>"
+            f"<tbody>{''.join(rows)}</tbody></table></div>"
+        )
+
+    @render.plot(alt="선택한 변수의 분포")
+    def dist():
+        v = input.var()
+        fig, ax = plt.subplots()
+        if v == "성별":
+            counts = [DATA["성별"].count("남"), DATA["성별"].count("여")]
+            ax.bar(["M", "F"], counts, color="#9ca3af", width=0.5)
+            ax.set_xlabel("gender", color=MUTED)
+            ax.set_ylabel("count", color=MUTED)
+        else:
+            vals = np.array(DATA[v])
+            ax.hist(vals, bins=8, color=ACCENT, alpha=0.85, edgecolor="white")
+            ax.axvline(vals.mean(), color=ACCENT, linewidth=1.6, label="mean")
+            ax.axvline(np.median(vals), color=INK, linewidth=1.2,
+                       linestyle="--", label="median")
+            ax.set_xlabel(AXIS[v], color=MUTED)
+            ax.set_ylabel("count", color=MUTED)
+            ax.legend(frameon=False, fontsize=9)
+        tufte(ax)
+        return fig
+
+    @render.ui
+    def readout():
+        v = input.var()
+        if v == "성별":
+            nm = DATA["성별"].count("남")
+            nf = DATA["성별"].count("여")
+            n = nm + nf
+            line = (f"남학생 {nm}명({nm / n * 100:.0f}%), "
+                    f"여학생 {nf}명({nf / n * 100:.0f}%)으로 모두 {n}명입니다. "
+                    "범주형 자료는 평균 대신 도수와 비율로 요약합니다.")
+        else:
+            vals = np.array(DATA[v])
+            line = (f"{v}의 평균은 {vals.mean():.1f}, 중앙값은 {np.median(vals):.1f}, "
+                    f"표준편차는 {vals.std():.1f}, 최솟값은 {vals.min():.1f}, "
+                    f"최댓값은 {vals.max():.1f}입니다.")
+        return ui.HTML(f'<p class="hs-readline">{line}</p>')
+
+app = App(app_ui, server)
+```
+
+### 파이썬 코드
+
+요약값 계산은 numpy 몇 줄이면 충분합니다.
+
+```python
+import numpy as np
+
+commute = [15, 30, 10, 45, 25, 5, 60, 20, 35, 12, 40, 8, 55,
+           18, 22, 70, 28, 14, 33, 48, 9, 26, 38, 16, 52]
+
+vals = np.array(commute)
+print(vals.mean())        # 평균
+print(np.median(vals))    # 중앙값
+print(vals.std())         # 표준편차
+print(vals.min(), vals.max())  # 최솟값, 최댓값
+```
+
+:::
+
+## 스스로 확인
+
+::: {.callout-tip collapse="true" title="문제 1 — 통학시간의 평균과 중앙값 중 어느 쪽이 더 큰가? 히스토그램 모양으로 이유를 설명해 보라."}
+평균(약 29.4분)이 중앙값(26분)보다 큽니다. 히스토그램을 보면 통학시간이
+긴 쪽으로 꼬리가 길게 늘어져 있는데, 60분·70분 같은 큰 값이 평균을
+끌어올리기 때문입니다. 분포가 한쪽으로 치우치면 평균과 중앙값이 벌어집니다.
+:::
+
+::: {.callout-tip collapse="true" title="문제 2 — 성별을 선택하면 왜 평균·표준편차가 나오지 않는가?"}
+성별은 수가 아니라 범주(남/여)인 **범주형 변수**이기 때문입니다.
+범주형 자료는 각 범주의 도수와 비율로 요약하고, 그래프도 히스토그램이
+아니라 막대그래프를 씁니다. 변수의 종류에 따라 요약 방법이 달라집니다.
+:::
+
+::: {.hs-prevnext}
+[← 이전: 모비율의 추정](../../04_infer/ci_prop/index.qmd)
+[다음: 통계 그래프 만들기 →](../make_chart/index.qmd)
+:::

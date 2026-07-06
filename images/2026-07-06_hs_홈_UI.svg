@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 880" font-family="Georgia, 'Apple SD Gothic Neo', 'Noto Serif KR', serif">
+  <!-- Tufte-style: 잉크 최소 · 헤어라인 · 단일 액센트(#2563EB) · 직접 라벨 -->
+  <!-- 2026-07-06: 빛스탯 HS 홈(랜딩) 페이지 UI 와이어프레임 -->
+  <rect width="1240" height="880" fill="#ffffff"/>
+
+  <!-- ===== 헤더 ===== -->
+  <text x="40" y="42" font-size="22" fill="#111827" font-weight="bold">빛스탯 HS — 홈 UI 와이어프레임</text>
+  <text x="40" y="64" font-size="12" fill="#6b7280">index.qmd 단일 랜딩 · 내브바 없음 · .bs- 디자인 시스템(BitStat2-quarto 계승) · 2026-07-06</text>
+  <line x1="40" y1="76" x2="1200" y2="76" stroke="#e5e7eb" stroke-width="1"/>
+
+  <!-- ===== 페이지 프레임 (왼쪽 2/3) ===== -->
+  <rect x="40" y="96" width="800" height="744" rx="10" fill="none" stroke="#9ca3af" stroke-width="1.2"/>
+
+  <!-- 히어로 -->
+  <text x="70" y="132" font-size="9" fill="#2563eb" letter-spacing="2" font-weight="bold">BITSTAT HS · 아이브로</text>
+  <text x="70" y="166" font-size="24" fill="#111827" font-weight="bold">고교 통계, 만지며 배운다</text>
+  <text x="70" y="192" font-size="11" fill="#6b7280">슬라이더를 움직이면 그래프가 답한다 — 교과서 순서 그대로,</text>
+  <text x="70" y="208" font-size="11" fill="#6b7280">설치도 계정도 없이 브라우저에서. (리드 2문장)</text>
+  <text x="70" y="232" font-size="9.5" fill="#9ca3af">메타 칩: webR 서버리스 · 「확률과 통계」·「통계와 사회」 정렬 · hsData 실생활 데이터</text>
+  <!-- CTA -->
+  <rect x="70" y="248" width="210" height="34" rx="17" fill="#2563eb"/>
+  <text x="175" y="270" font-size="11" fill="#ffffff" text-anchor="middle">정규분포 체험 시작 →</text>
+  <rect x="292" y="248" width="150" height="34" rx="17" fill="none" stroke="#d1d5db" stroke-width="1"/>
+  <text x="367" y="270" font-size="11" fill="#6b7280" text-anchor="middle">교육과정 지도 보기</text>
+  <!-- 진행 헤어라인 -->
+  <line x1="70" y1="304" x2="810" y2="304" stroke="#e5e7eb" stroke-width="2"/>
+  <line x1="70" y1="304" x2="480" y2="304" stroke="#2563eb" stroke-width="2"/>
+  <text x="70" y="322" font-size="9" fill="#9ca3af">진행 헤어라인 — “18개 모듈 중 N개 라이브” (개발 단계 정직하게 노출)</text>
+
+  <line x1="70" y1="342" x2="810" y2="342" stroke="#e5e7eb" stroke-width="1"/>
+
+  <!-- 학습 방식 3칸 -->
+  <text x="70" y="368" font-size="9" fill="#9ca3af" letter-spacing="2">학습 방식 — 3열 그리드</text>
+  <g>
+    <rect x="70" y="382" width="236" height="96" rx="8" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="88" y="408" font-size="11" fill="#111827" font-weight="bold">① 만지기</text>
+    <text x="88" y="428" font-size="9.5" fill="#6b7280">슬라이더·버튼으로 모수를 바꾸면</text>
+    <text x="88" y="443" font-size="9.5" fill="#6b7280">그래프가 즉시 반응 (shinylive 앱)</text>
+    <rect x="322" y="382" width="236" height="96" rx="8" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="340" y="408" font-size="11" fill="#111827" font-weight="bold">② 열어보기</text>
+    <text x="340" y="428" font-size="9.5" fill="#6b7280">같은 분석의 R 코드를 탭에서</text>
+    <text x="340" y="443" font-size="9.5" fill="#6b7280">실행·수정 (webr 셀)</text>
+    <rect x="574" y="382" width="236" height="96" rx="8" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="592" y="408" font-size="11" fill="#111827" font-weight="bold">③ 탐구하기</text>
+    <text x="592" y="428" font-size="9.5" fill="#6b7280">hsData 실생활 데이터로</text>
+    <text x="592" y="443" font-size="9.5" fill="#6b7280">수행평가·프로젝트 (데이터 탐색기)</text>
+  </g>
+
+  <line x1="70" y1="502" x2="810" y2="502" stroke="#e5e7eb" stroke-width="1"/>
+
+  <!-- 커리큘럼 지도 -->
+  <text x="70" y="528" font-size="9" fill="#9ca3af" letter-spacing="2">교육과정 지도 — 단원 카드 5장 (auto-fill 그리드, 유일한 내비게이션)</text>
+  <!-- 카드 1행 -->
+  <g>
+    <rect x="70" y="542" width="236" height="128" rx="8" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="88" y="568" font-size="16" fill="#d1d5db" font-weight="bold">01</text>
+    <text x="88" y="588" font-size="11.5" fill="#111827" font-weight="bold">자료와 그래프</text>
+    <text x="88" y="603" font-size="8.5" fill="#9ca3af">중등 복습 · 진단</text>
+    <text x="88" y="622" font-size="9.5" fill="#6b7280">○ 도수분포표와 히스토그램</text>
+    <text x="88" y="637" font-size="9.5" fill="#6b7280">○ 대푯값 ○ 산포도와 상자그림</text>
+    <text x="88" y="652" font-size="9.5" fill="#6b7280">○ 산점도와 상관관계</text>
+
+    <rect x="322" y="542" width="236" height="128" rx="8" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="340" y="568" font-size="16" fill="#d1d5db" font-weight="bold">02</text>
+    <text x="340" y="588" font-size="11.5" fill="#111827" font-weight="bold">경우의 수와 확률</text>
+    <text x="340" y="603" font-size="8.5" fill="#9ca3af">확률과 통계</text>
+    <text x="340" y="622" font-size="9.5" fill="#6b7280">○ 순열과 조합 ○ 확률의 뜻</text>
+    <text x="340" y="637" font-size="9.5" fill="#6b7280">○ 조건부확률과 독립</text>
+
+    <rect x="574" y="542" width="236" height="128" rx="8" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="592" y="568" font-size="16" fill="#d1d5db" font-weight="bold">03</text>
+    <text x="592" y="588" font-size="11.5" fill="#111827" font-weight="bold">확률분포</text>
+    <text x="592" y="603" font-size="8.5" fill="#9ca3af">확률과 통계</text>
+    <text x="592" y="622" font-size="9.5" fill="#6b7280">○ 확률변수와 기댓값</text>
+    <text x="592" y="637" font-size="9.5" fill="#6b7280">○ 이항분포 ○ 정규분포와 표준화</text>
+  </g>
+  <!-- 카드 2행 -->
+  <g>
+    <rect x="70" y="686" width="236" height="128" rx="8" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="88" y="712" font-size="16" fill="#d1d5db" font-weight="bold">04</text>
+    <text x="88" y="732" font-size="11.5" fill="#111827" font-weight="bold">통계적 추정</text>
+    <text x="88" y="747" font-size="8.5" fill="#9ca3af">확률과 통계</text>
+    <text x="88" y="766" font-size="9.5" fill="#6b7280">○ 표본추출 ○ 표본평균의 분포</text>
+    <text x="88" y="781" font-size="9.5" fill="#6b7280">○ 모평균의 신뢰구간</text>
+    <text x="88" y="796" font-size="9.5" fill="#6b7280">○ 모비율의 추정</text>
+
+    <rect x="322" y="686" width="236" height="128" rx="8" fill="none" stroke="#2563eb" stroke-width="1.2"/>
+    <text x="340" y="712" font-size="16" fill="#d1d5db" font-weight="bold">05</text>
+    <text x="340" y="732" font-size="11.5" fill="#111827" font-weight="bold">통계와 사회</text>
+    <text x="340" y="747" font-size="8.5" fill="#2563eb">실생활 데이터 · 수행평가</text>
+    <text x="340" y="766" font-size="9.5" fill="#6b7280">○ hsData 데이터 탐색기</text>
+    <text x="340" y="781" font-size="9.5" fill="#6b7280">○ 그래프 만들기 ○ 여론조사 읽기</text>
+    <text x="340" y="796" font-size="9.5" fill="#6b7280">○ 통계적 탐구 프로젝트</text>
+
+    <!-- 푸터 노트 -->
+    <rect x="574" y="686" width="236" height="128" rx="8" fill="none" stroke="#ffffff"/>
+    <text x="592" y="712" font-size="9.5" fill="#9ca3af">푸터 노트 —</text>
+    <text x="592" y="728" font-size="9.5" fill="#9ca3af">첫 로딩 1–2분 안내(webR 다운로드)</text>
+    <text x="592" y="744" font-size="9.5" fill="#9ca3af">자매 사이트: BitStat2 앱/코드 트랙</text>
+    <text x="592" y="760" font-size="9.5" fill="#9ca3af">제작: 한국 R 사용자회 · 라이선스</text>
+  </g>
+
+  <!-- ===== 오른쪽 여백 주석 (Tufte 마진 노트) ===== -->
+  <g font-size="10" fill="#6b7280" font-style="italic">
+    <text x="880" y="132">설계 근거 —</text>
+    <text x="880" y="152">내브바 없음: BitStat2-shiny가 2026-07-06</text>
+    <text x="880" y="167">내브바를 제거하고 랜딩 지도로 통일한</text>
+    <text x="880" y="182">결정을 그대로 계승. 학생은 검색보다</text>
+    <text x="880" y="197">교과서 목차로 찾는다.</text>
+
+    <text x="880" y="232">CTA가 정규분포인 이유 —</text>
+    <text x="880" y="252">고교 통계의 상징 개념이자 시각적으로</text>
+    <text x="880" y="267">가장 매력적인 앱. 첫 화면에서 10초 안에</text>
+    <text x="880" y="282">“만지면 반응한다”를 증명해야 한다.</text>
+
+    <text x="880" y="322">단원 카드 5장 = 유일한 내비게이션 —</text>
+    <text x="880" y="342">깊이 2 유지: 홈 → 모듈. 목록 페이지</text>
+    <text x="880" y="357">(pages/NN_단원.qmd) 없이 카드가 곧 목차.</text>
+    <text x="880" y="372">모듈 수(3–4개)가 적어 카드 안에 전부</text>
+    <text x="880" y="387">직접 라벨로 노출 가능.</text>
+
+    <text x="880" y="422">05 통계와 사회 카드만 액센트 테두리 —</text>
+    <text x="880" y="442">차별점(실생활 데이터·수행평가)이 이</text>
+    <text x="880" y="457">사이트의 존재 이유이므로 잉크 한 방울로</text>
+    <text x="880" y="472">강조. 그 외 장식 없음.</text>
+
+    <text x="880" y="507">타이포그래피 —</text>
+    <text x="880" y="527">본문 세리프(Georgia·Noto Serif KR 계열),</text>
+    <text x="880" y="542">잉크 #111827 · 뮤트 #6b7280 ·</text>
+    <text x="880" y="557">헤어라인 #e5e7eb · 액센트 #2563eb 단일.</text>
+    <text x="880" y="572">max-width 1080px · clamp() 반응형.</text>
+
+    <text x="880" y="607">모바일 —</text>
+    <text x="880" y="627">카드 그리드 auto-fill minmax(310px,1fr):</text>
+    <text x="880" y="642">폰에서 1열로 자연 강하. 학생 1인 1폰</text>
+    <text x="880" y="657">환경(교실 태블릿 포함)이 1차 타깃 해상도.</text>
+  </g>
+
+  <!-- ===== 푸터 ===== -->
+  <line x1="40" y1="828" x2="1200" y2="828" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="40" y="852" font-size="10.5" fill="#6b7280">구현 — index.qmd 원 HTML + assets/home.css(.bs- 접두 클래스, BitStat2-quarto home.css를 기반으로 5카드·3칸용 변수만 조정) · page-layout: full · toc: false</text>
+  <text x="40" y="870" font-size="10.5" fill="#6b7280">이 다이어그램: images/2026-07-06_hs_홈_UI.svg</text>
+</svg>

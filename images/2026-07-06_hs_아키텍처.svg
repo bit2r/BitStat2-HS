@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 820" font-family="Georgia, 'Apple SD Gothic Neo', 'Noto Serif KR', serif">
+  <!-- Tufte-style: 잉크 최소 · 헤어라인 · 단일 액센트(#2563EB) · 직접 라벨 -->
+  <!-- 2026-07-06: 고등학생용 빛스탯(BitStat2-HS) 전체 아키텍처 설계 -->
+  <rect width="1240" height="820" fill="#ffffff"/>
+
+  <!-- ===== 헤더 ===== -->
+  <text x="40" y="42" font-size="22" fill="#111827" font-weight="bold">빛스탯 HS — 고등학생용 빛스탯2 아키텍처</text>
+  <text x="40" y="64" font-size="12" fill="#6b7280">BitStat2 생태계의 네 번째 자매 사이트 · 교육과정 정렬 · 서버리스 · 2026-07-06</text>
+  <line x1="40" y1="76" x2="1200" y2="76" stroke="#e5e7eb" stroke-width="1"/>
+
+  <!-- ===== 생태계 내 위치 (상단 밴드) ===== -->
+  <text x="40" y="104" font-size="10" fill="#9ca3af" letter-spacing="2">생태계 내 위치</text>
+  <g>
+    <rect x="40" y="116" width="255" height="74" rx="8" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="55" y="140" font-size="11" fill="#6b7280" font-weight="bold">BitStat2 포털</text>
+    <text x="55" y="158" font-size="9.5" fill="#9ca3af">랜딩 1페이지 · 트랙 안내</text>
+    <text x="55" y="174" font-size="9.5" fill="#9ca3af">대상: 비전공 일반인</text>
+
+    <rect x="315" y="116" width="255" height="74" rx="8" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="330" y="140" font-size="11" fill="#6b7280" font-weight="bold">BitStat2-shiny — 앱 트랙</text>
+    <text x="330" y="158" font-size="9.5" fill="#9ca3af">shinylive 앱 23개 · 만지며 직관</text>
+    <text x="330" y="174" font-size="9.5" fill="#9ca3af">모듈 UI 원형 제공 →</text>
+
+    <rect x="590" y="116" width="255" height="74" rx="8" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="605" y="140" font-size="11" fill="#6b7280" font-weight="bold">BitStat2-quarto — 코드 트랙</text>
+    <text x="605" y="158" font-size="9.5" fill="#9ca3af">Quarto Live · 편집형 R 셀 · 자동 채점</text>
+    <text x="605" y="174" font-size="9.5" fill="#9ca3af">랜딩·커리큘럼 지도 문법 제공 →</text>
+
+    <rect x="865" y="110" width="335" height="86" rx="8" fill="none" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="880" y="134" font-size="10" fill="#2563eb" letter-spacing="1.5" font-weight="bold">신규 · BitStat2-HS</text>
+    <text x="880" y="156" font-size="13" fill="#111827" font-weight="bold">빛스탯 HS — 교실에서 만지는 통계</text>
+    <text x="880" y="174" font-size="9.5" fill="#6b7280">대상: 고등학생·수학교사 · 교육과정 정렬</text>
+    <text x="880" y="188" font-size="9.5" fill="#6b7280">hsData 실생활 데이터 · 설치·계정 불필요</text>
+  </g>
+
+  <!-- 분기선: HS로 흐름 -->
+  <line x1="442" y1="190" x2="442" y2="212" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="717" y1="190" x2="717" y2="212" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="442" y1="212" x2="1032" y2="212" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="1032" y1="196" x2="1032" y2="240" stroke="#d1d5db" stroke-width="1"/>
+
+  <!-- ===== 사이트 구조 (중앙) ===== -->
+  <text x="40" y="252" font-size="10" fill="#9ca3af" letter-spacing="2">사이트 구조 — 홈 1장 + 모듈 18개 (5개 단원)</text>
+
+  <!-- 홈 -->
+  <rect x="40" y="266" width="300" height="150" rx="10" fill="none" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="55" y="290" font-size="10" fill="#2563eb" letter-spacing="1.5" font-weight="bold">홈 · index.qmd</text>
+  <text x="55" y="312" font-size="13" fill="#111827" font-weight="bold">랜딩 = 유일한 내비게이션</text>
+  <text x="55" y="332" font-size="10" fill="#6b7280">히어로 · 학습 방식 3칸 · 교육과정 지도</text>
+  <text x="55" y="348" font-size="10" fill="#6b7280">내브바 없음 — 카드에서 모듈로 직행</text>
+  <text x="55" y="364" font-size="10" fill="#6b7280">모듈 상단 ← 홈 링크로 복귀</text>
+  <text x="55" y="392" font-size="9" fill="#9ca3af">BitStat2-quarto 랜딩(.bs- 디자인 시스템) 계승</text>
+
+  <line x1="340" y1="341" x2="380" y2="341" stroke="#d1d5db" stroke-width="1"/>
+
+  <!-- 모듈 페이지 -->
+  <rect x="380" y="266" width="440" height="150" rx="10" fill="none" stroke="#9ca3af" stroke-width="1"/>
+  <text x="395" y="290" font-size="10" fill="#2563eb" letter-spacing="1.5" font-weight="bold">모듈 페이지 · pages/NN_단원/모듈/index.qmd × 18</text>
+  <text x="395" y="312" font-size="13" fill="#111827" font-weight="bold">개념 → 앱 → 코드, 한 화면에서</text>
+  <text x="395" y="332" font-size="10" fill="#6b7280">① 교과서 개념 요약 + 여백 주석(성취기준 표기)</text>
+  <text x="395" y="348" font-size="10" fill="#6b7280">② 탭셋: [인터랙티브 앱 | R 코드] — shinylive + webr 셀</text>
+  <text x="395" y="364" font-size="10" fill="#6b7280">③ 확인 문제 · 짝 모듈(이전/다음 단원) 링크</text>
+  <text x="395" y="392" font-size="9" fill="#9ca3af">앱 UI 원형: BitStat2-shiny clt 모듈 (bslib page_sidebar · Tufte 테마)</text>
+
+  <line x1="820" y1="341" x2="860" y2="341" stroke="#d1d5db" stroke-width="1"/>
+
+  <!-- 데이터 탐색기 -->
+  <rect x="860" y="266" width="340" height="150" rx="10" fill="none" stroke="#9ca3af" stroke-width="1"/>
+  <text x="875" y="290" font-size="10" fill="#2563eb" letter-spacing="1.5" font-weight="bold">데이터 탐색기 · 05단원 핵심 앱</text>
+  <text x="875" y="312" font-size="13" fill="#111827" font-weight="bold">hsData 실생활 데이터 실험실</text>
+  <text x="875" y="332" font-size="10" fill="#6b7280">데이터셋 선택 → 표 · 상세정보 → 변수 끌어놓기</text>
+  <text x="875" y="348" font-size="10" fill="#6b7280">→ 요약 통계량 · 숫자형/범주형 시각화</text>
+  <text x="875" y="364" font-size="10" fill="#6b7280">통계와 사회 과목의 탐구 프로젝트 무대</text>
+  <text x="875" y="392" font-size="9" fill="#9ca3af">기존 BitStat2-HS gridlayout 앱(app.R)을 shinylive로 이식·흡수</text>
+
+  <!-- ===== 단원 밴드 ===== -->
+  <line x1="600" y1="416" x2="600" y2="440" stroke="#d1d5db" stroke-width="1"/>
+  <rect x="90" y="440" width="1060" height="104" rx="10" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="620" y="464" font-size="12" fill="#111827" text-anchor="middle" font-weight="bold">교육과정 정렬 5개 단원 — 18개 모듈 (상세: 커리큘럼 지도 SVG)</text>
+  <g font-size="10" fill="#6b7280" text-anchor="middle">
+    <text x="215" y="494">01 자료와 그래프</text>
+    <text x="215" y="510" fill="#9ca3af">중등 기초 · 4 모듈</text>
+    <text x="425" y="494">02 경우의 수와 확률</text>
+    <text x="425" y="510" fill="#9ca3af">확통 · 3 모듈</text>
+    <text x="620" y="494">03 확률분포</text>
+    <text x="620" y="510" fill="#9ca3af">확통 · 3 모듈</text>
+    <text x="810" y="494">04 통계적 추정</text>
+    <text x="810" y="510" fill="#9ca3af">확통 · 4 모듈</text>
+    <text x="1020" y="494">05 통계와 사회</text>
+    <text x="1020" y="510" fill="#9ca3af">실생활 데이터 · 4 모듈</text>
+  </g>
+  <text x="620" y="532" font-size="9.5" fill="#9ca3af" text-anchor="middle">01은 중학 통계 복습(진단), 02–04는 「확률과 통계」, 05는 「통계와 사회」·탐구 프로젝트에 대응</text>
+
+  <!-- ===== 기술 스택 밴드 ===== -->
+  <text x="40" y="580" font-size="10" fill="#9ca3af" letter-spacing="2">기술 스택 — BitStat2-shiny 트랙과 동일 계열 (검증된 조합 재사용)</text>
+  <rect x="40" y="592" width="1160" height="96" rx="10" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+  <g font-size="10.5" fill="#6b7280">
+    <text x="60" y="618" fill="#111827" font-weight="bold">Quarto website</text>
+    <text x="60" y="634">engine: knitr 필수</text>
+    <text x="60" y="650">render: index + pages/**</text>
+    <text x="290" y="618" fill="#111827" font-weight="bold">shinylive × webR</text>
+    <text x="290" y="634">인라인 {shinylive-r} standalone</text>
+    <text x="290" y="650">_environment로 자산 버전 고정</text>
+    <text x="560" y="618" fill="#111827" font-weight="bold">hsData 패키지</text>
+    <text x="560" y="634">고교생 눈높이 실생활 데이터</text>
+    <text x="560" y="650">webR 패키지 목록에 포함 검증 필요</text>
+    <text x="840" y="618" fill="#111827" font-weight="bold">한글·배포</text>
+    <text x="840" y="634">showtext_auto() (shinylive 쪽 표준)</text>
+    <text x="840" y="650">GitHub Pages gh-pages · docs/ 미추적</text>
+  </g>
+  <text x="60" y="674" font-size="9" fill="#92400e">주의(GOTCHA 계승) — iCloud 경로 렌더 손상 → 비iCloud 빌드 디렉터리 · 서비스워커 캐시 → 새 포트로 검증 · shinylive/webR 버전 정렬 필수</text>
+
+  <!-- ===== 주석 (왼쪽 여백 스타일) ===== -->
+  <g font-size="10" fill="#6b7280" font-style="italic">
+    <text x="40" y="726">왜 서버리스인가 — 학교 전산실은 설치·관리자 권한이 막혀 있다.</text>
+    <text x="40" y="741">브라우저만 있으면 45분 수업 안에 전원이 같은 화면에 도달한다. 첫 로딩 1–2분은 수업 도입(개념 설명) 시간과 겹치게 설계.</text>
+  </g>
+
+  <!-- ===== 푸터: 원칙 ===== -->
+  <line x1="40" y1="760" x2="1200" y2="760" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="40" y="784" font-size="10.5" fill="#6b7280">원칙 — 교과서 목차가 정보 구조다(장식 없음) · 모듈 하나 = 성취기준 하나 · 앱은 원형 재사용(23개 중 10개 각색), 신규는 8개만 · 정본은 인라인 shinylive-r 블록 하나</text>
+  <text x="40" y="802" font-size="10.5" fill="#6b7280">이 다이어그램: images/2026-07-06_hs_아키텍처.svg · 함께 보기: 커리큘럼_지도 · 홈_UI · 모듈_UI</text>
+</svg>

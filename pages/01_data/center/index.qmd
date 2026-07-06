@@ -1,0 +1,163 @@
+---
+title: "대푯값"
+---
+
+::: {.hs-back}
+[← 빛스탯 HS 홈](../../../index.qmd)
+:::
+
+::: {.hs-meta}
+단원 01 자료와 그래프 · 중학 통계 복습 · 1차시(45분)
+:::
+
+## 개념
+
+자료 전체를 하나의 수로 요약한 값이 **대푯값**입니다. 가장 많이 쓰는 세 가지는
+모든 값을 더해 개수로 나눈 **평균**, 크기순으로 늘어놓았을 때 한가운데 값인
+**중앙값**, 가장 자주 나타나는 값인 **최빈값**입니다.
+
+$$\text{평균} = \frac{x_1 + x_2 + \cdots + x_n}{n}$$
+
+::: {.column-margin}
+"직장인 평균 연봉"이 체감보다 높게 느껴지는 이유가 여기 있습니다.
+소수의 고액 연봉이 평균을 끌어올리기 때문에, 뉴스에서는 중앙값을
+함께 보여 주기도 합니다.
+:::
+
+세 값은 성격이 다릅니다. 평균은 모든 값을 반영하는 대신 극단적으로
+크거나 작은 값(**이상값**)에 민감하게 끌려가고, 중앙값과 최빈값은
+이상값의 영향을 거의 받지 않습니다. 아래 앱에서 전학 온 친구 한 명의
+독서 권수를 극단적으로 키워 보며 세 대푯값이 어떻게 움직이는지 비교해 보세요.
+
+## 만지며 배우기
+
+::: {.panel-tabset}
+
+### 인터랙티브 앱
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 640
+
+from shiny import App, render, ui
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+
+matplotlib.rcParams["font.size"] = 10
+
+ACCENT = "#2563eb"
+INK = "#111827"
+MUTED = "#6b7280"
+
+def tufte(ax):
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color("#9ca3af")
+    ax.tick_params(colors=MUTED, labelsize=9)
+
+# 학생 15명의 한 달 독서 권수
+READS = [0, 1, 2, 2, 3, 3, 3, 3, 3, 4, 4, 5, 5, 6, 8]
+
+def stats(data):
+    arr = np.array(data)
+    mean = arr.mean()
+    median = np.median(arr)
+    vals, counts = np.unique(arr, return_counts=True)
+    mode = vals[np.argmax(counts)]
+    return mean, median, mode
+
+app_ui = ui.page_sidebar(
+    ui.sidebar(
+        ui.input_slider("newbie", "전학 온 친구의 독서 권수", min=0, max=100, value=3, step=1),
+        width=240,
+    ),
+    ui.card(
+        ui.card_header("점그래프 — 세로선이 평균·중앙값·최빈값입니다"),
+        ui.output_plot("dots", height="340px"),
+    ),
+    ui.card(ui.output_ui("readout")),
+    fillable=True,
+)
+
+def server(input, output, session):
+    @render.plot(alt="독서 권수 점그래프와 세 대푯값")
+    def dots():
+        data = READS + [input.newbie()]
+        mean, median, mode = stats(data)
+
+        fig, ax = plt.subplots()
+        seen = {}
+        for v in sorted(data):
+            seen[v] = seen.get(v, 0) + 1
+            ax.scatter(v, seen[v], s=60, color=ACCENT, alpha=0.8, zorder=3)
+
+        ax.axvline(mean, color=ACCENT, linewidth=1.6,
+                   linestyle="-", label="mean")
+        ax.axvline(median, color=INK, linewidth=1.4,
+                   linestyle="--", label="median")
+        ax.axvline(mode, color=MUTED, linewidth=1.4,
+                   linestyle=":", label="mode")
+
+        ax.set_xlim(-1, max(10, input.newbie() + 2))
+        ax.set_ylim(0, max(seen.values()) + 1.5)
+        ax.set_yticks([])
+        ax.set_xlabel("x (books)", color=MUTED)
+        ax.legend(frameon=False, fontsize=9, loc="upper right")
+        tufte(ax)
+        return fig
+
+    @render.ui
+    def readout():
+        data = READS + [input.newbie()]
+        mean, median, mode = stats(data)
+        return ui.HTML(
+            '<p class="hs-readline">'
+            f"평균 = {mean:.2f}권 · 중앙값 = {median:.1f}권 · 최빈값 = {mode}권. "
+            "슬라이더로 전학 온 친구의 독서 권수를 크게 키우면 평균만 크게 끌려가고, "
+            "중앙값과 최빈값은 거의 움직이지 않습니다. "
+            "이상값에 대한 민감도가 세 대푯값의 가장 큰 차이입니다.</p>"
+        )
+
+app = App(app_ui, server)
+```
+
+### 파이썬 코드
+
+세 대푯값은 numpy로 이렇게 구합니다.
+
+```python
+import numpy as np
+
+reads = [0, 1, 2, 2, 3, 3, 3, 3, 3, 4, 4, 5, 5, 6, 8]
+arr = np.array(reads + [100])            # 극단값 하나 추가
+
+print(arr.mean())                        # 평균 — 크게 끌려감
+print(np.median(arr))                    # 중앙값 — 거의 그대로
+
+vals, counts = np.unique(arr, return_counts=True)
+print(vals[np.argmax(counts)])           # 최빈값 — 그대로 3
+```
+
+:::
+
+## 스스로 확인
+
+::: {.callout-tip collapse="true" title="문제 1 — 슬라이더를 3에서 100으로 올리면 세 대푯값은 각각 얼마나 변하는가?"}
+평균은 자료 16개의 합이 97만큼 늘어 약 6권 넘게 커지지만,
+중앙값은 크기순 배열의 한가운데 위치가 그대로라 거의 변하지 않고,
+최빈값 3권은 전혀 변하지 않습니다. 값 하나가 평균을 얼마나
+좌우할 수 있는지 눈으로 확인해 보세요.
+:::
+
+::: {.callout-tip collapse="true" title="문제 2 — 어떤 자료에는 평균보다 중앙값이 더 좋은 대푯값인가?"}
+연봉·집값·SNS 팔로워 수처럼 한쪽으로 길게 꼬리가 늘어진 자료입니다.
+극단적으로 큰 값 몇 개가 평균을 끌어올려 "보통"과 멀어지게 하므로,
+이런 자료의 대푯값으로는 중앙값이 더 적절합니다.
+:::
+
+::: {.hs-prevnext}
+[← 이전: 도수분포표와 히스토그램](../freq_table/index.qmd)
+[다음: 산포도와 상자그림 →](../spread/index.qmd)
+:::

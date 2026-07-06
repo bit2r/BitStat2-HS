@@ -1,0 +1,166 @@
+---
+title: "산점도와 상관관계"
+---
+
+::: {.hs-back}
+[← 빛스탯 HS 홈](../../../index.qmd)
+:::
+
+::: {.hs-meta}
+단원 01 자료와 그래프 · 중학 통계 복습 · 1차시(45분)
+:::
+
+## 개념
+
+키와 몸무게처럼 짝을 이룬 두 변량을 좌표평면 위의 점으로 나타낸 그래프가
+**산점도**입니다. 한 변량이 커질 때 다른 변량도 커지는 경향이 있으면
+**양의 상관관계**, 반대로 작아지는 경향이 있으면 **음의 상관관계**가 있다고 합니다.
+
+$$-1 \;\le\; r \;\le\; 1$$
+
+::: {.column-margin}
+상관관계가 있다고 해서 인과관계가 있는 것은 아닙니다. 아이스크림 판매량과
+물놀이 사고는 함께 늘지만, 원인은 둘 다 "더운 날씨"입니다.
+:::
+
+상관관계의 방향과 강도를 하나의 수로 나타낸 것이 **상관계수** $r$입니다.
+$r$이 1에 가까울수록 점들이 오른쪽 위로 향하는 직선에 가깝게 모이고,
+$-1$에 가까울수록 오른쪽 아래로 향하는 직선에 모이며, 0 근처이면
+뚜렷한 직선 경향이 없습니다. 아래 앱에서 $r$을 움직여 산점도의
+모양이 어떻게 변하는지 관찰해 보세요.
+
+## 만지며 배우기
+
+::: {.panel-tabset}
+
+### 인터랙티브 앱
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 640
+
+from math import sqrt
+from shiny import App, reactive, render, ui
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+
+matplotlib.rcParams["font.size"] = 10
+
+ACCENT = "#2563eb"
+INK = "#111827"
+MUTED = "#6b7280"
+
+def tufte(ax):
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color("#9ca3af")
+    ax.tick_params(colors=MUTED, labelsize=9)
+
+app_ui = ui.page_sidebar(
+    ui.sidebar(
+        ui.input_slider("r", "상관계수 r", min=-1.0, max=1.0, value=0.7, step=0.05),
+        ui.input_slider("n", "점의 개수 n", min=20, max=200, value=60, step=5),
+        ui.input_checkbox("trend", "추세선 보기", False),
+        ui.input_action_button("regen", "다시 생성"),
+        width=240,
+    ),
+    ui.card(
+        ui.card_header("산점도 — r이 점들의 모양을 정합니다"),
+        ui.output_plot("cloud", height="340px"),
+    ),
+    ui.card(ui.output_ui("readout")),
+    fillable=True,
+)
+
+def server(input, output, session):
+    @reactive.calc
+    def points():
+        input.regen()  # 버튼을 누르면 새로 생성
+        r, n = input.r(), input.n()
+        x = np.random.normal(0, 1, n)
+        e = np.random.normal(0, 1, n)
+        y = r * x + sqrt(max(0.0, 1 - r * r)) * e
+        return x, y
+
+    @render.plot(alt="상관계수에 따른 산점도")
+    def cloud():
+        x, y = points()
+
+        fig, ax = plt.subplots()
+        ax.scatter(x, y, s=28, color=ACCENT, alpha=0.7, zorder=2)
+        if input.trend():
+            slope, intercept = np.polyfit(x, y, 1)
+            xs = np.linspace(x.min(), x.max(), 2)
+            ax.plot(xs, slope * xs + intercept, color=INK, linewidth=1.5, zorder=3)
+        ax.set_xlabel("x", color=MUTED)
+        ax.set_ylabel("y", color=MUTED)
+        ax.set_xlim(-3.5, 3.5)
+        ax.set_ylim(-3.5, 3.5)
+        tufte(ax)
+        return fig
+
+    @render.ui
+    def readout():
+        x, y = points()
+        rs = float(np.corrcoef(x, y)[0, 1])
+
+        if abs(rs) < 0.1:
+            desc = "상관관계가 거의 없습니다"
+        else:
+            direction = "양" if rs > 0 else "음"
+            if abs(rs) >= 0.7:
+                strength = "강한"
+            elif abs(rs) >= 0.3:
+                strength = "어느 정도의"
+            else:
+                strength = "약한"
+            desc = f"{strength} {direction}의 상관관계가 보입니다"
+        return ui.HTML(
+            '<p class="hs-readline">'
+            f"설정한 r = {input.r():.2f} · 이 표본에서 계산한 상관계수 = {rs:.3f} — {desc}. "
+            "점의 개수 n이 작을수록 두 값의 차이가 커지고, "
+            "'다시 생성'을 누를 때마다 표본상관계수가 조금씩 달라집니다.</p>"
+        )
+
+app = App(app_ui, server)
+```
+
+### 파이썬 코드
+
+상관계수가 $r$인 자료를 만들고 확인하는 핵심 코드입니다.
+
+```python
+import numpy as np
+from math import sqrt
+
+r, n = 0.7, 60
+x = np.random.normal(0, 1, n)
+e = np.random.normal(0, 1, n)
+y = r * x + sqrt(1 - r * r) * e     # 상관계수가 약 r인 y
+
+print(np.corrcoef(x, y)[0, 1])      # 표본상관계수 — r에 가까움
+print(np.polyfit(x, y, 1))          # 추세선의 기울기와 절편
+```
+
+:::
+
+## 스스로 확인
+
+::: {.callout-tip collapse="true" title="문제 1 — r = 1(또는 −1)로 맞추면 점들은 어떤 모양이 되는가?"}
+모든 점이 하나의 직선 위에 완벽하게 늘어섭니다. $r = 1$이면 오른쪽 위로,
+$r = -1$이면 오른쪽 아래로 향하는 직선입니다. 상관계수의 절댓값은
+"점들이 직선에 얼마나 가깝게 모이는가"를 재는 수임을 확인해 보세요.
+:::
+
+::: {.callout-tip collapse="true" title="문제 2 — r = 0.3, n = 20으로 두고 '다시 생성'을 여러 번 누르면 계산된 상관계수는 얼마나 출렁이는가?"}
+표본이 작으면 계산된 상관계수가 0 근처부터 0.6 이상까지 크게 출렁입니다.
+심지어 부호가 뒤집히기도 합니다. 적은 자료에서 관찰한 상관관계를
+성급하게 믿으면 안 되는 이유입니다. n을 200으로 키워 비교해 보세요.
+:::
+
+::: {.hs-prevnext}
+[← 이전: 산포도와 상자그림](../spread/index.qmd)
+[다음: 순열과 조합 →](../../02_prob/counting/index.qmd)
+:::

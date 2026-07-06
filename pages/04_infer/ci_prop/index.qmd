@@ -1,0 +1,160 @@
+---
+title: "모비율의 추정"
+---
+
+::: {.hs-back}
+[← 빛스탯 HS 홈](../../../index.qmd)
+:::
+
+::: {.hs-meta}
+단원 04 통계적 추정 · 「확률과 통계」 · 1차시(45분)
+:::
+
+## 개념
+
+찬성 비율, 지지율처럼 모집단에서 어떤 성질을 가진 비율 $p$(**모비율**)를
+추정할 때는, $n$명을 조사해 얻은 **표본비율** $\hat{p}$을 사용합니다.
+$n$이 충분히 크면 모비율 $p$의 신뢰구간은 다음과 같습니다.
+
+$$\hat{p} - z\sqrt{\frac{\hat{p}(1-\hat{p})}{n}} \;\le\; p \;\le\;
+\hat{p} + z\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}
+\qquad (z = 1.96,\ 2.576)$$
+
+::: {.column-margin}
+여기서 익힌 오차범위 읽기는 다음 모듈(05 여론조사 읽기)에서
+실제 뉴스 기사 해석으로 이어집니다.
+:::
+
+$\pm$ 뒤의 값 $z\sqrt{\hat{p}(1-\hat{p})/n}$이 뉴스에서 말하는
+**오차범위**입니다. "지지율 52%, 오차범위 ±3.1%p"라면 진짜 지지율은
+48.9%~55.1% 어디쯤이라는 뜻이므로, 구간이 50%를 걸치면
+누가 앞선다고 단정할 수 없습니다. 아래 앱에서 $n$과 $\hat{p}$을
+움직여 오차범위가 어떻게 변하는지 확인해 보세요.
+
+## 만지며 배우기
+
+::: {.panel-tabset}
+
+### 인터랙티브 앱
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 620
+
+from math import sqrt
+from shiny import App, render, ui
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+
+matplotlib.rcParams["font.size"] = 10
+
+ACCENT = "#2563eb"
+INK = "#111827"
+MUTED = "#6b7280"
+
+def tufte(ax):
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color("#9ca3af")
+    ax.tick_params(colors=MUTED, labelsize=9)
+
+Z = {"95": 1.96, "99": 2.576}
+
+app_ui = ui.page_sidebar(
+    ui.sidebar(
+        ui.input_slider("n", "응답자 수 n", min=100, max=3000, value=1000, step=100),
+        ui.input_slider("phat", "표본비율 p̂", min=0.10, max=0.90, value=0.52, step=0.01),
+        ui.input_select("level", "신뢰수준", {"95": "95%", "99": "99%"}),
+        width=240,
+    ),
+    ui.card(
+        ui.card_header("모비율 p의 신뢰구간 — 점선은 50% 기준선"),
+        ui.output_plot("ci_plot", height="340px"),
+    ),
+    ui.card(ui.output_ui("readout")),
+    fillable=True,
+)
+
+def server(input, output, session):
+    @render.plot(alt="모비율의 신뢰구간 수직선")
+    def ci_plot():
+        n, phat = input.n(), input.phat()
+        z = Z[input.level()]
+        margin = z * sqrt(phat * (1 - phat) / n)
+        lo, hi = phat - margin, phat + margin
+
+        fig, ax = plt.subplots()
+        ax.hlines(0, lo, hi, color=ACCENT, linewidth=6, alpha=0.85)
+        ax.plot([phat], [0], "o", color=ACCENT, markersize=9, zorder=3)
+        ax.annotate("p-hat", (phat, 0), xytext=(phat, 0.45),
+                    ha="center", color=INK, fontsize=10)
+        ax.axvline(0.5, color=INK, linewidth=1, linestyle="--")
+        ax.set_xlim(max(0.0, phat - 5 * margin), min(1.0, phat + 5 * margin))
+        ax.set_ylim(-1, 1)
+        ax.set_yticks([])
+        ax.set_xlabel("p", color=MUTED)
+        tufte(ax)
+        return fig
+
+    @render.ui
+    def readout():
+        n, phat = input.n(), input.phat()
+        level = input.level()
+        z = Z[level]
+        margin = z * sqrt(phat * (1 - phat) / n)
+        lo, hi = phat - margin, phat + margin
+        if lo <= 0.5 <= hi:
+            verdict = ("구간이 50%를 걸치므로 절반보다 많다(우세)고 "
+                       "단정할 수 없습니다.")
+        elif lo > 0.5:
+            verdict = "구간 전체가 50%보다 위에 있어 절반을 넘는다고 볼 수 있습니다."
+        else:
+            verdict = "구간 전체가 50%보다 아래에 있어 절반에 못 미친다고 볼 수 있습니다."
+        return ui.HTML(
+            f'<p class="hs-readline">'
+            f"표본비율 {phat * 100:.1f}%, {level}% 신뢰구간 "
+            f"[{lo * 100:.1f}%, {hi * 100:.1f}%] — 오차범위 ±{margin * 100:.1f}%p. "
+            f"n을 4배로 늘리면 오차범위는 절반이 됩니다. {verdict}</p>"
+        )
+
+app = App(app_ui, server)
+```
+
+### 파이썬 코드
+
+여론조사 기사의 오차범위는 이 한 줄 계산에서 나옵니다.
+
+```python
+from math import sqrt
+
+n, phat, z = 1000, 0.52, 1.96          # 응답자 1000명, 표본비율 52%, 95%
+
+margin = z * sqrt(phat * (1 - phat) / n)   # 오차범위 ≈ 0.031 (±3.1%p)
+lo, hi = phat - margin, phat + margin
+
+print(f"{lo:.3f} ~ {hi:.3f}")              # 0.489 ~ 0.551 → 50%를 걸친다
+```
+
+:::
+
+## 스스로 확인
+
+::: {.callout-tip collapse="true" title="문제 1 — n = 1000, p̂ = 0.52, 95%일 때 '우세'라고 단정할 수 없는 이유는? n이 얼마면 달라지는가?"}
+오차범위가 약 $\pm 3.1$%p라 구간 $[48.9\%, 55.1\%]$이 50%를 걸치기
+때문입니다. 앱에서 $n$을 키워 보면 $n = 2500$ 근처부터 구간의 아래끝이
+50%를 넘어섭니다($\pm 2.0$%p 이하). 오차범위는 $\sqrt{n}$에 반비례하므로
+$n$을 4배로 하면 절반이 됩니다.
+:::
+
+::: {.callout-tip collapse="true" title="문제 2 — n을 고정하고 p̂을 0.1 → 0.5 → 0.9로 움직여 보라. 오차범위가 가장 큰 곳은?"}
+$\hat{p} = 0.5$에서 가장 큽니다. $\hat{p}(1-\hat{p})$이 $0.5 \times 0.5 = 0.25$로
+최대가 되기 때문입니다. 그래서 여론조사 기관은 안전하게
+$\hat{p} = 0.5$를 가정한 최대 오차범위를 함께 표기하곤 합니다.
+:::
+
+::: {.hs-prevnext}
+[← 이전: 모평균의 신뢰구간](../ci_mean/index.qmd)
+[다음: 데이터 탐색기 →](../../05_society/explorer/index.qmd)
+:::

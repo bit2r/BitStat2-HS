@@ -1,0 +1,155 @@
+---
+title: "이항분포"
+---
+
+::: {.hs-back}
+[← 빛스탯 HS 홈](../../../index.qmd)
+:::
+
+::: {.hs-meta}
+단원 03 확률분포 · 「확률과 통계」 · 1차시(45분)
+:::
+
+## 개념
+
+한 번의 시행에서 어떤 사건이 일어날 확률이 $p$로 일정할 때, 독립적으로
+$n$번 반복한 시행에서 그 사건이 일어나는 횟수 $X$의 분포를
+**이항분포** $B(n,\,p)$라고 합니다.
+
+$$P(X = k) = \binom{n}{k} p^k (1-p)^{n-k}, \qquad
+E(X) = np, \qquad \sigma = \sqrt{np(1-p)}$$
+
+::: {.column-margin}
+자유투 성공률이 $p$인 선수가 $n$번 던질 때의 성공 횟수,
+$n$문항 오지선다를 전부 찍었을 때의 정답 개수가 모두 이항분포입니다.
+:::
+
+$n$이 충분히 크면 이항분포는 정규분포 $N(np,\; np(1-p))$에 가까워집니다.
+아래 앱에서 $n$을 키우며 막대들이 종 모양 곡선에 붙는 모습을 확인해 보세요.
+
+## 만지며 배우기
+
+::: {.panel-tabset}
+
+### 인터랙티브 앱
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 640
+
+from math import comb, sqrt, floor, ceil
+from shiny import App, render, ui
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+
+matplotlib.rcParams["font.size"] = 10
+
+ACCENT = "#2563eb"
+INK = "#111827"
+MUTED = "#6b7280"
+
+def tufte(ax):
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color("#9ca3af")
+    ax.tick_params(colors=MUTED, labelsize=9)
+
+def pmf(n, p):
+    return np.array([comb(n, k) * p**k * (1 - p)**(n - k) for k in range(n + 1)])
+
+app_ui = ui.page_sidebar(
+    ui.sidebar(
+        ui.input_slider("n", "시행 횟수 n", min=1, max=80, value=20, step=1),
+        ui.input_slider("p", "확률 p", min=0.05, max=0.95, value=0.5, step=0.05),
+        ui.input_checkbox("approx", "정규분포 근사 곡선 겹쳐 보기", False),
+        width=240,
+    ),
+    ui.card(
+        ui.card_header("이항분포 B(n, p)"),
+        ui.output_plot("pmf_plot", height="340px"),
+    ),
+    ui.card(ui.output_ui("readout")),
+    fillable=True,
+)
+
+def server(input, output, session):
+    @render.plot(alt="이항분포 확률질량함수")
+    def pmf_plot():
+        n, p = input.n(), input.p()
+        probs = pmf(n, p)
+        mean, sd = n * p, sqrt(n * p * (1 - p))
+
+        # 보기 좋은 구간만 표시 (평균 ± 4σ)
+        lo = max(0, floor(mean - 4 * sd))
+        hi = min(n, ceil(mean + 4 * sd))
+        ks = np.arange(lo, hi + 1)
+
+        fig, ax = plt.subplots()
+        ax.bar(ks, probs[lo:hi + 1], width=0.8, color=ACCENT, alpha=0.85)
+        ax.axvline(mean, color=INK, linewidth=0.8, linestyle=":")
+        ax.text(mean, ax.get_ylim()[1] * 0.97, " E(X)=np",
+                color=INK, fontsize=9, va="top")
+
+        if input.approx():
+            xs = np.linspace(lo - 0.5, hi + 0.5, 300)
+            ys = np.exp(-((xs - mean) ** 2) / (2 * sd * sd)) / (sd * sqrt(2 * np.pi))
+            ax.plot(xs, ys, color=INK, linewidth=1.4)
+
+        ax.set_xlabel("k", color=MUTED)
+        ax.set_ylabel("P(X = k)", color=MUTED)
+        tufte(ax)
+        return fig
+
+    @render.ui
+    def readout():
+        n, p = input.n(), input.p()
+        mean, sd = n * p, sqrt(n * p * (1 - p))
+        probs = pmf(n, p)
+        within = probs[max(0, ceil(mean - sd)):floor(mean + sd) + 1].sum()
+        return ui.HTML(
+            f'<p class="hs-readline">'
+            f"E(X) = np = {mean:.1f} · σ = √np(1−p) = {sd:.2f} — "
+            f"X가 평균 ± σ 안에 있을 확률은 약 {within:.2f}입니다. "
+            f"n을 키우면 막대가 종 모양에 가까워집니다.</p>"
+        )
+
+app = App(app_ui, server)
+```
+
+### 파이썬 코드
+
+```python
+from math import comb, sqrt
+
+n, p = 20, 0.5
+
+# P(X = k), k = 0..n
+probs = [comb(n, k) * p**k * (1 - p)**(n - k) for k in range(n + 1)]
+
+E = n * p                    # 기댓값
+sd = sqrt(n * p * (1 - p))   # 표준편차
+print(E, sd, sum(probs))     # 확률의 합은 항상 1
+```
+
+:::
+
+## 스스로 확인
+
+::: {.callout-tip collapse="true" title="문제 1 — p = 0.5일 때와 p = 0.1일 때 분포의 모양은 어떻게 다른가?"}
+$p = 0.5$이면 평균 $np$를 중심으로 좌우 대칭이고,
+$p = 0.1$이면 왼쪽으로 치우친 비대칭이 됩니다.
+다만 $n$을 충분히 키우면 어느 쪽이든 다시 종 모양에 가까워집니다.
+:::
+
+::: {.callout-tip collapse="true" title="문제 2 — 정규근사가 잘 맞으려면 n과 p가 어떤 조건이면 좋을까?"}
+경험적으로 $np \ge 5$, $n(1-p) \ge 5$ 정도면 근사가 쓸 만합니다.
+$p$가 0이나 1에 가까울수록 더 큰 $n$이 필요합니다 — 앱에서
+$p = 0.05$로 두고 $n$을 움직이며 확인해 보세요.
+:::
+
+::: {.hs-prevnext}
+[← 이전: 확률변수와 기댓값](../random_var/index.qmd)
+[다음: 정규분포와 표준화 →](../normal/index.qmd)
+:::

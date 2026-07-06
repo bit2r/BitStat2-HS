@@ -1,0 +1,23 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+    - index.qmd
+    - pages/**/*.qmd
+
+lang: ko-KR
+
+website:
+  title: "빛스탯 HS"
+  page-footer:
+    center: |
+      제작: 한국 R 사용자회 · 콘텐츠 CC BY-NC-SA 4.0 · 코드 GPL-3.0
+
+format:
+  html:
+    theme: cosmo
+    css: assets/styles.css
+    toc: false
+
+filters:
+  - shinylive

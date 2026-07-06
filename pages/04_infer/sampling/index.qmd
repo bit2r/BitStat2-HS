@@ -1,0 +1,183 @@
+---
+title: "표본추출"
+---
+
+::: {.hs-back}
+[← 빛스탯 HS 홈](../../../index.qmd)
+:::
+
+::: {.hs-meta}
+단원 04 통계적 추정 · 「확률과 통계」 · 1차시(45분)
+:::
+
+## 개념
+
+조사 대상 전체(**모집단**)를 빠짐없이 조사하는 것이 **전수조사**,
+그 일부(**표본**)만 뽑아 조사하는 것이 **표본조사**입니다.
+전교생 400명의 평균 키를 알고 싶을 때, 표본 $n$명을 잘 뽑으면
+표본평균 $\bar{x}$로 모평균 $m$을 추정할 수 있습니다.
+
+$$\text{모집단(크기 } N=400\text{)} \;\longrightarrow\; \text{표본(크기 } n\text{)} \;\longrightarrow\; \bar{x} \approx m$$
+
+::: {.column-margin}
+급식 만족도 조사를 한 반에서만 하면 안 되는 이유 — 그 반의 특성(급식실과의 거리,
+학년 분위기 등)이 결과를 치우치게 하기 때문입니다. 표본은 모집단 전체를
+골고루 대표해야 합니다.
+:::
+
+표본을 뽑는 대표적인 방법은 세 가지입니다.
+**단순임의추출**은 제비뽑기처럼 모두에게 같은 확률을 주고,
+**계통추출**은 명부에서 일정한 간격으로 뽑으며,
+**층화추출**은 남/녀처럼 집단을 층으로 나눈 뒤 각 층에서 비례하여 뽑습니다.
+아래 앱에서 방법을 바꿔 가며 어떤 점들이 뽑히는지, 표본평균이 모평균에서
+얼마나 벗어나는지 관찰해 보세요.
+
+## 만지며 배우기
+
+::: {.panel-tabset}
+
+### 인터랙티브 앱
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 640
+
+from shiny import App, reactive, render, ui
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+
+matplotlib.rcParams["font.size"] = 10
+
+ACCENT = "#2563eb"
+INK = "#111827"
+MUTED = "#6b7280"
+
+def tufte(ax):
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color("#9ca3af")
+    ax.tick_params(colors=MUTED, labelsize=9)
+
+# 모집단: 전교생 400명의 키 (고정된 시드 → 항상 같은 학교)
+rng = np.random.default_rng(42)
+male = np.clip(rng.normal(173, 6, 200), 145, 195)    # 앞 200명: 남
+female = np.clip(rng.normal(161, 5, 200), 145, 195)  # 뒤 200명: 여
+POP = np.concatenate([male, female])
+POP_MEAN = POP.mean()
+
+METHOD_NOTE = {
+    "srs": "단순임의추출은 모두에게 같은 확률을 주는 제비뽑기입니다. 어디에도 치우치지 않지만, 우연히 한쪽 층이 많이 뽑힐 수도 있습니다.",
+    "sys": "계통추출은 명부에서 일정 간격으로 뽑아 빠르고 간편합니다. 다만 명부에 규칙적인 배열이 있으면 치우칠 수 있습니다.",
+    "strat": "층화추출은 남녀 비율(200:200)을 표본에서도 그대로 유지하므로, 남녀 키 차이 때문에 생기는 치우침이 적습니다.",
+}
+
+app_ui = ui.page_sidebar(
+    ui.sidebar(
+        ui.input_select(
+            "method", "추출 방법",
+            {"srs": "단순임의추출", "sys": "계통추출", "strat": "층화추출(남/녀)"},
+        ),
+        ui.input_slider("n", "표본 크기 n", min=10, max=100, value=40, step=10),
+        ui.input_action_button("redraw", "다시 추출"),
+        width=240,
+    ),
+    ui.card(
+        ui.card_header("전교생 400명(회색) 중 이번에 뽑힌 표본(파랑)"),
+        ui.output_plot("grid_plot", height="340px"),
+    ),
+    ui.card(ui.output_ui("readout")),
+    fillable=True,
+)
+
+def server(input, output, session):
+    @reactive.calc
+    def sample_idx():
+        input.redraw()  # 버튼을 누르면 새로 추출
+        n = input.n()
+        method = input.method()
+        if method == "srs":
+            return np.random.choice(400, size=n, replace=False)
+        if method == "sys":
+            k = 400 // n
+            start = np.random.randint(0, k)
+            return np.arange(start, 400, k)[:n]
+        # 층화추출: 남녀에서 절반씩
+        half = n // 2
+        idx_m = np.random.choice(200, size=half, replace=False)
+        idx_f = 200 + np.random.choice(200, size=n - half, replace=False)
+        return np.concatenate([idx_m, idx_f])
+
+    @render.plot(alt="모집단 격자와 추출된 표본")
+    def grid_plot():
+        idx = sample_idx()
+        all_i = np.arange(400)
+        xs, ys = all_i % 20, all_i // 20  # 행 우선 배치: 0~9행 남, 10~19행 여
+
+        fig, ax = plt.subplots()
+        ax.scatter(xs, ys, s=18, color="#d1d5db")
+        ax.scatter(xs[idx], ys[idx], s=42, color=ACCENT, zorder=3)
+        ax.text(-1.8, 4.5, "M", color=MUTED, ha="center", va="center", fontsize=11)
+        ax.text(-1.8, 14.5, "F", color=MUTED, ha="center", va="center", fontsize=11)
+        ax.axhline(9.5, color="#9ca3af", linewidth=0.7, linestyle=":")
+        ax.invert_yaxis()
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_aspect("equal")
+        tufte(ax)
+        return fig
+
+    @render.ui
+    def readout():
+        xbar = POP[sample_idx()].mean()
+        return ui.HTML(
+            f'<p class="hs-readline">'
+            f"모평균 m = {POP_MEAN:.2f} cm · 이번 표본평균 x̄ = {xbar:.2f} cm · "
+            f"차이 = {abs(POP_MEAN - xbar):.2f} cm. "
+            f"{METHOD_NOTE[input.method()]}</p>"
+        )
+
+app = App(app_ui, server)
+```
+
+### 파이썬 코드
+
+세 가지 추출 방법의 핵심은 인덱스를 고르는 방식의 차이입니다.
+
+```python
+import numpy as np
+
+pop = np.arange(400)                       # 전교생 400명의 번호
+
+srs = np.random.choice(400, 40, replace=False)   # 단순임의추출
+
+k = 400 // 40                                    # 계통추출: 간격 10
+sys_ = np.arange(np.random.randint(k), 400, k)
+
+boys = np.random.choice(200, 20, replace=False)  # 층화추출: 남 20 + 여 20
+girls = 200 + np.random.choice(200, 20, replace=False)
+strat = np.concatenate([boys, girls])
+```
+
+:::
+
+## 스스로 확인
+
+::: {.callout-tip collapse="true" title="문제 1 — 단순임의추출로 '다시 추출'을 여러 번 눌러 보라. 표본평균이 매번 달라지는 이유는?"}
+어떤 400명 중 누가 뽑히느냐가 매번 달라지기 때문입니다. 표본평균 $\bar{x}$는
+표본에 따라 값이 변하는 **확률변수**입니다 — 이 사실이 다음 모듈
+"표본평균의 분포"의 출발점입니다.
+:::
+
+::: {.callout-tip collapse="true" title="문제 2 — n = 20처럼 표본이 작을 때 층화추출이 단순임의추출보다 유리한 이유는?"}
+단순임의추출은 우연히 남학생(또는 여학생)만 많이 뽑힐 수 있고,
+남녀 키 차이가 약 12 cm이므로 표본평균이 크게 치우칩니다.
+층화추출은 남녀를 10명씩 강제로 나누어 뽑아 이런 치우침을 원천 차단합니다.
+앱에서 두 방법의 "차이" 값을 여러 번 비교해 보세요.
+:::
+
+::: {.hs-prevnext}
+[← 이전: 정규분포와 표준화](../../03_dist/normal/index.qmd)
+[다음: 표본평균의 분포 →](../sample_mean/index.qmd)
+:::

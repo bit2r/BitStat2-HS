@@ -1,0 +1,152 @@
+---
+title: "순열과 조합"
+---
+
+::: {.hs-back}
+[← 빛스탯 HS 홈](../../../index.qmd)
+:::
+
+::: {.hs-meta}
+단원 02 경우의 수와 확률 · 「확률과 통계」 · 1차시(45분)
+:::
+
+## 개념
+
+서로 다른 $n$개에서 $r$개를 **순서를 생각하여** 뽑아 나열하는 것이
+**순열**, **순서를 생각하지 않고** 뽑기만 하는 것이 **조합**입니다.
+순열의 수와 조합의 수는 다음과 같습니다.
+
+$${}_n\mathrm{P}_r = \frac{n!}{(n-r)!}, \qquad
+{}_n\mathrm{C}_r = \frac{n!}{r!\,(n-r)!} = \frac{{}_n\mathrm{P}_r}{r!}$$
+
+::: {.column-margin}
+반에서 반장·부반장을 뽑으면 누가 어느 자리인지 **순서가 중요**하니
+순열 ${}_n\mathrm{P}_2$, 그냥 대표 2명을 뽑으면 순서가 없으니
+조합 ${}_n\mathrm{C}_2$입니다.
+:::
+
+같은 $r$개를 뽑아도 순서를 매기는 방법이 $r!$가지이므로,
+순열의 수는 조합의 수의 $r!$배입니다. 즉
+${}_n\mathrm{P}_r = {}_n\mathrm{C}_r \times r!$ 이 항상 성립합니다.
+아래 앱에서 $n$과 $r$을 움직이며 두 수가 어떻게 변하는지,
+그리고 이 관계식이 실제 수로 확인되는지 살펴보세요.
+
+## 만지며 배우기
+
+::: {.panel-tabset}
+
+### 인터랙티브 앱
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 640
+
+from math import comb, factorial
+from shiny import App, render, ui
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+
+matplotlib.rcParams["font.size"] = 10
+
+ACCENT = "#2563eb"
+INK = "#111827"
+MUTED = "#6b7280"
+
+def tufte(ax):
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color("#9ca3af")
+    ax.tick_params(colors=MUTED, labelsize=9)
+
+app_ui = ui.page_sidebar(
+    ui.sidebar(
+        ui.input_slider("n", "전체 개수 n", min=1, max=12, value=6, step=1),
+        ui.input_slider("r", "뽑는 개수 r", min=0, max=12, value=2, step=1),
+        width=240,
+    ),
+    ui.card(
+        ui.card_header("조합의 수 C(n, k) — 파란 막대가 지금 고른 r"),
+        ui.output_plot("bars", height="340px"),
+    ),
+    ui.card(ui.output_ui("readout")),
+    fillable=True,
+)
+
+def server(input, output, session):
+    @render.plot(alt="k에 따른 조합의 수 막대그래프")
+    def bars():
+        n = input.n()
+        r_eff = min(input.r(), n)
+        ks = np.arange(n + 1)
+        vals = [comb(n, k) for k in ks]
+        colors = ["#d1d5db"] * (n + 1)
+        colors[r_eff] = ACCENT
+
+        fig, ax = plt.subplots()
+        ax.bar(ks, vals, color=colors, edgecolor="none")
+        ax.set_xticks(ks)
+        ax.set_xlabel("k", color=MUTED)
+        ax.set_ylabel("C(n, k)", color=MUTED)
+        tufte(ax)
+        return fig
+
+    @render.ui
+    def readout():
+        n, r = input.n(), input.r()
+        r_eff = min(r, n)
+        npr = comb(n, r_eff) * factorial(r_eff)
+        ncr = comb(n, r_eff)
+        note = ""
+        if r > n:
+            note = (f" (r = {r}은 n = {n}보다 클 수 없어 "
+                    f"r = {r_eff}로 맞춰 계산했습니다.)")
+        return ui.HTML(
+            f'<p class="hs-readline">'
+            f"{n}P{r_eff} = {npr:,} · {n}C{r_eff} = {ncr:,} 입니다. "
+            f"관계식으로 확인하면 {n}P{r_eff} = {n}C{r_eff} × {r_eff}! = "
+            f"{ncr:,} × {factorial(r_eff):,} = {npr:,} 이 성립합니다."
+            f"{note}</p>"
+        )
+
+app = App(app_ui, server)
+```
+
+### 파이썬 코드
+
+순열과 조합의 수는 `math` 모듈로 바로 계산할 수 있습니다.
+
+```python
+from math import comb, factorial
+
+n, r = 6, 2
+
+nCr = comb(n, r)                  # 6C2 = 15
+nPr = nCr * factorial(r)          # 6P2 = 15 × 2! = 30
+
+print(nPr, nCr)                   # 30 15
+print(nPr == comb(n, r) * factorial(r))  # nPr = nCr × r! 확인
+```
+
+:::
+
+## 스스로 확인
+
+::: {.callout-tip collapse="true" title="문제 1 — n을 고정하고 r을 0부터 n까지 움직이면 막대의 높이는 어떤 모양으로 변하는가?"}
+가운데($k = n/2$ 근처)가 가장 높고 양끝($k=0,\,n$)이 1인 **좌우 대칭**
+모양입니다. ${}_n\mathrm{C}_r = {}_n\mathrm{C}_{n-r}$이기 때문입니다 —
+$r$개를 "뽑는" 것과 $n-r$개를 "남기는" 것은 같은 선택입니다.
+:::
+
+::: {.callout-tip collapse="true" title="문제 2 — 8명 중 대표 3명을 뽑는 경우의 수와, 회장·부회장·총무를 뽑는 경우의 수는 각각 얼마인가?"}
+대표 3명은 순서가 없으니 ${}_8\mathrm{C}_3 = 56$, 회장·부회장·총무는
+자리가 구별되니 ${}_8\mathrm{P}_3 = 336$입니다.
+$336 = 56 \times 3!$ — 같은 3명을 세 자리에 배치하는 방법이 $3! = 6$가지라서
+정확히 6배가 됩니다. 앱에서 $n=8$, $r=3$으로 확인해 보세요.
+:::
+
+::: {.hs-prevnext}
+[← 이전: 산점도와 상관관계](../../01_data/scatter/index.qmd)
+[다음: 확률의 뜻 →](../prob_basic/index.qmd)
+:::

@@ -1,0 +1,156 @@
+---
+title: "모평균의 신뢰구간"
+---
+
+::: {.hs-back}
+[← 빛스탯 HS 홈](../../../index.qmd)
+:::
+
+::: {.hs-meta}
+단원 04 통계적 추정 · 「확률과 통계」 · 1차시(45분)
+:::
+
+## 개념
+
+모표준편차 $\sigma$를 아는 정규 모집단에서 크기 $n$인 표본을 뽑았을 때,
+모평균 $m$의 **신뢰구간**은 표본평균 $\bar{x}$ 주위로 다음과 같이 만듭니다.
+
+$$\bar{x} - z\frac{\sigma}{\sqrt{n}} \;\le\; m \;\le\; \bar{x} + z\frac{\sigma}{\sqrt{n}}
+\qquad (z = 1.645,\ 1.96,\ 2.576)$$
+
+::: {.column-margin}
+구간의 폭은 $2z\dfrac{\sigma}{\sqrt{n}}$입니다. $n$을 4배로 하면
+$\sqrt{n}$이 2배가 되어 폭이 절반으로 줄어듭니다.
+:::
+
+신뢰수준 95%의 뜻에 주의해야 합니다. "이 구간에 $m$이 있을 확률이 95%"가
+아니라, **같은 방법으로 조사를 반복하면 만들어지는 구간들 중 약 95%가
+$m$을 포함한다**는 뜻입니다. 아래 앱은 (우리만 모르는) 진짜 모평균을 두고
+100번 조사를 반복해 이 뜻을 눈으로 보여 줍니다. $m$을 놓친 구간이
+평균적으로 몇 개쯤 나오는지 세어 보세요.
+
+## 만지며 배우기
+
+::: {.panel-tabset}
+
+### 인터랙티브 앱
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 640
+
+from math import sqrt
+from shiny import App, reactive, render, ui
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+
+matplotlib.rcParams["font.size"] = 10
+
+ACCENT = "#2563eb"
+INK = "#111827"
+MUTED = "#6b7280"
+
+def tufte(ax):
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color("#9ca3af")
+    ax.tick_params(colors=MUTED, labelsize=9)
+
+M, SIGMA = 70, 10          # 진짜 모평균(조사자는 모른다고 가정)
+Z = {"90": 1.645, "95": 1.96, "99": 2.576}
+
+app_ui = ui.page_sidebar(
+    ui.sidebar(
+        ui.input_slider("n", "표본 크기 n", min=10, max=100, value=25, step=10),
+        ui.input_select("level", "신뢰수준", {"90": "90%", "95": "95%", "99": "99%"}),
+        ui.input_action_button("redraw", "새로 100번 조사"),
+        width=240,
+    ),
+    ui.card(
+        ui.card_header("100개의 신뢰구간 — 모평균을 놓친 구간은 파랑"),
+        ui.output_plot("ci_plot", height="340px"),
+    ),
+    ui.card(ui.output_ui("readout")),
+    fillable=True,
+)
+
+def server(input, output, session):
+    @reactive.calc
+    def intervals():
+        input.redraw()  # 버튼을 누르면 새로 100번 조사
+        n = input.n()
+        z = Z[input.level()]
+        xbar = np.random.normal(M, SIGMA, (100, n)).mean(axis=1)
+        half = z * SIGMA / sqrt(n)
+        return xbar - half, xbar + half
+
+    @render.plot(alt="100개의 신뢰구간과 모평균")
+    def ci_plot():
+        lo, hi = intervals()
+        ys = np.arange(100)
+        hit = (lo <= M) & (M <= hi)
+
+        fig, ax = plt.subplots()
+        ax.hlines(ys[hit], lo[hit], hi[hit], color="#9ca3af", linewidth=1)
+        ax.hlines(ys[~hit], lo[~hit], hi[~hit], color=ACCENT, linewidth=2.2)
+        ax.axvline(M, color=INK, linewidth=1, linestyle="--")
+        ax.set_xlabel("x", color=MUTED)
+        ax.set_yticks([])
+        tufte(ax)
+        return fig
+
+    @render.ui
+    def readout():
+        lo, hi = intervals()
+        hits = int(((lo <= M) & (M <= hi)).sum())
+        return ui.HTML(
+            f'<p class="hs-readline">'
+            f"이번 100번의 조사 중 <b>{hits}개</b> 구간이 모평균 m을 포함했습니다. "
+            f"신뢰수준 {input.level()}%의 뜻: 같은 방법으로 반복하면 약 "
+            f"{input.level()}%의 구간이 모평균을 포함한다 — 특정 구간 하나가 "
+            f"맞을 확률이 {input.level()}%라는 뜻이 아닙니다. "
+            f"신뢰수준을 높이거나 n을 줄이면 구간은 넓어집니다.</p>"
+        )
+
+app = App(app_ui, server)
+```
+
+### 파이썬 코드
+
+신뢰구간 계산은 공식 그대로 몇 줄이면 충분합니다.
+
+```python
+import numpy as np
+
+sigma, n, z = 10, 25, 1.96          # σ를 아는 경우, 95% → z = 1.96
+
+sample = np.random.normal(70, sigma, n)   # 조사 한 번
+xbar = sample.mean()
+
+half = z * sigma / np.sqrt(n)             # 오차의 한계
+print(xbar - half, xbar + half)           # 95% 신뢰구간 [x̄−1.96σ/√n, x̄+1.96σ/√n]
+```
+
+:::
+
+## 스스로 확인
+
+::: {.callout-tip collapse="true" title="문제 1 — 신뢰수준을 90% → 99%로 바꾸면 그림에서 두 가지가 동시에 변한다. 무엇인가?"}
+구간이 넓어지고($z$가 $1.645 \to 2.576$), 모평균을 놓치는 파란 구간이
+줄어듭니다(평균 10개 → 1개). 더 확실하게 잡으려면 더 넓게 던져야 한다는
+맞바꿈 관계입니다.
+:::
+
+::: {.callout-tip collapse="true" title="문제 2 — n = 25에서 n = 100으로 바꾸면 구간의 폭은 얼마나 줄어드는가?"}
+폭은 $2z\sigma/\sqrt{n}$이므로 $n$이 4배가 되면 폭은 절반이 됩니다.
+95% 기준으로 $2 \times 1.96 \times 10/\sqrt{25} = 7.84$에서
+$2 \times 1.96 \times 10/\sqrt{100} = 3.92$로 줄어듭니다.
+정밀도를 2배 높이려면 조사 인원은 4배 필요합니다.
+:::
+
+::: {.hs-prevnext}
+[← 이전: 표본평균의 분포](../sample_mean/index.qmd)
+[다음: 모비율의 추정 →](../ci_prop/index.qmd)
+:::

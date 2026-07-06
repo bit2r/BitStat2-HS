@@ -1,0 +1,195 @@
+---
+title: "조건부확률과 독립"
+---
+
+::: {.hs-back}
+[← 빛스탯 HS 홈](../../../index.qmd)
+:::
+
+::: {.hs-meta}
+단원 02 경우의 수와 확률 · 「확률과 통계」 · 1차시(45분)
+:::
+
+## 개념
+
+사건 $B$가 일어났다는 것을 알 때 사건 $A$가 일어날 확률을
+**조건부확률**이라 하고, 다음과 같이 정의합니다.
+
+$$P(A \mid B) = \frac{P(A \cap B)}{P(B)} \quad (P(B) > 0)$$
+
+::: {.column-margin}
+"비 오는 날"이라는 정보를 알면 "지각"의 확률이 달라지듯,
+조건부확률은 새 정보로 확률을 다시 재는 것입니다.
+:::
+
+조건 $B$를 알아도 $A$의 확률이 변하지 않으면, 즉
+$P(A \mid B) = P(A)$이면 두 사건은 **서로 독립**이라 하고,
+이때 $P(A \cap B) = P(A)\,P(B)$가 성립합니다. 그렇지 않으면
+**서로 종속**입니다. 아래 앱은 학생 100명을 정사각형 100칸으로 나타냅니다.
+사건 $A$는 "아침 운동을 함", 사건 $B$는 "아침밥을 먹음"입니다.
+$P(A)$, $P(B \mid A)$, $P(B \mid A^c)$를 움직여 네 영역의 칸 수가
+어떻게 변하는지, 그리고 언제 두 사건이 독립이 되는지 살펴보세요.
+
+## 만지며 배우기
+
+::: {.panel-tabset}
+
+### 인터랙티브 앱
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 660
+
+from shiny import App, render, ui
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
+
+matplotlib.rcParams["font.size"] = 10
+
+ACCENT = "#2563eb"
+INK = "#111827"
+MUTED = "#6b7280"
+
+def tufte(ax):
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color("#9ca3af")
+    ax.tick_params(colors=MUTED, labelsize=9)
+
+def counts(pa, pba, pbac):
+    n_a = round(100 * pa)
+    n_ab = min(round(100 * pa * pba), n_a)
+    n_acb = min(round(100 * (1 - pa) * pbac), 100 - n_a)
+    return n_a, n_ab, n_acb
+
+app_ui = ui.page_sidebar(
+    ui.sidebar(
+        ui.input_slider("pa", "P(A) — 아침 운동을 하는 비율",
+                        min=0.1, max=0.9, value=0.4, step=0.05),
+        ui.input_slider("pba", "P(B|A) — 운동하는 학생 중 아침밥",
+                        min=0.0, max=1.0, value=0.8, step=0.05),
+        ui.input_slider("pbac", "P(B|Aᶜ) — 운동 안 하는 학생 중 아침밥",
+                        min=0.0, max=1.0, value=0.5, step=0.05),
+        width=240,
+    ),
+    ui.card(
+        ui.card_header("학생 100명 — A: 아침 운동, B: 아침밥"),
+        ui.output_plot("grid", height="340px"),
+    ),
+    ui.card(ui.output_ui("readout")),
+    fillable=True,
+)
+
+def server(input, output, session):
+    @render.plot(alt="100명의 학생을 네 영역으로 나눈 격자")
+    def grid():
+        n_a, n_ab, n_acb = counts(input.pa(), input.pba(), input.pbac())
+
+        fig, ax = plt.subplots()
+        for i in range(100):
+            x, y = i % 10, i // 10
+            if i < n_ab:                       # A∩B
+                fc, ec, lw = ACCENT, ACCENT, 0.8
+            elif i < n_a:                      # A∩Bᶜ
+                fc, ec, lw = "none", ACCENT, 1.2
+            elif i < n_a + n_acb:              # Aᶜ∩B
+                fc, ec, lw = "#9ca3af", "#9ca3af", 0.8
+            else:                              # Aᶜ∩Bᶜ
+                fc, ec, lw = "none", "#d1d5db", 0.8
+            ax.add_patch(Rectangle((x, 9 - y), 0.88, 0.88,
+                                   facecolor=fc, edgecolor=ec, linewidth=lw))
+
+        legend = [
+            (f"A∩B ({n_ab})", ACCENT, ACCENT, 0.8),
+            (f"A only ({n_a - n_ab})", "none", ACCENT, 1.2),
+            (f"B only ({n_acb})", "#9ca3af", "#9ca3af", 0.8),
+            (f"neither ({100 - n_a - n_acb})", "none", "#d1d5db", 0.8),
+        ]
+        for j, (label, fc, ec, lw) in enumerate(legend):
+            yy = 8.2 - 1.6 * j
+            ax.add_patch(Rectangle((10.8, yy), 0.7, 0.7,
+                                   facecolor=fc, edgecolor=ec, linewidth=lw))
+            ax.text(11.8, yy + 0.35, label, va="center",
+                    fontsize=9, color=INK)
+
+        ax.set_xlim(-0.3, 16.5)
+        ax.set_ylim(-0.3, 10.2)
+        ax.set_aspect("equal")
+        ax.set_xticks([])
+        ax.set_yticks([])
+        for side in ("top", "right", "left", "bottom"):
+            ax.spines[side].set_visible(False)
+        return fig
+
+    @render.ui
+    def readout():
+        pa, pba, pbac = input.pa(), input.pba(), input.pbac()
+        pb = pa * pba + (1 - pa) * pbac
+        if pb == 0:
+            return ui.HTML(
+                '<p class="hs-readline">P(B) = 0이라 조건부확률 '
+                "P(A|B)는 정의되지 않습니다. P(B|A)나 P(B|Aᶜ)를 "
+                "0보다 크게 올려 보세요.</p>"
+            )
+        pab = pa * pba / pb
+        if abs(pba - pb) < 0.005:
+            indep = ("P(B|A)와 P(B)가 같으므로 두 사건은 서로 "
+                     "독립입니다 — 운동 여부가 아침밥 확률을 바꾸지 않습니다.")
+        elif pba > pb:
+            indep = (f"P(B|A) = {pba:.2f} > P(B) = {pb:.2f}이므로 두 사건은 "
+                     "서로 종속입니다 — 운동하는 학생이 아침밥을 더 잘 먹습니다.")
+        else:
+            indep = (f"P(B|A) = {pba:.2f} < P(B) = {pb:.2f}이므로 두 사건은 "
+                     "서로 종속입니다 — 운동하는 학생이 아침밥을 덜 먹습니다.")
+        return ui.HTML(
+            f'<p class="hs-readline">'
+            f"전체에서 아침밥을 먹을 확률은 P(B) = P(A)P(B|A) + P(Aᶜ)P(B|Aᶜ) = "
+            f"{pb:.2f}입니다. 아침밥을 먹은 학생이 운동도 했을 조건부확률은 "
+            f"P(A|B) = P(A)P(B|A)/P(B) = {pab:.2f}입니다. {indep}</p>"
+        )
+
+app = App(app_ui, server)
+```
+
+### 파이썬 코드
+
+앱의 핵심 계산은 이 몇 줄이 전부입니다.
+
+```python
+pa = 0.4            # P(A): 아침 운동
+pba = 0.8           # P(B|A)
+pbac = 0.5          # P(B|Aᶜ)
+
+pb = pa * pba + (1 - pa) * pbac   # 전체확률 P(B) = 0.62
+pab = pa * pba / pb               # P(A|B) ≈ 0.516 (베이즈)
+
+print(pb, pab)
+print("independent" if abs(pba - pb) < 1e-9 else "dependent")
+```
+
+:::
+
+## 스스로 확인
+
+::: {.callout-tip collapse="true" title="문제 1 — P(B|A)와 P(B|Aᶜ)를 같은 값으로 맞추면 무슨 일이 일어나는가?"}
+두 값이 같으면 $P(B) = P(B \mid A) = P(B \mid A^c)$가 되어
+$A$와 $B$는 **서로 독립**이 됩니다. 운동을 하든 안 하든 아침밥을
+먹을 확률이 같다는 뜻입니다. 격자에서 $A$ 영역과 $A^c$ 영역의
+색칠 비율이 같아지는 것을 확인해 보세요.
+:::
+
+::: {.callout-tip collapse="true" title="문제 2 — 기본값(P(A)=0.4, P(B|A)=0.8, P(B|Aᶜ)=0.5)에서 P(A|B)를 손으로 구해 보라."}
+전체확률로 $P(B) = 0.4 \times 0.8 + 0.6 \times 0.5 = 0.62$,
+따라서
+$P(A \mid B) = \dfrac{P(A \cap B)}{P(B)} = \dfrac{0.32}{0.62} \approx 0.52$
+입니다. 아침밥을 먹었다는 정보만으로 운동했을 확률이
+$0.4$에서 $0.52$로 올라갑니다 — 정보가 확률을 갱신한 것입니다.
+:::
+
+::: {.hs-prevnext}
+[← 이전: 확률의 뜻](../prob_basic/index.qmd)
+[다음: 확률변수와 기댓값 →](../../03_dist/random_var/index.qmd)
+:::

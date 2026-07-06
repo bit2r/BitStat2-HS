@@ -1,6 +1,6 @@
 library(shiny)
 
-# setwd("C:/code_states/bitStat-HS/02_module")
+# setwd("C:/code_states/BitStat-HS/02_module")
 
 source("curriculum_module.R", encoding = "UTF-8")
 

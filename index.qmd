@@ -1,0 +1,110 @@
+---
+title: "빛스탯 HS"
+page-layout: full
+toc: false
+---
+
+```{=html}
+<section class="bs-hero">
+  <div class="bs-eyebrow">BitStat HS</div>
+  <h1>고교 통계, 만지며 배운다</h1>
+  <p class="bs-lede">슬라이더를 움직이면 그래프가 답합니다. 교과서 순서 그대로,
+  설치도 계정도 없이 브라우저에서 — 파이썬이 브라우저 안에서 직접 돌아갑니다.</p>
+  <div class="bs-meta">
+    <span>Pyodide 서버리스</span>
+    <span>「확률과 통계」·「통계와 사회」 정렬</span>
+    <span>실생활 데이터</span>
+  </div>
+  <a class="bs-btn bs-btn-primary" href="pages/03_dist/normal/index.html">정규분포 체험 시작 →</a>
+  <a class="bs-btn bs-btn-ghost" href="#curriculum">교육과정 지도 보기</a>
+</section>
+
+<div class="bs-progress">
+  <div class="bs-bar"><div style="width: 100%;"></div></div>
+  <div class="bs-note">18개 모듈 전부 라이브 — 5개 단원 공개</div>
+</div>
+
+<section class="bs-how">
+  <div>
+    <h3>① 만지기</h3>
+    <p>슬라이더·버튼으로 모수를 바꾸면 그래프가 즉시 반응합니다.
+    (Shiny for Python × shinylive 앱)</p>
+  </div>
+  <div>
+    <h3>② 열어보기</h3>
+    <p>같은 계산의 파이썬 코드를 탭에서 확인합니다.
+    앱 뒤에 숨은 수식이 몇 줄의 코드인지 눈으로 봅니다.</p>
+  </div>
+  <div>
+    <h3>③ 탐구하기</h3>
+    <p>예시 데이터로 수행평가·탐구 프로젝트를 진행합니다.
+    (05 통계와 사회 — 데이터 탐색기 · 탐구 안내)</p>
+  </div>
+</section>
+
+<section class="bs-map" id="curriculum">
+  <h2>교육과정 지도</h2>
+  <div class="bs-grid">
+    <div class="bs-ch">
+      <div class="bs-num">01</div>
+      <h3>자료와 그래프</h3>
+      <div class="bs-sub">중등 복습 · 진단</div>
+      <ul>
+        <li class="bs-live"><a href="pages/01_data/freq_table/index.html">도수분포표와 히스토그램</a></li>
+        <li class="bs-live"><a href="pages/01_data/center/index.html">대푯값</a></li>
+        <li class="bs-live"><a href="pages/01_data/spread/index.html">산포도와 상자그림</a></li>
+        <li class="bs-live"><a href="pages/01_data/scatter/index.html">산점도와 상관관계</a></li>
+      </ul>
+    </div>
+    <div class="bs-ch">
+      <div class="bs-num">02</div>
+      <h3>경우의 수와 확률</h3>
+      <div class="bs-sub">확률과 통계</div>
+      <ul>
+        <li class="bs-live"><a href="pages/02_prob/counting/index.html">순열과 조합</a></li>
+        <li class="bs-live"><a href="pages/02_prob/prob_basic/index.html">확률의 뜻</a></li>
+        <li class="bs-live"><a href="pages/02_prob/conditional/index.html">조건부확률과 독립</a></li>
+      </ul>
+    </div>
+    <div class="bs-ch">
+      <div class="bs-num">03</div>
+      <h3>확률분포</h3>
+      <div class="bs-sub">확률과 통계</div>
+      <ul>
+        <li class="bs-live"><a href="pages/03_dist/random_var/index.html">확률변수와 기댓값</a></li>
+        <li class="bs-live"><a href="pages/03_dist/binomial/index.html">이항분포</a></li>
+        <li class="bs-live"><a href="pages/03_dist/normal/index.html">정규분포와 표준화</a></li>
+      </ul>
+    </div>
+    <div class="bs-ch">
+      <div class="bs-num">04</div>
+      <h3>통계적 추정</h3>
+      <div class="bs-sub">확률과 통계</div>
+      <ul>
+        <li class="bs-live"><a href="pages/04_infer/sampling/index.html">표본추출</a></li>
+        <li class="bs-live"><a href="pages/04_infer/sample_mean/index.html">표본평균의 분포</a></li>
+        <li class="bs-live"><a href="pages/04_infer/ci_mean/index.html">모평균의 신뢰구간</a></li>
+        <li class="bs-live"><a href="pages/04_infer/ci_prop/index.html">모비율의 추정</a></li>
+      </ul>
+    </div>
+    <div class="bs-ch bs-ch-accent">
+      <div class="bs-num">05</div>
+      <h3>통계와 사회</h3>
+      <div class="bs-sub bs-sub-accent">실생활 데이터 · 수행평가</div>
+      <ul>
+        <li class="bs-live"><a href="pages/05_society/explorer/index.html">데이터 탐색기</a></li>
+        <li class="bs-live"><a href="pages/05_society/make_chart/index.html">통계 그래프 만들기</a></li>
+        <li class="bs-live"><a href="pages/05_society/poll/index.html">여론조사 읽기</a></li>
+        <li class="bs-live"><a href="pages/05_society/project/index.html">통계적 탐구 프로젝트</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<p class="bs-footnote">
+첫 방문 시 앱이 뜨기까지 수십 초가 걸릴 수 있습니다(브라우저가 파이썬 실행 환경을 내려받는 시간 —
+이후에는 캐시되어 빠릅니다). 자매 사이트:
+<a href="https://r2bit.com/BitStat2/">빛스탯2 포털</a> ·
+제작: 한국 R 사용자회
+</p>
+```

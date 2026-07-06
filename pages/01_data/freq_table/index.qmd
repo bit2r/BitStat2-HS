@@ -1,0 +1,172 @@
+---
+title: "도수분포표와 히스토그램"
+---
+
+::: {.hs-back}
+[← 빛스탯 HS 홈](../../../index.qmd)
+:::
+
+::: {.hs-meta}
+단원 01 자료와 그래프 · 중학 통계 복습 · 1차시(45분)
+:::
+
+## 개념
+
+자료를 일정한 구간(**계급**)으로 나누고, 각 계급에 속하는 자료의 개수(**도수**)를
+센 표가 **도수분포표**입니다. 각 계급의 도수를 전체 자료 수로 나눈 값이
+**상대도수**이며, 상대도수를 모두 더하면 항상 1이 됩니다.
+
+$$\text{상대도수} = \frac{\text{그 계급의 도수}}{\text{전체 도수}}$$
+
+::: {.column-margin}
+"우리 반 학생들의 하루 스마트폰 사용 시간"처럼 학급 설문으로 모은 자료가
+바로 이런 표와 그래프의 좋은 재료입니다.
+:::
+
+도수분포표를 그래프로 옮긴 것이 **히스토그램**입니다. 가로축은 계급,
+세로축은 도수(또는 상대도수)이고, 계급이 연속이므로 막대 사이를 붙여 그립니다.
+계급의 크기를 어떻게 잡느냐에 따라 같은 자료도 전혀 다르게 보일 수 있습니다.
+아래 앱에서 직접 확인해 보세요.
+
+## 만지며 배우기
+
+::: {.panel-tabset}
+
+### 인터랙티브 앱
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 700
+
+import math
+from shiny import App, render, ui
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+
+matplotlib.rcParams["font.size"] = 10
+
+ACCENT = "#2563eb"
+INK = "#111827"
+MUTED = "#6b7280"
+
+def tufte(ax):
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color("#9ca3af")
+    ax.tick_params(colors=MUTED, labelsize=9)
+
+# 학생 40명의 하루 스마트폰 사용 시간(분)
+DATA = [
+    42, 55, 63, 71, 78, 84, 90, 96,
+    101, 107, 112, 118, 121, 125, 128, 132,
+    135, 139, 142, 146, 149, 153, 157, 161,
+    164, 168, 173, 179, 185, 192, 200, 209,
+    218, 228, 238, 249, 258, 267, 276, 288,
+]
+LO = 40  # 첫 계급의 시작값
+
+def bin_edges(width):
+    n_bins = int(math.ceil((max(DATA) - LO) / width))
+    return [LO + width * i for i in range(n_bins + 1)]
+
+app_ui = ui.page_sidebar(
+    ui.sidebar(
+        ui.input_slider("width", "계급의 크기(분)", min=10, max=60, value=30, step=10),
+        ui.input_checkbox("relative", "상대도수로 보기", False),
+        width=240,
+    ),
+    ui.card(
+        ui.card_header("히스토그램 — 계급의 크기에 따라 모양이 달라집니다"),
+        ui.output_plot("hist", height="340px"),
+    ),
+    ui.card(ui.output_ui("readout")),
+    fillable=True,
+)
+
+def server(input, output, session):
+    @render.plot(alt="스마트폰 사용 시간 히스토그램")
+    def hist():
+        edges = bin_edges(input.width())
+        n = len(DATA)
+        weights = [1 / n] * n if input.relative() else None
+
+        fig, ax = plt.subplots()
+        ax.hist(DATA, bins=edges, weights=weights,
+                color=ACCENT, alpha=0.85, edgecolor=INK, linewidth=0.8)
+        ax.set_xlabel("x (min)", color=MUTED)
+        ax.set_ylabel("relative freq." if input.relative() else "freq.",
+                      color=MUTED)
+        ax.set_xticks(edges)
+        tufte(ax)
+        return fig
+
+    @render.ui
+    def readout():
+        edges = bin_edges(input.width())
+        counts, _ = np.histogram(DATA, bins=edges)
+        n = len(DATA)
+
+        td = 'style="border:1px solid #d1d5db; padding:2px 10px; text-align:center;"'
+        rows = ""
+        for i, c in enumerate(counts):
+            rows += (f"<tr><td {td}>{edges[i]} 이상 ~ {edges[i+1]} 미만</td>"
+                     f"<td {td}>{c}</td>"
+                     f"<td {td}>{c / n:.3f}</td></tr>")
+        rows += (f"<tr><td {td}><b>합계</b></td>"
+                 f"<td {td}><b>{n}</b></td>"
+                 f"<td {td}><b>1.000</b></td></tr>")
+        table = (
+            '<table style="border-collapse:collapse; margin:0 auto; font-size:0.9em;">'
+            f"<tr><th {td}>계급(분)</th><th {td}>도수(명)</th><th {td}>상대도수</th></tr>"
+            f"{rows}</table>"
+        )
+        return ui.HTML(
+            table
+            + '<p class="hs-readline">'
+            f"계급의 크기가 {input.width()}분일 때 계급은 모두 {len(counts)}개입니다. "
+            "계급의 크기를 키우면 표와 그래프는 단순해지지만, "
+            "분포의 세부 모양은 점점 뭉개집니다.</p>"
+        )
+
+app = App(app_ui, server)
+```
+
+### 파이썬 코드
+
+도수분포표의 핵심은 `np.histogram` 한 줄입니다.
+
+```python
+import numpy as np
+
+data = [42, 55, 63, 71, 78, 84, 90, 96, 101, 107]  # 사용 시간(분)
+
+edges = [40, 70, 100, 130]                 # 계급의 경계 (크기 30)
+counts, _ = np.histogram(data, bins=edges) # 각 계급의 도수
+
+for i, c in enumerate(counts):
+    print(f"{edges[i]} 이상 ~ {edges[i+1]} 미만: 도수 {c}, "
+          f"상대도수 {c / len(data):.2f}")
+```
+
+:::
+
+## 스스로 확인
+
+::: {.callout-tip collapse="true" title="문제 1 — 계급의 크기를 10분에서 60분까지 바꾸면 히스토그램은 어떻게 변하는가?"}
+계급이 좁으면 막대가 많아져 자료의 세부가 드러나지만 들쭉날쭉해지고,
+계급이 넓으면 매끈해지는 대신 분포의 모양(어디에 몰려 있는지)이 뭉개집니다.
+자료의 특징이 가장 잘 보이는 "적당한" 계급의 크기를 직접 찾아보세요.
+:::
+
+::: {.callout-tip collapse="true" title="문제 2 — 상대도수로 바꾸면 막대의 높이는 변하는데 모양은 왜 그대로인가?"}
+상대도수는 모든 도수를 같은 수(전체 도수 40)로 나눈 값이라,
+세로축의 눈금만 바뀌고 막대들 사이의 비율은 그대로이기 때문입니다.
+상대도수는 전체 자료 수가 다른 두 집단을 비교할 때 특히 유용합니다.
+:::
+
+::: {.hs-prevnext}
+[← 홈](../../../index.qmd)
+[다음: 대푯값 →](../center/index.qmd)
+:::
