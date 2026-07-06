@@ -1,0 +1,82 @@
+/* 빛스탯 HS — 공통 스타일 (Tufte 계열: 잉크 최소 · 헤어라인 · 단일 액센트) */
+
+:root {
+  --bs-hs-ink: #111827;
+  --bs-hs-muted: #6b7280;
+  --bs-hs-faint: #9ca3af;
+  --bs-hs-hair: #e5e7eb;
+  --bs-hs-accent: #2563eb;
+}
+
+body {
+  font-family: Georgia, "Apple SD Gothic Neo", "Noto Serif KR", serif;
+  color: var(--bs-hs-ink);
+}
+
+/* ===== 랜딩(.bs- 접두, index.qmd 전용) ===== */
+.bs-hero { max-width: 1080px; margin: 2.5rem auto 0; padding: 0 1rem; }
+.bs-eyebrow {
+  font-size: 0.72rem; letter-spacing: 0.22em; font-weight: 700;
+  color: var(--bs-hs-accent); text-transform: uppercase;
+}
+.bs-hero h1 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700;
+  margin: 0.4rem 0 0.8rem; color: var(--bs-hs-ink);
+}
+.bs-lede { font-size: 1.05rem; color: var(--bs-hs-muted); max-width: 46rem; line-height: 1.7; }
+.bs-meta { margin: 1rem 0 1.4rem; font-size: 0.85rem; color: var(--bs-hs-faint); }
+.bs-meta span { margin-right: 1.1rem; }
+
+.bs-btn {
+  display: inline-block; padding: 0.55rem 1.3rem; border-radius: 999px;
+  font-size: 0.92rem; text-decoration: none; margin-right: 0.6rem;
+}
+.bs-btn-primary { background: var(--bs-hs-accent); color: #fff; }
+.bs-btn-primary:hover { background: #1d4ed8; color: #fff; }
+.bs-btn-ghost { border: 1px solid #d1d5db; color: var(--bs-hs-muted); }
+.bs-btn-ghost:hover { border-color: var(--bs-hs-accent); color: var(--bs-hs-accent); }
+
+.bs-progress { max-width: 1080px; margin: 1.6rem auto 0; padding: 0 1rem; }
+.bs-progress .bs-bar { height: 2px; background: var(--bs-hs-hair); }
+.bs-progress .bs-bar > div { height: 2px; background: var(--bs-hs-accent); }
+.bs-progress .bs-note { font-size: 0.78rem; color: var(--bs-hs-faint); margin-top: 0.4rem; }
+
+.bs-how {
+  max-width: 1080px; margin: 2.2rem auto; padding: 1.6rem 1rem;
+  border-top: 1px solid var(--bs-hs-hair); border-bottom: 1px solid var(--bs-hs-hair);
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.4rem;
+}
+.bs-how h3 { font-size: 1rem; margin: 0 0 0.4rem; }
+.bs-how p { font-size: 0.88rem; color: var(--bs-hs-muted); margin: 0; line-height: 1.6; }
+
+.bs-map { max-width: 1080px; margin: 0 auto 3rem; padding: 0 1rem; }
+.bs-map h2 { font-size: 1.25rem; margin-bottom: 1.2rem; }
+.bs-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.1rem;
+}
+.bs-ch {
+  border: 1px solid var(--bs-hs-hair); border-radius: 10px; padding: 1.1rem 1.25rem;
+}
+.bs-ch-accent { border-color: var(--bs-hs-accent); }
+.bs-ch .bs-num { font-size: 1.3rem; font-weight: 700; color: #d1d5db; }
+.bs-ch h3 { font-size: 1.02rem; margin: 0.2rem 0 0.1rem; }
+.bs-ch .bs-sub { font-size: 0.75rem; color: var(--bs-hs-faint); margin-bottom: 0.6rem; }
+.bs-ch .bs-sub-accent { color: var(--bs-hs-accent); }
+.bs-ch ul { list-style: none; padding: 0; margin: 0; }
+.bs-ch li { font-size: 0.86rem; color: var(--bs-hs-muted); padding: 0.14rem 0; }
+.bs-ch li::before { content: "○ "; color: var(--bs-hs-faint); }
+.bs-ch li.bs-live::before { content: "● "; color: var(--bs-hs-accent); }
+.bs-ch a { color: var(--bs-hs-ink); text-decoration: none; border-bottom: 1px solid var(--bs-hs-hair); }
+.bs-ch a:hover { color: var(--bs-hs-accent); border-color: var(--bs-hs-accent); }
+.bs-soon { color: var(--bs-hs-faint); }
+
+.bs-footnote {
+  max-width: 1080px; margin: 0 auto 2rem; padding: 0 1rem;
+  font-size: 0.8rem; color: var(--bs-hs-faint); line-height: 1.7;
+}
+
+/* ===== 모듈 페이지 ===== */
+.hs-back { font-size: 0.85rem; }
+.hs-meta { font-size: 0.82rem; color: var(--bs-hs-faint); margin-bottom: 1rem; }
+.hs-readline { font-size: 0.92rem; color: var(--bs-hs-muted); }
+.hs-prevnext { display: flex; justify-content: space-between; margin: 2rem 0 1rem; font-size: 0.9rem; }
