@@ -1,5 +1,5 @@
 ---
-title: "확률변수와 기댓값"
+title: "확률변수의 평균과 표준편차"
 ---
 
 ::: {.hs-back}
@@ -23,8 +23,16 @@ $$E(X) = x_1 p_1 + x_2 p_2 + \cdots + x_n p_n$$
 골라 기댓값과 복권 가격을 비교해 보세요.
 :::
 
-시행을 많이 반복하면 실제 관측값들의 평균(표본평균)은 기댓값에 가까워집니다.
-아래 앱에서 시행 횟수를 늘려가며 두 값이 가까워지는 모습을 직접 확인해 보세요.
+기댓값이 분포의 "중심"이라면, 값들이 그 중심에서 얼마나 흩어져 있는지를 재는 것이
+**분산** $V(X)$와 **표준편차** $\sigma(X)$입니다. 분산은 편차 제곱의 기댓값이고,
+평균을 $m = E(X)$라 할 때 계산은 $E(X^2)$에서 평균의 제곱을 빼는 편이 간단합니다.
+
+$$V(X) = E\big((X-m)^2\big) = E(X^2) - \{E(X)\}^2, \qquad \sigma(X) = \sqrt{V(X)}$$
+
+같은 기댓값을 가져도 분산이 크면 값이 넓게 흩어지고, 작으면 평균 가까이 몰립니다.
+시행을 많이 반복하면 관측값들의 평균은 $E(X)$에, 관측값들의 표준편차는 $\sigma(X)$에
+가까워집니다. 아래 앱에서 시나리오와 시행 횟수를 바꿔 가며 이론값(기댓값·표준편차)과
+실제 표본에서 계산한 값이 가까워지는 모습을 확인해 보세요.
 
 ## 만지며 배우기
 
@@ -129,16 +137,21 @@ def server(input, output, session):
     @render.ui
     def readout():
         sc = SCENARIOS[input.scenario()]
-        e = sum(x * p for x, p in zip(sc["x"], sc["p"]))
+        xs, ps = sc["x"], sc["p"]
+        e = sum(x * p for x, p in zip(xs, ps))
+        ex2 = sum(x * x * p for x, p in zip(xs, ps))
+        var = ex2 - e * e
+        sd = var ** 0.5
         vals = draws()
-        m = sum(vals) / len(vals)
-        line = (f"기댓값 E(X) = {e:,.1f} · "
-                f"시행 {input.n():,}번의 표본평균 = {m:,.1f} · "
-                f"차이 = {abs(e - m):,.1f}")
+        n = len(vals)
+        m = sum(vals) / n
+        ssd = (sum((v - m) ** 2 for v in vals) / n) ** 0.5
+        line = (f"이론값 — 기댓값 E(X) = {e:,.1f} · 표준편차 σ(X) = {sd:,.1f}<br>"
+                f"표본({input.n():,}번) — 표본평균 = {m:,.1f} · 표본표준편차 = {ssd:,.1f}")
         extra = ""
         if input.scenario() == "lotto":
-            extra = (" — 복권 한 장의 기댓값은 약 1,190원입니다. "
-                     "가격이 2,000원이라면 살수록 평균적으로 손해입니다.")
+            extra = (" — 복권 기댓값은 약 1,190원이지만 표준편차는 3만 원이 넘습니다. "
+                     "드문 고액 당첨 때문에 흩어짐이 매우 큰 분포입니다.")
         return ui.HTML(f'<p class="hs-readline">{line}{extra}</p>')
 
 app = App(app_ui, server)
@@ -149,15 +162,13 @@ app = App(app_ui, server)
 앱의 핵심 계산은 이 몇 줄이 전부입니다.
 
 ```python
-import random
-
 x = [0, 1000, 10000, 1000000]          # 복권 당첨금
 p = [0.899, 0.09, 0.01, 0.001]         # 각 확률
 
-E = sum(xi * pi for xi, pi in zip(x, p))   # 기댓값 E(X) = 1190.0
-
-draws = random.choices(x, weights=p, k=5000)  # 5000번 시행
-print(E, sum(draws) / len(draws))             # 기댓값 vs 표본평균
+E = sum(xi * pi for xi, pi in zip(x, p))         # 기댓값 E(X) = 1190.0
+EX2 = sum(xi * xi * pi for xi, pi in zip(x, p))  # E(X²)
+V = EX2 - E ** 2                                  # 분산 V(X)
+print(E, V, V ** 0.5)                             # 기댓값, 분산, 표준편차
 ```
 
 :::
@@ -173,7 +184,15 @@ print(E, sum(draws) / len(draws))             # 기댓값 vs 표본평균
 ::: {.callout-tip collapse="true" title="문제 2 — 복권 시나리오에서 '다시 추첨'을 여러 번 눌러 보라. n=100일 때 표본평균이 유독 크게 튀는 이유는?"}
 당첨금 1,000,000원의 확률이 0.001이라 100번 추첨에는 대개 한 번도
 나오지 않다가, 어쩌다 한 번 나오면 표본평균이 크게 뜁니다.
-드문 값이 평균에 미치는 영향을 눈으로 확인해 보세요.
+드문 값이 평균에 미치는 영향을 눈으로 확인해 보세요. 이 "잘 튀는 정도"를
+수로 나타낸 것이 바로 큰 **표준편차**입니다.
+:::
+
+::: {.callout-tip collapse="true" title="문제 3 — 주사위(눈 1~6)의 표준편차 σ(X)를 구해 보라."}
+$E(X) = 3.5$, $E(X^2) = \dfrac{1+4+9+16+25+36}{6} = \dfrac{91}{6} \approx 15.17$이므로
+$V(X) = 15.17 - 3.5^2 = 2.92$, $\sigma(X) = \sqrt{2.92} \approx 1.71$입니다.
+분산은 "편차 제곱의 평균"이므로, $E(X^2)$에서 평균의 제곱 $\{E(X)\}^2$을 빼는
+공식이 계산에 편리합니다. 앱에서 주사위를 골라 이론값과 표본표준편차를 비교해 보세요.
 :::
 
 ::: {.hs-prevnext}

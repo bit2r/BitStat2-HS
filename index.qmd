@@ -77,7 +77,7 @@ toc: false
       <h3>확률분포</h3>
       <div class="bs-sub">확률과 통계</div>
       <ul>
-        <li class="bs-live"><a href="pages/03_dist/random_var/index.html">확률변수와 기댓값</a></li>
+        <li class="bs-live"><a href="pages/03_dist/random_var/index.html">확률변수의 평균과 표준편차</a></li>
         <li class="bs-live"><a href="pages/03_dist/binomial/index.html">이항분포</a></li>
         <li class="bs-live"><a href="pages/03_dist/continuous_rv/index.html">연속확률변수와 확률분포</a></li>
         <li class="bs-live"><a href="pages/03_dist/normal/index.html">정규분포와 표준화</a></li>

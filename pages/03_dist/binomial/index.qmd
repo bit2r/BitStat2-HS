@@ -170,6 +170,6 @@ $p = 0.05$로 두고 $n$을 움직이며 확인해 보세요.
 :::
 
 ::: {.hs-prevnext}
-[← 이전: 확률변수와 기댓값](../random_var/index.qmd)
+[← 이전: 확률변수의 평균과 표준편차](../random_var/index.qmd)
 [다음: 연속확률변수와 확률분포 →](../continuous_rv/index.qmd)
 :::
