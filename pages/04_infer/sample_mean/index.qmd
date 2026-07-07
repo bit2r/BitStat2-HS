@@ -40,37 +40,76 @@ $N\!\left(m,\ \left(\dfrac{\sigma}{\sqrt{n}}\right)^{2}\right)$에
 #| standalone: true
 #| viewerHeight: 660
 
-from math import sqrt
+# matplotlib·numpy 없이 stdlib + 인라인 SVG 로만 그린다
+import random
+import statistics as st
+from math import sqrt, exp, pi
 from shiny import App, reactive, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
 INK = "#111827"
 MUTED = "#6b7280"
-
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
+GRID = "#e5e7eb"
 
 M, SIGMA = 50, 10  # 모든 모집단을 m=50, σ=10으로 맞춤
 
-def draw_pop(dist, size):
+def draw_one(dist):
     if dist == "unif":
         w = 10 * sqrt(3)
-        return np.random.uniform(M - w, M + w, size)
+        return random.uniform(M - w, M + w)
     if dist == "skew":
-        return 40 + np.random.exponential(10, size)
-    return np.random.normal(M, SIGMA, size)
+        return 40 + random.expovariate(1 / 10)  # 지수분포(평균 10)
+    return random.gauss(M, SIGMA)
 
-def normal_pdf(x, m, s):
-    return np.exp(-((x - m) ** 2) / (2 * s * s)) / (s * sqrt(2 * np.pi))
+def hist_svg(data, bins, color, title, xlab, m=None, se=None):
+    W, H, ml, mr, mt, mb = 230, 290, 30, 10, 24, 26
+    pw, ph = W - ml - mr, H - mt - mb
+    lo, hi = min(data), max(data)
+    if hi <= lo:
+        hi = lo + 1
+    bw = (hi - lo) / bins
+    counts = [0] * bins
+    for v in data:
+        k = int((v - lo) / bw)
+        k = 0 if k < 0 else (bins - 1 if k >= bins else k)
+        counts[k] += 1
+    n = len(data)
+    dens = [c / (n * bw) for c in counts]
+    ymax = max(dens) or 1
+    cpts = None
+    if m is not None:
+        cx = [lo + (hi - lo) * i / 120 for i in range(121)]
+        cy = [exp(-((x - m) ** 2) / (2 * se * se)) / (se * sqrt(2 * pi)) for x in cx]
+        ymax = max(ymax, max(cy))
+        cpts = list(zip(cx, cy))
+    def X(v):
+        return ml + ((v - lo) / (hi - lo)) * pw
+    def Y(v):
+        return mt + ph - (v / ymax) * ph
+    bars = ""
+    for k, d in enumerate(dens):
+        x = X(lo + k * bw)
+        w = X(lo + (k + 1) * bw) - x
+        bars += (f'<rect x="{x:.1f}" y="{Y(d):.1f}" width="{max(0.5,w-0.5):.1f}" '
+                 f'height="{Y(0)-Y(d):.1f}" fill="{color}" opacity="0.85"/>')
+    mline = (f'<line x1="{X(M):.1f}" y1="{mt}" x2="{X(M):.1f}" y2="{Y(0):.1f}" '
+             f'stroke="#9ca3af" stroke-width="0.7" stroke-dasharray="2 3"/>'
+             if lo <= M <= hi else "")
+    curve = ""
+    if cpts:
+        curve = ('<path d="M' + " L".join(f"{X(x):.1f},{Y(y):.1f}" for x, y in cpts)
+                 + f'" fill="none" stroke="{INK}" stroke-width="1.5"/>')
+    return (
+        f'<svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;'
+        'font-family:-apple-system,sans-serif;">'
+        f'<line x1="{ml}" y1="{Y(0):.1f}" x2="{W-mr}" y2="{Y(0):.1f}" stroke="#9ca3af"/>'
+        f'{bars}{mline}{curve}'
+        f'<text x="{W/2:.0f}" y="15" font-size="11" fill="{INK}" '
+        f'text-anchor="middle">{title}</text>'
+        f'<text x="{W-mr:.0f}" y="{Y(0)+16:.0f}" font-size="10" fill="{MUTED}" '
+        f'text-anchor="end">{xlab}</text>'
+        '</svg>'
+    )
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
@@ -85,7 +124,7 @@ app_ui = ui.page_sidebar(
     ),
     ui.card(
         ui.card_header("모집단(왼쪽) vs 표본평균들의 분포(오른쪽)"),
-        ui.output_plot("clt_plot", height="340px"),
+        ui.output_ui("clt_plot"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
@@ -95,38 +134,27 @@ def server(input, output, session):
     @reactive.calc
     def means():
         input.redraw()  # 버튼을 누르면 새로 추출
-        samples = draw_pop(input.dist(), (input.reps(), input.n()))
-        return samples.mean(axis=1)
+        dist, n, reps = input.dist(), input.n(), input.reps()
+        return [sum(draw_one(dist) for _ in range(n)) / n for _ in range(reps)]
 
-    @render.plot(alt="모집단 분포와 표본평균의 분포")
+    @render.ui
     def clt_plot():
         n = input.n()
-        pop = draw_pop(input.dist(), 20000)
-        xbar = means()
-
-        fig, (ax1, ax2) = plt.subplots(1, 2)
-
-        ax1.hist(pop, bins=40, density=True, color="#d1d5db")
-        ax1.axvline(M, color="#9ca3af", linewidth=0.7, linestyle=":")
-        ax1.set_title("population", fontsize=10, color=INK)
-        ax1.set_xlabel("x", color=MUTED)
-        tufte(ax1)
-
+        pop = [draw_one(input.dist()) for _ in range(6000)]
         se = SIGMA / sqrt(n)
-        ax2.hist(xbar, bins=30, density=True, color=ACCENT, alpha=0.85)
-        xs = np.linspace(M - 4 * se, M + 4 * se, 300)
-        ax2.plot(xs, normal_pdf(xs, M, se), color=INK, linewidth=1.5)
-        ax2.set_title("sample means", fontsize=10, color=INK)
-        ax2.set_xlabel("x-bar", color=MUTED)
-        tufte(ax2)
-
-        return fig
+        left = hist_svg(pop, 40, "#d1d5db", "모집단", "x")
+        right = hist_svg(means(), 30, ACCENT, "표본평균들", "x̄", m=M, se=se)
+        return ui.HTML(
+            '<div style="display:flex; gap:10px;">'
+            f'<div style="flex:1;">{left}</div>'
+            f'<div style="flex:1;">{right}</div></div>'
+        )
 
     @render.ui
     def readout():
         n = input.n()
         se = SIGMA / sqrt(n)
-        obs = means().std()
+        obs = st.pstdev(means())
         return ui.HTML(
             f'<p class="hs-readline">'
             f"이론값 σ/√n = 10/√{n} = {se:.2f} · "
@@ -143,14 +171,16 @@ app = App(app_ui, server)
 표본을 여러 번 뽑아 표본평균들의 표준편차를 이론값과 비교합니다.
 
 ```python
-import numpy as np
+import random, statistics as st
+from math import sqrt
 
 n = 30                                        # 표본 크기
-samples = 40 + np.random.exponential(10, (500, n))  # 치우친 모집단, 500개 표본
-xbar = samples.mean(axis=1)                   # 표본평균 500개
+def sample_mean():                            # 치우친 모집단(지수, 평균 50)
+    return sum(40 + random.expovariate(1/10) for _ in range(n)) / n
+xbar = [sample_mean() for _ in range(500)]    # 표본평균 500개
 
-print(xbar.mean())          # ≈ 50  (= 모평균 m)
-print(xbar.std())           # ≈ 10 / np.sqrt(n) = 1.83 (= σ/√n)
+print(st.mean(xbar))        # ≈ 50  (= 모평균 m)
+print(st.pstdev(xbar))      # ≈ 10 / sqrt(n) = 1.83 (= σ/√n)
 ```
 
 :::

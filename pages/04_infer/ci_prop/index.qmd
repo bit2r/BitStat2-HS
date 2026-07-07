@@ -41,26 +41,47 @@ $\pm$ 뒤의 값 $z\sqrt{\hat{p}(1-\hat{p})/n}$이 뉴스에서 말하는
 #| standalone: true
 #| viewerHeight: 620
 
+# matplotlib·numpy 없이 stdlib + 인라인 SVG 로만 그린다
 from math import sqrt
 from shiny import App, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
 INK = "#111827"
 MUTED = "#6b7280"
 
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
-
 Z = {"95": 1.96, "99": 2.576}
+
+def ci_svg(phat, lo, hi, margin):
+    W, H, ml, mr, mt, mb = 470, 220, 16, 16, 44, 34
+    pw, ph = W - ml - mr, H - mt - mb
+    xlo = max(0.0, phat - 5 * margin)
+    xhi = min(1.0, phat + 5 * margin)
+    if xhi <= xlo:
+        xhi = xlo + 0.01
+    def X(v):
+        return ml + ((v - xlo) / (xhi - xlo)) * pw
+    cy = mt + ph / 2
+    body = (f'<line x1="{X(lo):.1f}" y1="{cy:.1f}" x2="{X(hi):.1f}" y2="{cy:.1f}" '
+            f'stroke="{ACCENT}" stroke-width="7" opacity="0.85" stroke-linecap="round"/>'
+            f'<circle cx="{X(phat):.1f}" cy="{cy:.1f}" r="6" fill="{ACCENT}"/>'
+            f'<text x="{X(phat):.1f}" y="{cy-16:.1f}" font-size="11" fill="{INK}" '
+            f'text-anchor="middle">p̂ = {phat*100:.0f}%</text>')
+    if xlo <= 0.5 <= xhi:
+        body += (f'<line x1="{X(0.5):.1f}" y1="{mt}" x2="{X(0.5):.1f}" y2="{mt+ph}" '
+                 f'stroke="{INK}" stroke-width="1" stroke-dasharray="5 3"/>'
+                 f'<text x="{X(0.5):.1f}" y="{mt-4:.0f}" font-size="10" fill="{INK}" '
+                 f'text-anchor="middle">50%</text>')
+    ticks = ""
+    for i in range(5):
+        v = xlo + (xhi - xlo) * i / 4
+        ticks += (f'<text x="{X(v):.1f}" y="{mt+ph+16:.0f}" font-size="9" '
+                  f'fill="{MUTED}" text-anchor="middle">{v*100:.0f}%</text>')
+    return (f'<svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;'
+            f'font-family:-apple-system,sans-serif;">'
+            f'<line x1="{ml}" y1="{mt+ph:.0f}" x2="{W-mr}" y2="{mt+ph:.0f}" stroke="#9ca3af"/>'
+            f'{body}{ticks}'
+            f'<text x="{W-mr:.0f}" y="{H-6}" font-size="10" fill="{MUTED}" '
+            f'text-anchor="end">p</text></svg>')
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
@@ -71,32 +92,18 @@ app_ui = ui.page_sidebar(
     ),
     ui.card(
         ui.card_header("모비율 p의 신뢰구간 — 점선은 50% 기준선"),
-        ui.output_plot("ci_plot", height="340px"),
+        ui.output_ui("ci_plot"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
 )
 
 def server(input, output, session):
-    @render.plot(alt="모비율의 신뢰구간 수직선")
+    @render.ui
     def ci_plot():
         n, phat = input.n(), input.phat()
-        z = Z[input.level()]
-        margin = z * sqrt(phat * (1 - phat) / n)
-        lo, hi = phat - margin, phat + margin
-
-        fig, ax = plt.subplots()
-        ax.hlines(0, lo, hi, color=ACCENT, linewidth=6, alpha=0.85)
-        ax.plot([phat], [0], "o", color=ACCENT, markersize=9, zorder=3)
-        ax.annotate("p-hat", (phat, 0), xytext=(phat, 0.45),
-                    ha="center", color=INK, fontsize=10)
-        ax.axvline(0.5, color=INK, linewidth=1, linestyle="--")
-        ax.set_xlim(max(0.0, phat - 5 * margin), min(1.0, phat + 5 * margin))
-        ax.set_ylim(-1, 1)
-        ax.set_yticks([])
-        ax.set_xlabel("p", color=MUTED)
-        tufte(ax)
-        return fig
+        margin = Z[input.level()] * sqrt(phat * (1 - phat) / n)
+        return ui.HTML(ci_svg(phat, phat - margin, phat + margin, margin))
 
     @render.ui
     def readout():

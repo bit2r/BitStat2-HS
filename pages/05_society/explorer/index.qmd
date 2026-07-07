@@ -36,16 +36,14 @@ title: "데이터 탐색기"
 #| standalone: true
 #| viewerHeight: 760
 
+# matplotlib·numpy 없이 stdlib(statistics) + 인라인 SVG 로만 그린다
+import statistics as st
 from shiny import App, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
 INK = "#111827"
 MUTED = "#6b7280"
+GRID = "#e5e7eb"
 
 # 교육용 예시(가상) 데이터 — 고등학생 25명
 DATA = {
@@ -62,20 +60,80 @@ DATA = {
              "남", "여", "남", "여", "남"],
 }
 
-# 그림 축 라벨은 영어만 사용 (한글 변수명 → 영어 라벨)
-AXIS = {
-    "키(cm)": "height (cm)",
-    "통학시간(분)": "commute (min)",
-    "수면시간(시간)": "sleep (h)",
-    "성별": "gender",
-}
+W, H = 440, 250
 
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
+def hist_svg(data, xlab, mean, median):
+    ml, mr, mt, mb = 42, 12, 16, 38
+    pw, ph = W - ml - mr, H - mt - mb
+    lo, hi = min(data), max(data)
+    if hi <= lo:
+        hi = lo + 1
+    bins = 8
+    bw = (hi - lo) / bins
+    counts = [0] * bins
+    for v in data:
+        k = int((v - lo) / bw)
+        k = 0 if k < 0 else (bins - 1 if k >= bins else k)
+        counts[k] += 1
+    vmax = max(counts) or 1
+    def X(v):
+        return ml + ((v - lo) / (hi - lo)) * pw
+    def Y(c):
+        return mt + ph - (c / vmax) * ph
+    body = ""
+    for t in range(5):
+        v = vmax * t / 4
+        yy = Y(v)
+        body += (f'<line x1="{ml}" y1="{yy:.1f}" x2="{W-mr}" y2="{yy:.1f}" stroke="{GRID}"/>'
+                 f'<text x="{ml-6}" y="{yy+3:.1f}" font-size="9" fill="{MUTED}" '
+                 f'text-anchor="end">{v:.0f}</text>')
+    for k in range(bins):
+        x = X(lo + k * bw)
+        w = X(lo + (k + 1) * bw) - x
+        body += (f'<rect x="{x:.1f}" y="{Y(counts[k]):.1f}" width="{w-1:.1f}" '
+                 f'height="{Y(0)-Y(counts[k]):.1f}" fill="{ACCENT}" opacity="0.85"/>')
+    body += (f'<line x1="{X(mean):.1f}" y1="{mt}" x2="{X(mean):.1f}" y2="{mt+ph}" '
+             f'stroke="{ACCENT}" stroke-width="1.8"/>'
+             f'<line x1="{X(median):.1f}" y1="{mt}" x2="{X(median):.1f}" y2="{mt+ph}" '
+             f'stroke="{INK}" stroke-width="1.4" stroke-dasharray="5 3"/>')
+    for v in (lo, (lo + hi) / 2, hi):
+        body += (f'<text x="{X(v):.1f}" y="{mt+ph+14:.1f}" font-size="9" '
+                 f'fill="{MUTED}" text-anchor="middle">{v:g}</text>')
+    leg = (f'<rect x="{W-108}" y="{mt}" width="10" height="10" fill="{ACCENT}"/>'
+           f'<text x="{W-94}" y="{mt+9}" font-size="10" fill="{MUTED}">평균</text>'
+           f'<rect x="{W-108}" y="{mt+15}" width="10" height="10" fill="{INK}"/>'
+           f'<text x="{W-94}" y="{mt+24}" font-size="10" fill="{MUTED}">중앙값</text>')
+    body += (leg + f'<text x="{ml+pw/2:.0f}" y="{H-4}" font-size="10" fill="{MUTED}" '
+             f'text-anchor="middle">{xlab}</text>'
+             f'<text x="6" y="{mt-4}" font-size="10" fill="{MUTED}">도수</text>')
+    return (f'<svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;'
+            f'font-family:-apple-system,sans-serif;">{body}</svg>')
+
+def bar_svg(counts, labels):
+    ml, mr, mt, mb = 42, 12, 16, 30
+    pw, ph = W - ml - mr, H - mt - mb
+    vmax = max(counts) or 1
+    def Y(c):
+        return mt + ph - (c / vmax) * ph
+    body = ""
+    for t in range(5):
+        v = vmax * t / 4
+        yy = Y(v)
+        body += (f'<line x1="{ml}" y1="{yy:.1f}" x2="{W-mr}" y2="{yy:.1f}" stroke="{GRID}"/>'
+                 f'<text x="{ml-6}" y="{yy+3:.1f}" font-size="9" fill="{MUTED}" '
+                 f'text-anchor="end">{v:.0f}</text>')
+    for i, (c, lab) in enumerate(zip(counts, labels)):
+        cx = ml + pw * (0.3 + 0.4 * i)
+        bw = pw * 0.2
+        body += (f'<rect x="{cx-bw/2:.1f}" y="{Y(c):.1f}" width="{bw:.1f}" '
+                 f'height="{Y(0)-Y(c):.1f}" fill="#9ca3af"/>'
+                 f'<text x="{cx:.1f}" y="{Y(c)-6:.1f}" font-size="11" fill="{INK}" '
+                 f'text-anchor="middle">{c}</text>'
+                 f'<text x="{cx:.1f}" y="{mt+ph+16:.1f}" font-size="11" fill="{MUTED}" '
+                 f'text-anchor="middle">{lab}</text>')
+    body += f'<text x="6" y="{mt-4}" font-size="10" fill="{MUTED}">도수(명)</text>'
+    return (f'<svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;'
+            f'font-family:-apple-system,sans-serif;">{body}</svg>')
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
@@ -88,7 +146,7 @@ app_ui = ui.page_sidebar(
     ),
     ui.card(
         ui.card_header("분포"),
-        ui.output_plot("dist", height="280px"),
+        ui.output_ui("dist"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
@@ -114,26 +172,14 @@ def server(input, output, session):
             f"<tbody>{''.join(rows)}</tbody></table></div>"
         )
 
-    @render.plot(alt="선택한 변수의 분포")
+    @render.ui
     def dist():
         v = input.var()
-        fig, ax = plt.subplots()
         if v == "성별":
             counts = [DATA["성별"].count("남"), DATA["성별"].count("여")]
-            ax.bar(["M", "F"], counts, color="#9ca3af", width=0.5)
-            ax.set_xlabel("gender", color=MUTED)
-            ax.set_ylabel("count", color=MUTED)
-        else:
-            vals = np.array(DATA[v])
-            ax.hist(vals, bins=8, color=ACCENT, alpha=0.85, edgecolor="white")
-            ax.axvline(vals.mean(), color=ACCENT, linewidth=1.6, label="mean")
-            ax.axvline(np.median(vals), color=INK, linewidth=1.2,
-                       linestyle="--", label="median")
-            ax.set_xlabel(AXIS[v], color=MUTED)
-            ax.set_ylabel("count", color=MUTED)
-            ax.legend(frameon=False, fontsize=9)
-        tufte(ax)
-        return fig
+            return ui.HTML(bar_svg(counts, ["남", "여"]))
+        vals = DATA[v]
+        return ui.HTML(hist_svg(vals, v, st.mean(vals), st.median(vals)))
 
     @render.ui
     def readout():
@@ -146,10 +192,10 @@ def server(input, output, session):
                     f"여학생 {nf}명({nf / n * 100:.0f}%)으로 모두 {n}명입니다. "
                     "범주형 자료는 평균 대신 도수와 비율로 요약합니다.")
         else:
-            vals = np.array(DATA[v])
-            line = (f"{v}의 평균은 {vals.mean():.1f}, 중앙값은 {np.median(vals):.1f}, "
-                    f"표준편차는 {vals.std():.1f}, 최솟값은 {vals.min():.1f}, "
-                    f"최댓값은 {vals.max():.1f}입니다.")
+            vals = DATA[v]
+            line = (f"{v}의 평균은 {st.mean(vals):.1f}, 중앙값은 {st.median(vals):.1f}, "
+                    f"표준편차는 {st.pstdev(vals):.1f}, 최솟값은 {min(vals):.1f}, "
+                    f"최댓값은 {max(vals):.1f}입니다.")
         return ui.HTML(f'<p class="hs-readline">{line}</p>')
 
 app = App(app_ui, server)
@@ -157,19 +203,18 @@ app = App(app_ui, server)
 
 ### 파이썬 코드
 
-요약값 계산은 numpy 몇 줄이면 충분합니다.
+요약값 계산은 표준 라이브러리 `statistics` 몇 줄이면 충분합니다(numpy 불필요).
 
 ```python
-import numpy as np
+import statistics as st
 
 commute = [15, 30, 10, 45, 25, 5, 60, 20, 35, 12, 40, 8, 55,
            18, 22, 70, 28, 14, 33, 48, 9, 26, 38, 16, 52]
 
-vals = np.array(commute)
-print(vals.mean())        # 평균
-print(np.median(vals))    # 중앙값
-print(vals.std())         # 표준편차
-print(vals.min(), vals.max())  # 최솟값, 최댓값
+print(st.mean(commute))        # 평균
+print(st.median(commute))      # 중앙값
+print(st.pstdev(commute))      # 표준편차
+print(min(commute), max(commute))  # 최솟값, 최댓값
 ```
 
 :::

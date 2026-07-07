@@ -37,16 +37,14 @@ title: "통계 그래프 만들기"
 #| standalone: true
 #| viewerHeight: 620
 
+# matplotlib·numpy 없이 stdlib(statistics) + 인라인 SVG 로만 그린다
+import statistics as st
 from shiny import App, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
 INK = "#111827"
 MUTED = "#6b7280"
+GRID = "#e5e7eb"
 
 # 교육용 예시(가상) 데이터 — 고등학생 25명
 DATA = {
@@ -65,14 +63,6 @@ DATA = {
 
 NUM = ["키(cm)", "통학시간(분)", "수면시간(시간)"]
 
-# 그림 축 라벨은 영어만 사용 (한글 변수명 → 영어 라벨)
-AXIS = {
-    "키(cm)": "height (cm)",
-    "통학시간(분)": "commute (min)",
-    "수면시간(시간)": "sleep (h)",
-    "성별": "gender",
-}
-
 MSG = {
     "hist": "히스토그램은 '분포의 모양이 어떤가?'라는 질문에 맞는 그래프입니다.",
     "box": "상자그림은 '두 집단이 다른가?'처럼 집단을 비교하는 질문에 맞습니다.",
@@ -80,12 +70,131 @@ MSG = {
     "bar": "막대그래프는 '각 범주가 몇 개인가?'라는 도수 질문에 맞습니다.",
 }
 
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
+W, H = 440, 320
+
+def _svg(inner):
+    return (f'<svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;'
+            f'font-family:-apple-system,sans-serif;">{inner}</svg>')
+
+def _yaxis(ml, mr, mt, ph, vmax, fmt):
+    out = ""
+    for t in range(5):
+        v = vmax * t / 4
+        yy = mt + ph - (v / vmax) * ph
+        out += (f'<line x1="{ml}" y1="{yy:.1f}" x2="{W-mr}" y2="{yy:.1f}" stroke="{GRID}"/>'
+                f'<text x="{ml-6}" y="{yy+3:.1f}" font-size="9" fill="{MUTED}" '
+                f'text-anchor="end">{fmt(v)}</text>')
+    return out
+
+def hist_svg(data, xlab):
+    ml, mr, mt, mb = 42, 12, 14, 40
+    pw, ph = W - ml - mr, H - mt - mb
+    lo, hi = min(data), max(data)
+    if hi <= lo:
+        hi = lo + 1
+    bins = 8
+    bw = (hi - lo) / bins
+    counts = [0] * bins
+    for v in data:
+        k = int((v - lo) / bw)
+        k = 0 if k < 0 else (bins - 1 if k >= bins else k)
+        counts[k] += 1
+    vmax = max(counts) or 1
+    def X(v):
+        return ml + ((v - lo) / (hi - lo)) * pw
+    def Y(c):
+        return mt + ph - (c / vmax) * ph
+    body = _yaxis(ml, mr, mt, ph, vmax, lambda v: f"{v:.0f}")
+    for k in range(bins):
+        x = X(lo + k * bw)
+        w = X(lo + (k + 1) * bw) - x
+        body += (f'<rect x="{x:.1f}" y="{Y(counts[k]):.1f}" width="{w-1:.1f}" '
+                 f'height="{Y(0)-Y(counts[k]):.1f}" fill="{ACCENT}" opacity="0.85"/>')
+    for v in (lo, (lo + hi) / 2, hi):
+        body += (f'<text x="{X(v):.1f}" y="{mt+ph+14:.1f}" font-size="9" '
+                 f'fill="{MUTED}" text-anchor="middle">{v:g}</text>')
+    body += (f'<text x="{ml+pw/2:.0f}" y="{H-4}" font-size="10" fill="{MUTED}" '
+             f'text-anchor="middle">{xlab}</text>'
+             f'<text x="6" y="{mt-2}" font-size="10" fill="{MUTED}">도수</text>')
+    return _svg(body)
+
+def box_svg(groups, labels, ylab):
+    ml, mr, mt, mb = 44, 12, 14, 30
+    pw, ph = W - ml - mr, H - mt - mb
+    allv = [v for g in groups for v in g]
+    lo, hi = min(allv), max(allv)
+    pad = (hi - lo) * 0.08 or 1
+    lo, hi = lo - pad, hi + pad
+    def Y(v):
+        return mt + ph - ((v - lo) / (hi - lo)) * ph
+    body = ""
+    for t in range(5):
+        v = lo + (hi - lo) * t / 4
+        yy = Y(v)
+        body += (f'<line x1="{ml}" y1="{yy:.1f}" x2="{W-mr}" y2="{yy:.1f}" stroke="{GRID}"/>'
+                 f'<text x="{ml-6}" y="{yy+3:.1f}" font-size="9" fill="{MUTED}" '
+                 f'text-anchor="end">{v:.0f}</text>')
+    for i, (g, lab) in enumerate(zip(groups, labels)):
+        cx = ml + pw * (0.3 + 0.4 * i)
+        hw = pw * 0.12
+        s = sorted(g)
+        q1, q2, q3 = st.quantiles(s, n=4)
+        body += (f'<line x1="{cx:.1f}" y1="{Y(s[0]):.1f}" x2="{cx:.1f}" y2="{Y(s[-1]):.1f}" stroke="{INK}"/>'
+                 f'<rect x="{cx-hw:.1f}" y="{Y(q3):.1f}" width="{2*hw:.1f}" '
+                 f'height="{Y(q1)-Y(q3):.1f}" fill="white" fill-opacity="0.6" stroke="{INK}"/>'
+                 f'<line x1="{cx-hw:.1f}" y1="{Y(q2):.1f}" x2="{cx+hw:.1f}" y2="{Y(q2):.1f}" '
+                 f'stroke="{ACCENT}" stroke-width="1.8"/>'
+                 f'<text x="{cx:.1f}" y="{mt+ph+16:.1f}" font-size="11" fill="{MUTED}" '
+                 f'text-anchor="middle">{lab}</text>')
+    body += f'<text x="6" y="{mt-2}" font-size="10" fill="{MUTED}">{ylab}</text>'
+    return _svg(body)
+
+def scatter_svg(xs, ys, xlab, ylab):
+    ml, mr, mt, mb = 46, 14, 14, 38
+    pw, ph = W - ml - mr, H - mt - mb
+    xlo, xhi = min(xs), max(xs)
+    ylo, yhi = min(ys), max(ys)
+    xp, yp = (xhi - xlo) * 0.06 or 1, (yhi - ylo) * 0.06 or 1
+    xlo, xhi, ylo, yhi = xlo - xp, xhi + xp, ylo - yp, yhi + yp
+    def X(v):
+        return ml + ((v - xlo) / (xhi - xlo)) * pw
+    def Y(v):
+        return mt + ph - ((v - ylo) / (yhi - ylo)) * ph
+    body = ""
+    for t in range(5):
+        yv = ylo + (yhi - ylo) * t / 4
+        yy = Y(yv)
+        body += (f'<line x1="{ml}" y1="{yy:.1f}" x2="{W-mr}" y2="{yy:.1f}" stroke="{GRID}"/>'
+                 f'<text x="{ml-6}" y="{yy+3:.1f}" font-size="9" fill="{MUTED}" '
+                 f'text-anchor="end">{yv:.0f}</text>')
+    for a, b in zip(xs, ys):
+        body += f'<circle cx="{X(a):.1f}" cy="{Y(b):.1f}" r="3.6" fill="{ACCENT}" opacity="0.8"/>'
+    for v in (xlo, (xlo + xhi) / 2, xhi):
+        body += (f'<text x="{X(v):.1f}" y="{mt+ph+14:.1f}" font-size="9" '
+                 f'fill="{MUTED}" text-anchor="middle">{v:g}</text>')
+    body += (f'<text x="{ml+pw/2:.0f}" y="{H-4}" font-size="10" fill="{MUTED}" '
+             f'text-anchor="middle">{xlab}</text>'
+             f'<text x="6" y="{mt-2}" font-size="10" fill="{MUTED}">{ylab}</text>')
+    return _svg(body)
+
+def bar_svg(counts, labels, ylab):
+    ml, mr, mt, mb = 42, 12, 14, 30
+    pw, ph = W - ml - mr, H - mt - mb
+    vmax = max(counts) or 1
+    def Y(c):
+        return mt + ph - (c / vmax) * ph
+    body = _yaxis(ml, mr, mt, ph, vmax, lambda v: f"{v:.0f}")
+    for i, (c, lab) in enumerate(zip(counts, labels)):
+        cx = ml + pw * (0.3 + 0.4 * i)
+        bw = pw * 0.2
+        body += (f'<rect x="{cx-bw/2:.1f}" y="{Y(c):.1f}" width="{bw:.1f}" '
+                 f'height="{Y(0)-Y(c):.1f}" fill="#9ca3af"/>'
+                 f'<text x="{cx:.1f}" y="{Y(c)-6:.1f}" font-size="11" fill="{INK}" '
+                 f'text-anchor="middle">{c}</text>'
+                 f'<text x="{cx:.1f}" y="{mt+ph+16:.1f}" font-size="11" fill="{MUTED}" '
+                 f'text-anchor="middle">{lab}</text>')
+    body += f'<text x="6" y="{mt-2}" font-size="10" fill="{MUTED}">{ylab}</text>'
+    return _svg(body)
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
@@ -103,45 +212,29 @@ app_ui = ui.page_sidebar(
     ),
     ui.card(
         ui.card_header("그래프"),
-        ui.output_plot("chart", height="340px"),
+        ui.output_ui("chart"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
 )
 
 def server(input, output, session):
-    @render.plot(alt="선택한 종류의 통계 그래프")
+    @render.ui
     def chart():
-        kind = input.kind()
-        xv = input.xvar()
-        fig, ax = plt.subplots()
-
+        kind, xv = input.kind(), input.xvar()
         if kind == "hist":
-            ax.hist(DATA[xv], bins=8, color=ACCENT, alpha=0.85,
-                    edgecolor="white")
-            ax.set_xlabel(AXIS[xv], color=MUTED)
-            ax.set_ylabel("count", color=MUTED)
+            out = hist_svg(DATA[xv], xv)
         elif kind == "box":
             boys = [x for x, g in zip(DATA[xv], DATA["성별"]) if g == "남"]
             girls = [x for x, g in zip(DATA[xv], DATA["성별"]) if g == "여"]
-            ax.boxplot([boys, girls])
-            ax.set_xticks([1, 2])
-            ax.set_xticklabels(["M", "F"])
-            ax.set_xlabel("gender", color=MUTED)
-            ax.set_ylabel(AXIS[xv], color=MUTED)
+            out = box_svg([boys, girls], ["남", "여"], xv)
         elif kind == "scatter":
             yv = input.yvar()
-            ax.scatter(DATA[xv], DATA[yv], color=ACCENT, alpha=0.8, s=28)
-            ax.set_xlabel(AXIS[xv], color=MUTED)
-            ax.set_ylabel(AXIS[yv], color=MUTED)
-        else:  # bar
+            out = scatter_svg(DATA[xv], DATA[yv], xv, yv)
+        else:
             counts = [DATA["성별"].count("남"), DATA["성별"].count("여")]
-            ax.bar(["M", "F"], counts, color="#9ca3af", width=0.5)
-            ax.set_xlabel("gender", color=MUTED)
-            ax.set_ylabel("count", color=MUTED)
-
-        tufte(ax)
-        return fig
+            out = bar_svg(counts, ["남", "여"], "도수(명)")
+        return ui.HTML(out)
 
     @render.ui
     def readout():
@@ -155,20 +248,22 @@ app = App(app_ui, server)
 
 ### 파이썬 코드
 
-matplotlib에서 그래프 종류는 함수 하나 차이입니다.
+그래프 선택은 **묻는 질문**과 **변수의 종류**로 정해집니다.
 
 ```python
-import matplotlib.pyplot as plt
+# 질문 → 알맞은 그래프 (변수 종류로 자동 판별)
+def choose_chart(question, x_type, y_type=None):
+    if question == "분포의 모양" and x_type == "수치형":
+        return "히스토그램"
+    if question == "집단 비교":
+        return "상자그림"          # 수치형 × 범주형
+    if question == "두 변수 관계" and x_type == y_type == "수치형":
+        return "산점도"
+    if question == "범주별 도수":
+        return "막대그래프"
 
-height = [172.5, 158.3, 165.0, 181.2, 160.4]   # 일부만 표시
-sleep = [6.5, 7.2, 5.8, 6.0, 7.5]
-
-fig, ax = plt.subplots()
-ax.hist(height, bins=8)              # 히스토그램: 분포의 모양
-# ax.boxplot([boys, girls])          # 상자그림: 집단 비교
-# ax.scatter(height, sleep)          # 산점도: 두 변수 관계
-# ax.bar(["M", "F"], [13, 12])       # 막대그래프: 범주 도수
-plt.show()
+print(choose_chart("분포의 모양", "수치형"))   # 히스토그램
+print(choose_chart("두 변수 관계", "수치형", "수치형"))  # 산점도
 ```
 
 :::

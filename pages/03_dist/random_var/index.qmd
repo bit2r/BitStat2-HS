@@ -36,16 +36,14 @@ $$E(X) = x_1 p_1 + x_2 p_2 + \cdots + x_n p_n$$
 #| standalone: true
 #| viewerHeight: 640
 
+# matplotlib·numpy 없이 stdlib + 인라인 SVG 로만 그린다
+import random
 from shiny import App, reactive, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
 INK = "#111827"
 MUTED = "#6b7280"
+GRID = "#e5e7eb"
 
 SCENARIOS = {
     "die": {"name": "주사위 한 개의 눈",
@@ -59,12 +57,41 @@ SCENARIOS = {
               "p": [0.899, 0.09, 0.01, 0.001]},
 }
 
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
+def dist_svg(xs, probs, freqs):
+    W, H, ml, mr, mt, mb = 470, 320, 44, 12, 28, 40
+    pw, ph = W - ml - mr, H - mt - mb
+    nb = len(xs)
+    gw = pw / nb
+    ymax = max(max(probs), max(freqs), 1e-4)
+    grid = ""
+    for t in range(5):
+        v = ymax * t / 4
+        yy = mt + ph - (v / ymax) * ph
+        grid += (f'<line x1="{ml}" y1="{yy:.1f}" x2="{W-mr}" y2="{yy:.1f}" stroke="{GRID}"/>'
+                 f'<text x="{ml-6}" y="{yy+3:.1f}" font-size="9" fill="{MUTED}" '
+                 f'text-anchor="end">{v:.2f}</text>')
+    bars = ""
+    bw = gw * 0.30
+    for i in range(nb):
+        gx = ml + i * gw
+        hT = probs[i] / ymax * ph
+        hE = freqs[i] / ymax * ph
+        xT, xE = gx + gw * 0.18, gx + gw * 0.52
+        bars += (f'<rect x="{xT:.1f}" y="{mt+ph-hT:.1f}" width="{bw:.1f}" '
+                 f'height="{hT:.1f}" fill="none" stroke="{INK}" stroke-width="1.2"/>'
+                 f'<rect x="{xE:.1f}" y="{mt+ph-hE:.1f}" width="{bw:.1f}" '
+                 f'height="{hE:.1f}" fill="{ACCENT}" opacity="0.85"/>'
+                 f'<text x="{gx+gw/2:.1f}" y="{mt+ph+13:.1f}" font-size="8.5" '
+                 f'fill="{MUTED}" text-anchor="middle">{xs[i]:,}</text>')
+    leg = (f'<rect x="{ml}" y="4" width="12" height="12" fill="none" '
+           f'stroke="{INK}" stroke-width="1.2"/>'
+           f'<text x="{ml+16}" y="14" font-size="10" fill="{MUTED}">P(X=x)</text>'
+           f'<rect x="{ml+90}" y="4" width="12" height="12" fill="{ACCENT}" opacity="0.85"/>'
+           f'<text x="{ml+106}" y="14" font-size="10" fill="{MUTED}">상대도수</text>')
+    return (f'<svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;'
+            f'font-family:-apple-system,sans-serif;">{grid}{bars}{leg}'
+            f'<text x="{ml+pw/2:.0f}" y="{H-4}" font-size="10" fill="{MUTED}" '
+            f'text-anchor="middle">X 의 값</text></svg>')
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
@@ -78,7 +105,7 @@ app_ui = ui.page_sidebar(
     ),
     ui.card(
         ui.card_header("확률분포(테두리) vs 실제 시행의 상대도수(파랑)"),
-        ui.output_plot("dist_plot", height="340px"),
+        ui.output_ui("dist_plot"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
@@ -89,33 +116,22 @@ def server(input, output, session):
     def draws():
         input.redraw()  # 버튼을 누르면 새로 추첨
         sc = SCENARIOS[input.scenario()]
-        idx = np.random.choice(len(sc["x"]), size=input.n(), p=sc["p"])
-        return np.array(sc["x"])[idx]
+        return random.choices(sc["x"], weights=sc["p"], k=input.n())
 
-    @render.plot(alt="확률분포와 상대도수 비교")
+    @render.ui
     def dist_plot():
         sc = SCENARIOS[input.scenario()]
         vals = draws()
-        pos = np.arange(len(sc["x"]))
-        freq = [np.mean(vals == v) for v in sc["x"]]
-
-        fig, ax = plt.subplots()
-        ax.bar(pos - 0.2, sc["p"], width=0.38, fill=False,
-               edgecolor=INK, linewidth=1.2, label="P(X=x)")
-        ax.bar(pos + 0.2, freq, width=0.38, color=ACCENT, alpha=0.85,
-               label="relative freq.")
-        ax.set_xticks(pos)
-        ax.set_xticklabels([f"{v:,}" for v in sc["x"]])
-        ax.set_ylabel("P(X = x)", color=MUTED)
-        ax.legend(frameon=False, fontsize=9)
-        tufte(ax)
-        return fig
+        n = len(vals)
+        freq = [vals.count(v) / n for v in sc["x"]]
+        return ui.HTML(dist_svg(sc["x"], sc["p"], freq))
 
     @render.ui
     def readout():
         sc = SCENARIOS[input.scenario()]
         e = sum(x * p for x, p in zip(sc["x"], sc["p"]))
-        m = draws().mean()
+        vals = draws()
+        m = sum(vals) / len(vals)
         line = (f"기댓값 E(X) = {e:,.1f} · "
                 f"시행 {input.n():,}번의 표본평균 = {m:,.1f} · "
                 f"차이 = {abs(e - m):,.1f}")
@@ -133,15 +149,15 @@ app = App(app_ui, server)
 앱의 핵심 계산은 이 몇 줄이 전부입니다.
 
 ```python
-import numpy as np
+import random
 
 x = [0, 1000, 10000, 1000000]          # 복권 당첨금
 p = [0.899, 0.09, 0.01, 0.001]         # 각 확률
 
 E = sum(xi * pi for xi, pi in zip(x, p))   # 기댓값 E(X) = 1190.0
 
-draws = np.random.choice(x, size=5000, p=p)  # 5000번 시행
-print(E, draws.mean())                       # 기댓값 vs 표본평균
+draws = random.choices(x, weights=p, k=5000)  # 5000번 시행
+print(E, sum(draws) / len(draws))             # 기댓값 vs 표본평균
 ```
 
 :::

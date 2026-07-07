@@ -38,26 +38,49 @@ title: "여론조사 읽기"
 #| standalone: true
 #| viewerHeight: 640
 
+# matplotlib·numpy 없이 stdlib + 인라인 SVG 로만 그린다
 from math import sqrt
 from shiny import App, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
 INK = "#111827"
 MUTED = "#6b7280"
+GRID = "#e5e7eb"
 
 Z = {"95": 1.96, "99": 2.576}
 
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
+def poll_svg(a, b, moe):
+    W, H, ml, mr, mt, mb = 340, 300, 42, 14, 16, 30
+    pw, ph = W - ml - mr, H - mt - mb
+    ymax = 80
+    def Y(v):
+        return mt + ph - (v / ymax) * ph
+    grid = ""
+    for t in range(0, 81, 20):
+        yy = Y(t)
+        grid += (f'<line x1="{ml}" y1="{yy:.1f}" x2="{W-mr}" y2="{yy:.1f}" stroke="{GRID}"/>'
+                 f'<text x="{ml-6}" y="{yy+3:.1f}" font-size="9" fill="{MUTED}" '
+                 f'text-anchor="end">{t}</text>')
+    bw = pw * 0.24
+    body = ""
+    for cx, val, col, lab in ((ml + pw * 0.32, a, ACCENT, "A"),
+                              (ml + pw * 0.68, b, "#9ca3af", "B")):
+        body += (f'<rect x="{cx-bw/2:.1f}" y="{Y(val):.1f}" width="{bw:.1f}" '
+                 f'height="{Y(0)-Y(val):.1f}" fill="{col}" opacity="0.9"/>')
+        top, bot = min(ymax, val + moe), max(0, val - moe)
+        body += (f'<line x1="{cx:.1f}" y1="{Y(bot):.1f}" x2="{cx:.1f}" '
+                 f'y2="{Y(top):.1f}" stroke="{INK}" stroke-width="1.3"/>'
+                 f'<line x1="{cx-7:.1f}" y1="{Y(top):.1f}" x2="{cx+7:.1f}" '
+                 f'y2="{Y(top):.1f}" stroke="{INK}" stroke-width="1.3"/>'
+                 f'<line x1="{cx-7:.1f}" y1="{Y(bot):.1f}" x2="{cx+7:.1f}" '
+                 f'y2="{Y(bot):.1f}" stroke="{INK}" stroke-width="1.3"/>'
+                 f'<text x="{cx:.1f}" y="{Y(val)-10:.1f}" font-size="12" '
+                 f'font-weight="600" fill="{INK}" text-anchor="middle">{val}%</text>'
+                 f'<text x="{cx:.1f}" y="{mt+ph+16:.1f}" font-size="11" '
+                 f'fill="{MUTED}" text-anchor="middle">{lab}</text>')
+    return (f'<svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;'
+            f'font-family:-apple-system,sans-serif;">{grid}{body}'
+            f'<text x="8" y="{mt-2}" font-size="10" fill="{MUTED}">지지율(%)</text></svg>')
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
@@ -70,27 +93,19 @@ app_ui = ui.page_sidebar(
     ),
     ui.card(
         ui.card_header("가상 여론조사 — 막대 위 선이 오차범위"),
-        ui.output_plot("bars", height="320px"),
+        ui.output_ui("bars"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
 )
 
 def server(input, output, session):
-    @render.plot(alt="두 후보 지지율과 오차범위")
+    @render.ui
     def bars():
         a = input.a()
         b = 90 - a          # 무응답 10% 고정
         moe = Z[input.level()] * sqrt(0.25 / input.n()) * 100
-
-        fig, ax = plt.subplots()
-        ax.bar(["A", "B"], [a, b], color=[ACCENT, "#9ca3af"], width=0.5,
-               yerr=moe, capsize=8,
-               error_kw={"ecolor": INK, "linewidth": 1.2})
-        ax.set_ylabel("support (%)", color=MUTED)
-        ax.set_ylim(0, 80)
-        tufte(ax)
-        return fig
+        return ui.HTML(poll_svg(a, b, moe))
 
     @render.ui
     def readout():

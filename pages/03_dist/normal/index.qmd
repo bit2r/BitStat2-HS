@@ -38,30 +38,54 @@ $m$, $\sigma$를 움직여 곡선의 변화를 보고, 구간의 넓이가
 #| standalone: true
 #| viewerHeight: 660
 
-from math import erf, sqrt
+# matplotlib·numpy 없이 stdlib + 인라인 SVG 로만 그린다
+from math import erf, sqrt, exp, pi
 from shiny import App, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
 INK = "#111827"
 MUTED = "#6b7280"
 
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
-
 def pdf(x, m, s):
-    return np.exp(-((x - m) ** 2) / (2 * s * s)) / (s * sqrt(2 * np.pi))
+    return exp(-((x - m) ** 2) / (2 * s * s)) / (s * sqrt(2 * pi))
 
 def cdf(x, m, s):
     return 0.5 * (1 + erf((x - m) / (s * sqrt(2))))
+
+def panel(m, s, a, b, title, xlab):
+    W, H, ml, mr, mt, mb = 240, 300, 12, 12, 26, 28
+    pw, ph = W - ml - mr, H - mt - mb
+    x0, x1 = m - 4 * s, m + 4 * s
+    def X(v):
+        return ml + ((v - x0) / (x1 - x0)) * pw
+    ymax = pdf(m, m, s) * 1.12
+    def Y(v):
+        return mt + ph - (v / ymax) * ph
+    def sample(u0, u1, k):
+        return [u0 + (u1 - u0) * i / k for i in range(k + 1)]
+    curve = ('M' + " L".join(f"{X(x):.1f},{Y(pdf(x,m,s)):.1f}"
+                             for x in sample(x0, x1, 200)))
+    aa, bb = max(a, x0), min(b, x1)
+    fill = ""
+    if bb > aa:
+        seg = sample(aa, bb, 120)
+        d = (f"M{X(aa):.1f},{Y(0):.1f} "
+             + " ".join(f"L{X(x):.1f},{Y(pdf(x,m,s)):.1f}" for x in seg)
+             + f" L{X(bb):.1f},{Y(0):.1f} Z")
+        fill = f'<path d="{d}" fill="{ACCENT}" opacity="0.18"/>'
+    return (
+        f'<svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;'
+        'font-family:-apple-system,sans-serif;">'
+        f'<line x1="{ml}" y1="{Y(0):.1f}" x2="{W-mr}" y2="{Y(0):.1f}" stroke="#9ca3af"/>'
+        f'<line x1="{X(m):.1f}" y1="{mt}" x2="{X(m):.1f}" y2="{Y(0):.1f}" '
+        f'stroke="#9ca3af" stroke-width="0.7" stroke-dasharray="2 3"/>'
+        f'{fill}<path d="{curve}" fill="none" stroke="{INK}" stroke-width="1.5"/>'
+        f'<text x="{W/2:.0f}" y="16" font-size="11" fill="{INK}" '
+        f'text-anchor="middle">{title}</text>'
+        f'<text x="{W-mr:.0f}" y="{Y(0)+16:.0f}" font-size="10" fill="{MUTED}" '
+        f'text-anchor="end">{xlab}</text>'
+        '</svg>'
+    )
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
@@ -73,46 +97,27 @@ app_ui = ui.page_sidebar(
     ),
     ui.card(
         ui.card_header("정규분포 곡선 — 색칠한 넓이가 곧 확률"),
-        ui.output_plot("curve", height="360px"),
+        ui.output_ui("curve"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
 )
 
 def server(input, output, session):
-    @render.plot(alt="정규분포 곡선과 구간 확률")
+    @render.ui
     def curve():
         m, s = input.m(), input.s()
         a, b = input.ab()
-
-        if input.show_z():
-            fig, (ax1, ax2) = plt.subplots(1, 2)
-        else:
-            fig, ax1 = plt.subplots()
-
-        # 원래 분포 N(m, σ²)
-        xs = np.linspace(m - 4 * s, m + 4 * s, 400)
-        ax1.plot(xs, pdf(xs, m, s), color=INK, linewidth=1.5)
-        seg = np.linspace(a, b, 200)
-        ax1.fill_between(seg, pdf(seg, m, s), color=ACCENT, alpha=0.18)
-        ax1.axvline(m, color="#9ca3af", linewidth=0.7, linestyle=":")
-        ax1.set_title(f"N({m}, {s}²)", fontsize=10, color=INK)
-        ax1.set_xlabel("x", color=MUTED)
-        tufte(ax1)
-
-        # 표준화한 분포 N(0, 1)
+        left = panel(m, s, a, b, f"N({m}, {s}²)", "x")
         if input.show_z():
             za, zb = (a - m) / s, (b - m) / s
-            zs = np.linspace(-4, 4, 400)
-            ax2.plot(zs, pdf(zs, 0, 1), color=INK, linewidth=1.5)
-            zseg = np.linspace(max(za, -4), min(zb, 4), 200)
-            ax2.fill_between(zseg, pdf(zseg, 0, 1), color=ACCENT, alpha=0.18)
-            ax2.axvline(0, color="#9ca3af", linewidth=0.7, linestyle=":")
-            ax2.set_title("N(0, 1)", fontsize=10, color=INK)
-            ax2.set_xlabel("z", color=MUTED)
-            tufte(ax2)
-
-        return fig
+            right = panel(0, 1, za, zb, "N(0, 1)", "z")
+            return ui.HTML(
+                '<div style="display:flex; gap:10px;">'
+                f'<div style="flex:1;">{left}</div>'
+                f'<div style="flex:1;">{right}</div></div>'
+            )
+        return ui.HTML(left)
 
     @render.ui
     def readout():

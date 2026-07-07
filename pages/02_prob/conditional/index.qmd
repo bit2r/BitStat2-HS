@@ -40,30 +40,50 @@ $P(A)$, $P(B \mid A)$, $P(B \mid A^c)$를 움직여 네 영역의 칸 수가
 #| standalone: true
 #| viewerHeight: 660
 
+# matplotlib·numpy 없이 stdlib + 인라인 SVG 로만 그린다
 from shiny import App, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
 INK = "#111827"
 MUTED = "#6b7280"
-
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
 
 def counts(pa, pba, pbac):
     n_a = round(100 * pa)
     n_ab = min(round(100 * pa * pba), n_a)
     n_acb = min(round(100 * (1 - pa) * pbac), 100 - n_a)
     return n_a, n_ab, n_acb
+
+def grid_svg(n_a, n_ab, n_acb):
+    cell, gap, ox, oy = 24, 3, 6, 6
+    body = ""
+    for i in range(100):
+        c, r = i % 10, i // 10
+        x, y = ox + c * (cell + gap), oy + r * (cell + gap)
+        if i < n_ab:
+            fill, stroke = ACCENT, ACCENT
+        elif i < n_a:
+            fill, stroke = "none", ACCENT
+        elif i < n_a + n_acb:
+            fill, stroke = "#9ca3af", "#9ca3af"
+        else:
+            fill, stroke = "none", "#d1d5db"
+        body += (f'<rect x="{x}" y="{y}" width="{cell}" height="{cell}" rx="3" '
+                 f'fill="{fill}" stroke="{stroke}" stroke-width="1.4"/>')
+    gx = ox + 10 * (cell + gap) + 18
+    legend = [
+        (f"A∩B ({n_ab})", ACCENT, ACCENT),
+        (f"A만 ({n_a - n_ab})", "none", ACCENT),
+        (f"B만 ({n_acb})", "#9ca3af", "#9ca3af"),
+        (f"둘 다 아님 ({100 - n_a - n_acb})", "none", "#d1d5db"),
+    ]
+    for j, (lab, fill, stroke) in enumerate(legend):
+        yy = oy + 8 + j * 30
+        body += (f'<rect x="{gx}" y="{yy}" width="18" height="18" rx="3" '
+                 f'fill="{fill}" stroke="{stroke}" stroke-width="1.4"/>'
+                 f'<text x="{gx+26}" y="{yy+14}" font-size="12" fill="{INK}">{lab}</text>')
+    W, H = gx + 170, oy + 10 * (cell + gap)
+    return (f'<svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;'
+            f'font-family:-apple-system,sans-serif;">{body}</svg>')
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
@@ -77,52 +97,17 @@ app_ui = ui.page_sidebar(
     ),
     ui.card(
         ui.card_header("학생 100명 — A: 아침 운동, B: 아침밥"),
-        ui.output_plot("grid", height="340px"),
+        ui.output_ui("grid"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
 )
 
 def server(input, output, session):
-    @render.plot(alt="100명의 학생을 네 영역으로 나눈 격자")
+    @render.ui
     def grid():
         n_a, n_ab, n_acb = counts(input.pa(), input.pba(), input.pbac())
-
-        fig, ax = plt.subplots()
-        for i in range(100):
-            x, y = i % 10, i // 10
-            if i < n_ab:                       # A∩B
-                fc, ec, lw = ACCENT, ACCENT, 0.8
-            elif i < n_a:                      # A∩Bᶜ
-                fc, ec, lw = "none", ACCENT, 1.2
-            elif i < n_a + n_acb:              # Aᶜ∩B
-                fc, ec, lw = "#9ca3af", "#9ca3af", 0.8
-            else:                              # Aᶜ∩Bᶜ
-                fc, ec, lw = "none", "#d1d5db", 0.8
-            ax.add_patch(Rectangle((x, 9 - y), 0.88, 0.88,
-                                   facecolor=fc, edgecolor=ec, linewidth=lw))
-
-        legend = [
-            (f"A∩B ({n_ab})", ACCENT, ACCENT, 0.8),
-            (f"A only ({n_a - n_ab})", "none", ACCENT, 1.2),
-            (f"B only ({n_acb})", "#9ca3af", "#9ca3af", 0.8),
-            (f"neither ({100 - n_a - n_acb})", "none", "#d1d5db", 0.8),
-        ]
-        for j, (label, fc, ec, lw) in enumerate(legend):
-            yy = 8.2 - 1.6 * j
-            ax.add_patch(Rectangle((10.8, yy), 0.7, 0.7,
-                                   facecolor=fc, edgecolor=ec, linewidth=lw))
-            ax.text(11.8, yy + 0.35, label, va="center",
-                    fontsize=9, color=INK)
-
-        ax.set_xlim(-0.3, 16.5)
-        ax.set_ylim(-0.3, 10.2)
-        ax.set_aspect("equal")
-        ax.set_xticks([])
-        ax.set_yticks([])
-        for side in ("top", "right", "left", "bottom"):
-            ax.spines[side].set_visible(False)
-        return fig
+        return ui.HTML(grid_svg(n_a, n_ab, n_acb))
 
     @render.ui
     def readout():

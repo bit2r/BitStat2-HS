@@ -41,24 +41,47 @@ ${}_n\mathrm{P}_r = {}_n\mathrm{C}_r \times r!$ 이 항상 성립합니다.
 #| standalone: true
 #| viewerHeight: 640
 
+# matplotlib·numpy 없이 stdlib + 인라인 SVG 로만 그린다
 from math import comb, factorial
 from shiny import App, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
 INK = "#111827"
 MUTED = "#6b7280"
+GRID = "#e5e7eb"
 
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
+def bars_svg(vals, hi):
+    W, H, ml, mr, mt, mb = 460, 320, 46, 12, 14, 34
+    pw, ph = W - ml - mr, H - mt - mb
+    vmax = max(vals) or 1
+    nb = len(vals)
+    bw = pw / nb
+    grid = ""
+    for t in range(5):
+        v = vmax * t / 4
+        yy = mt + ph - (v / vmax) * ph
+        grid += (f'<line x1="{ml}" y1="{yy:.1f}" x2="{W-mr}" y2="{yy:.1f}" stroke="{GRID}"/>'
+                 f'<text x="{ml-6}" y="{yy+3:.1f}" font-size="9" fill="{MUTED}" '
+                 f'text-anchor="end">{int(round(v))}</text>')
+    bars = ""
+    for i, v in enumerate(vals):
+        bh = (v / vmax) * ph
+        x = ml + i * bw
+        y = mt + ph - bh
+        col = ACCENT if i == hi else "#d1d5db"
+        bars += (f'<rect x="{x+1:.1f}" y="{y:.1f}" width="{bw-2:.1f}" '
+                 f'height="{bh:.1f}" fill="{col}"/>'
+                 f'<text x="{x+bw/2:.1f}" y="{mt+ph+14:.1f}" font-size="9" '
+                 f'fill="{MUTED}" text-anchor="middle">{i}</text>')
+    return (
+        f'<svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;'
+        'font-family:-apple-system,sans-serif;">'
+        f'{grid}{bars}'
+        f'<text x="{ml+pw/2:.0f}" y="{H-4}" font-size="10" fill="{MUTED}" '
+        'text-anchor="middle">k (뽑는 개수)</text>'
+        f'<text x="8" y="{mt-2}" font-size="10" fill="{MUTED}">C(n, k)</text>'
+        '</svg>'
+    )
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
@@ -68,29 +91,18 @@ app_ui = ui.page_sidebar(
     ),
     ui.card(
         ui.card_header("조합의 수 C(n, k) — 파란 막대가 지금 고른 r"),
-        ui.output_plot("bars", height="340px"),
+        ui.output_ui("bars"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
 )
 
 def server(input, output, session):
-    @render.plot(alt="k에 따른 조합의 수 막대그래프")
+    @render.ui
     def bars():
         n = input.n()
         r_eff = min(input.r(), n)
-        ks = np.arange(n + 1)
-        vals = [comb(n, k) for k in ks]
-        colors = ["#d1d5db"] * (n + 1)
-        colors[r_eff] = ACCENT
-
-        fig, ax = plt.subplots()
-        ax.bar(ks, vals, color=colors, edgecolor="none")
-        ax.set_xticks(ks)
-        ax.set_xlabel("k", color=MUTED)
-        ax.set_ylabel("C(n, k)", color=MUTED)
-        tufte(ax)
-        return fig
+        return ui.HTML(bars_svg([comb(n, k) for k in range(n + 1)], r_eff))
 
     @render.ui
     def readout():
