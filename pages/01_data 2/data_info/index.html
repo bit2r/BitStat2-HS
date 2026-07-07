@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>정규분포와 표준화 – 빛스탯 HS</title>
+<title>자료와 정보 – 빛스탯 HS</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -157,7 +157,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">정규분포와 표준화</h1>
+<h1 class="title">자료와 정보</h1>
 </div>
 
 
@@ -178,16 +178,17 @@ window.Quarto = {
 <p><a href="../../../index.html">← 빛스탯 HS 홈</a></p>
 </div>
 <div class="hs-meta">
-<p>단원 03 확률분포 · 「확률과 통계」 · 1차시(45분)</p>
+<p>단원 01 자료와 그래프 · 중등 정보교과 연계 · 도입</p>
 </div>
 <section id="개념" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="개념">개념</h2>
-<p>키, 시험 점수처럼 평균 근처에 자료가 몰리고 양쪽으로 대칭인 분포를 <strong>정규분포</strong> <span class="math inline">\(N(m,\,\sigma^2)\)</span>로 나타냅니다. 곡선의 위치는 평균 <span class="math inline">\(m\)</span>이, 퍼진 정도는 표준편차 <span class="math inline">\(\sigma\)</span>가 정합니다. 곡선 아래 구간의 <strong>넓이가 곧 확률</strong>입니다.</p>
-<p><span class="math display">\[Z = \frac{X - m}{\sigma} \;\sim\; N(0,\,1)\]</span></p>
+<p>관찰이나 측정으로 얻은 가공 전의 사실이 <strong>자료(data)</strong> 입니다. 숫자·문자·그림·소리처럼 그 자체로는 아직 의미가 잘 드러나지 않습니다. 이 자료를 문제 해결에 도움이 되도록 정리·가공한 것이 <strong>정보(information)</strong> 이고, 정보가 쌓여 판단의 근거가 되면 <strong>지식</strong>이 됩니다.</p>
+<p><span class="math display">\[\text{자료(data)} \;\longrightarrow\; \text{정보(information)} \;\longrightarrow\; \text{지식(knowledge)}\]</span></p>
 
 <div class="no-row-height column-margin column-container"><div class="">
-<p>수능 표준점수가 바로 표준화입니다. 과목마다 <span class="math inline">\(m\)</span>과 <span class="math inline">\(\sigma\)</span>가 달라도 <span class="math inline">\(Z\)</span>로 바꾸면 같은 자로 잴 수 있습니다.</p>
-</div></div><p>어떤 정규분포든 표준화하면 <strong>표준정규분포</strong> <span class="math inline">\(N(0, 1)\)</span>이 되므로, 확률 계산은 표준정규분포표 하나로 충분합니다. 아래 앱에서 <span class="math inline">\(m\)</span>, <span class="math inline">\(\sigma\)</span>를 움직여 곡선의 변화를 보고, 구간의 넓이가 표준화된 <span class="math inline">\(Z\)</span> 구간의 넓이와 같음을 확인해 보세요.</p>
+<p>중등 「정보」 교과서는 자료를 <em>“컴퓨터가 처리할 수 있는 문자·숫자·소리·그림 형태의 것”</em>, 정보를 <em>“관찰이나 측정을 통해 수집한 자료를 실제 문제에 도움이 될 수 있도록 정리한 지식”</em> 으로 구분합니다. 통계는 바로 이 <strong>자료 → 정보</strong> 변환을 다루는 과목입니다.</p>
+</div></div><p>자료는 값의 성격에 따라 나뉩니다. 인구수·키·가격처럼 크기를 재는 <strong>수치형(양적)</strong> 자료와, 행정구역·성별·선호도처럼 종류를 나누는 <strong>범주형(질적)</strong> 자료입니다. 어떤 유형이냐에 따라 쓸 수 있는 그래프와 대푯값이 달라지므로, 분석에 앞서 자료의 유형부터 확인해야 합니다.</p>
+<p>문제를 데이터로 해결할 때는 대체로 네 단계를 거칩니다 — <strong>① 문제 분석</strong>(무엇이 필요한가) → <strong>② 자료 수집</strong>(인터넷·설문으로 모으기) → <strong>③ 분류·관리</strong>(스프레드시트로 정렬·선택·분석) → <strong>④ 공유</strong>(정리한 결과를 함께 보기). 아래 앱은 이 가운데 ③의 핵심인 <strong>정렬</strong>을 다룹니다. 같은 표라도 정렬하고 상위 몇 개만 추리면, 뒤섞인 자료가 곧바로 읽히는 정보로 바뀝니다.</p>
 </section>
 <section id="만지며-배우기" class="level2">
 <h2 class="anchored" data-anchor-id="만지며-배우기">만지며 배우기</h2>
@@ -199,151 +200,143 @@ window.Quarto = {
 #|   shinylive does not work in self-contained HTML documents.
 #|   Please set `embed-resources: false` in your metadata.
 #| standalone: true
-#| viewerHeight: 660
+#| viewerHeight: 680
 
-from math import erf, sqrt
 from shiny import App, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
-INK = "#111827"
-MUTED = "#6b7280"
 
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
-
-def pdf(x, m, s):
-    return np.exp(-((x - m) ** 2) / (2 * s * s)) / (s * sqrt(2 * np.pi))
-
-def cdf(x, m, s):
-    return 0.5 * (1 + erf((x - m) / (s * sqrt(2))))
+# 우리나라 시도별 인구수 — 중등 「정보」 교과서 예시 표
+# (matplotlib 대신 HTML 막대를 쓰는 이유: Pyodide에는 한글 폰트가 없어
+#  차트 축 라벨의 한글이 깨진다. HTML 막대는 브라우저 폰트로 그려 정상 표시된다.)
+POP = [
+    ("서울", 10022181), ("부산", 3513777), ("대구", 2487829),
+    ("인천", 2925815), ("광주", 1472199), ("대전", 1518775),
+    ("울산", 1173534), ("세종", 210884), ("경기", 12522606),
+    ("강원", 1549507), ("충북", 1583952), ("충남", 2077649),
+    ("전북", 1869711), ("전남", 1908996), ("경북", 2702826),
+    ("경남", 3364702), ("제주", 624395),
+]
+POP_MAX = max(p for _, p in POP)
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
-        ui.input_slider("m", "평균 m", min=40, max=100, value=70, step=1),
-        ui.input_slider("s", "표준편차 σ", min=2, max=20, value=10, step=1),
-        ui.input_slider("ab", "구간 [a, b]", min=20, max=120, value=(65, 75), step=1),
-        ui.input_checkbox("show_z", "표준정규분포 Z 겹쳐 보기", False),
-        width=240,
+        ui.input_select(
+            "order", "정렬 기준",
+            {"desc": "인구 많은 순", "asc": "인구 적은 순", "name": "가나다 순"},
+            selected="desc",
+        ),
+        ui.input_slider("topn", "상위 몇 개 시도만 보기", min=3, max=17, value=8, step=1),
+        width=250,
     ),
     ui.card(
-        ui.card_header("정규분포 곡선 — 색칠한 넓이가 곧 확률"),
-        ui.output_plot("curve", height="360px"),
+        ui.card_header("시도별 인구수 — 정렬하면 뒤섞인 자료가 정보가 됩니다"),
+        ui.output_ui("bars"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
 )
 
 def server(input, output, session):
-    @render.plot(alt="정규분포 곡선과 구간 확률")
-    def curve():
-        m, s = input.m(), input.s()
-        a, b = input.ab()
-
-        if input.show_z():
-            fig, (ax1, ax2) = plt.subplots(1, 2)
+    def arranged():
+        data = list(POP)
+        if input.order() == "desc":
+            data.sort(key=lambda r: r[1], reverse=True)
+        elif input.order() == "asc":
+            data.sort(key=lambda r: r[1])
         else:
-            fig, ax1 = plt.subplots()
+            data.sort(key=lambda r: r[0])
+        # 가나다 순일 때는 전체를, 크기순일 때는 상위 N개를 보여 준다
+        if input.order() == "name":
+            return data
+        return data[: input.topn()]
 
-        # 원래 분포 N(m, σ²)
-        xs = np.linspace(m - 4 * s, m + 4 * s, 400)
-        ax1.plot(xs, pdf(xs, m, s), color=INK, linewidth=1.5)
-        seg = np.linspace(a, b, 200)
-        ax1.fill_between(seg, pdf(seg, m, s), color=ACCENT, alpha=0.18)
-        ax1.axvline(m, color="#9ca3af", linewidth=0.7, linestyle=":")
-        ax1.set_title(f"N({m}, {s}²)", fontsize=10, color=INK)
-        ax1.set_xlabel("x", color=MUTED)
-        tufte(ax1)
-
-        # 표준화한 분포 N(0, 1)
-        if input.show_z():
-            za, zb = (a - m) / s, (b - m) / s
-            zs = np.linspace(-4, 4, 400)
-            ax2.plot(zs, pdf(zs, 0, 1), color=INK, linewidth=1.5)
-            zseg = np.linspace(max(za, -4), min(zb, 4), 200)
-            ax2.fill_between(zseg, pdf(zseg, 0, 1), color=ACCENT, alpha=0.18)
-            ax2.axvline(0, color="#9ca3af", linewidth=0.7, linestyle=":")
-            ax2.set_title("N(0, 1)", fontsize=10, color=INK)
-            ax2.set_xlabel("z", color=MUTED)
-            tufte(ax2)
-
-        return fig
+    @render.ui
+    def bars():
+        rows = ""
+        for name, p in arranged():
+            w = p / POP_MAX * 100
+            rows += (
+                '&lt;div style="display:flex; align-items:center; margin:5px 0;"&gt;'
+                f'&lt;div style="width:44px; text-align:right; padding-right:10px;'
+                f' font-size:0.9em; flex:none;"&gt;{name}&lt;/div&gt;'
+                f'&lt;div style="height:19px; width:{w:.1f}%; background:{ACCENT};'
+                f' border-radius:3px; flex:none;"&gt;&lt;/div&gt;'
+                f'&lt;div style="padding-left:8px; font-size:0.82em; color:#6b7280;'
+                f' flex:none;"&gt;{p/10000:,.0f}만&lt;/div&gt;&lt;/div&gt;'
+            )
+        return ui.HTML(f'&lt;div style="padding:0.4em 0.2em;"&gt;{rows}&lt;/div&gt;')
 
     @render.ui
     def readout():
-        m, s = input.m(), input.s()
-        a, b = input.ab()
-        p = cdf(b, m, s) - cdf(a, m, s)
-        za, zb = (a - m) / s, (b - m) / s
+        data = arranged()
+        top = max(POP, key=lambda r: r[1])
+        bot = min(POP, key=lambda r: r[1])
+        total = sum(r[1] for r in POP)
         return ui.HTML(
-            f'&lt;p class="hs-readline"&gt;'
-            f"P({a} ≤ X ≤ {b}) = {p:.4f} — 표준화하면 "
-            f"P({za:.2f} ≤ Z ≤ {zb:.2f})와 같습니다. "
-            f"m과 σ를 바꿔도 z가 같으면 확률(넓이)은 변하지 않습니다.&lt;/p&gt;"
+            '&lt;p class="hs-readline"&gt;'
+            f"17개 시도 인구를 모두 더하면 약 {total/10000:,.0f}만 명입니다. "
+            f"가장 많은 곳은 {top[0]}({top[1]:,}명), 가장 적은 곳은 {bot[0]}({bot[1]:,}명)로 "
+            f"약 {top[1]/bot[1]:.0f}배 차이가 납니다. "
+            "정렬 기준과 개수를 바꿔 보세요. 표의 숫자는 그대로지만, "
+            "무엇을 위로 올리고 몇 개만 남기느냐에 따라 전혀 다른 사실이 눈에 들어옵니다. "
+            "이것이 자료를 정보로 바꾸는 가장 기본적인 가공입니다.&lt;/p&gt;"
         )
 
 app = App(app_ui, server)</code></pre>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<p>정규분포 확률은 표준화와 표준정규분포의 누적확률로 계산합니다.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> math <span class="im">import</span> erf, sqrt</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cdf(z):                       <span class="co"># 표준정규분포 P(Z ≤ z)</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.5</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">+</span> erf(z <span class="op">/</span> sqrt(<span class="dv">2</span>)))</span>
+<p>정렬과 상위 N개 추리기는 <code>sorted</code> 한 줄이면 됩니다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>pop <span class="op">=</span> [</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"서울"</span>, <span class="dv">10022181</span>), (<span class="st">"경기"</span>, <span class="dv">12522606</span>), (<span class="st">"부산"</span>, <span class="dv">3513777</span>),</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"세종"</span>, <span class="dv">210884</span>), (<span class="st">"제주"</span>, <span class="dv">624395</span>),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>]</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>m, s <span class="op">=</span> <span class="dv">70</span>, <span class="dv">10</span>                     <span class="co"># X ~ N(70, 10²)</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>a, b <span class="op">=</span> <span class="dv">65</span>, <span class="dv">75</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 인구 많은 순으로 정렬 (뒤섞인 자료 → 읽히는 정보)</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>ranked <span class="op">=</span> <span class="bu">sorted</span>(pop, key<span class="op">=</span><span class="kw">lambda</span> r: r[<span class="dv">1</span>], reverse<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>za, zb <span class="op">=</span> (a <span class="op">-</span> m) <span class="op">/</span> s, (b <span class="op">-</span> m) <span class="op">/</span> s <span class="co"># 표준화</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(cdf(zb) <span class="op">-</span> cdf(za))          <span class="co"># P(65 ≤ X ≤ 75) = P(-0.5 ≤ Z ≤ 0.5)</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, n <span class="kw">in</span> ranked[:<span class="dv">3</span>]:          <span class="co"># 상위 3개만</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>n<span class="sc">:,}</span><span class="ss">명"</span>)</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
 </section>
 <section id="스스로-확인" class="level2">
 <h2 class="anchored" data-anchor-id="스스로-확인">스스로 확인</h2>
-<div class="callout callout-style-default callout-tip callout-titled" title="문제 1 — σ를 두 배로 하면 곡선은 어떻게 변하는가?">
+<div class="callout callout-style-default callout-tip callout-titled" title="문제 1 — '서울 10,022,181'은 자료인가 정보인가?">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">힌트</span>문제 1 — σ를 두 배로 하면 곡선은 어떻게 변하는가?
+<span class="screen-reader-only">힌트</span>문제 1 — ’서울 10,022,181’은 자료인가 정보인가?
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>곡선이 옆으로 두 배 퍼지면서 봉우리는 절반 높이로 낮아집니다. 전체 넓이가 항상 1이어야 하기 때문입니다. 같은 구간 <span class="math inline">\([a, b]\)</span>의 확률(넓이)이 어떻게 변하는지도 함께 관찰해 보세요.</p>
+<p>숫자 하나만 놓고 보면 아직 가공 전의 <strong>자료</strong>입니다. 이 값을 17개 시도와 함께 인구 많은 순으로 정렬해 “서울이 두 번째로 인구가 많다”처럼 문제 해결에 쓸 수 있게 정리하면 비로소 <strong>정보</strong>가 됩니다. 같은 값도 정리·해석의 목적에 따라 자료가 되기도, 정보가 되기도 합니다.</p>
 </div>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="문제 2 — m = 70, σ = 10일 때 P(60 ≤ X ≤ 80)은? 표준화하면 어떤 Z 구간인가?">
+<div class="callout callout-style-default callout-tip callout-titled" title="문제 2 — 행정구역과 인구수는 각각 어떤 유형의 자료인가?">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">힌트</span>문제 2 — m = 70, σ = 10일 때 P(60 ≤ X ≤ 80)은? 표준화하면 어떤 Z 구간인가?
+<span class="screen-reader-only">힌트</span>문제 2 — 행정구역과 인구수는 각각 어떤 유형의 자료인가?
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p><span class="math inline">\(Z = (X - 70)/10\)</span>이므로 <span class="math inline">\(P(-1 \le Z \le 1) \approx 0.6827\)</span> — “평균 ± 1σ 안에 약 68%”라는 정규분포의 기본 성질입니다. 앱에서 구간을 <span class="math inline">\([60, 80]\)</span>으로 맞춰 확인해 보세요.</p>
+<p>행정구역(서울·부산…)은 종류를 나누는 <strong>범주형(질적)</strong> 자료, 인구수는 크기를 재는 <strong>수치형(양적)</strong> 자료입니다. 범주형은 막대그래프·원그래프로, 수치형은 히스토그램· 상자그림으로 요약하는 것이 자연스럽습니다. 다음 모듈부터 이 그래프들을 하나씩 다룹니다.</p>
 </div>
 </div>
 </div>
 <div class="hs-prevnext">
-<p><a href="../../../pages/03_dist/continuous_rv/index.html">← 이전: 연속확률변수와 확률분포</a> <a href="../../../pages/04_infer/sampling/index.html">다음: 표본추출 →</a></p>
+<p><a href="../../../index.html">← 홈</a> <a href="../../../pages/01_data/structure/index.html">다음: 정보의 구조화 →</a></p>
 </div>
 
 

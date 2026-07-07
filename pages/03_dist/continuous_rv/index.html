@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>정규분포와 표준화 – 빛스탯 HS</title>
+<title>연속확률변수와 확률분포 – 빛스탯 HS</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -157,7 +157,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">정규분포와 표준화</h1>
+<h1 class="title">연속확률변수와 확률분포</h1>
 </div>
 
 
@@ -178,16 +178,19 @@ window.Quarto = {
 <p><a href="../../../index.html">← 빛스탯 HS 홈</a></p>
 </div>
 <div class="hs-meta">
-<p>단원 03 확률분포 · 「확률과 통계」 · 1차시(45분)</p>
+<p>단원 03 확률분포 · 「확률과 통계」 · 이산에서 연속으로</p>
 </div>
 <section id="개념" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="개념">개념</h2>
-<p>키, 시험 점수처럼 평균 근처에 자료가 몰리고 양쪽으로 대칭인 분포를 <strong>정규분포</strong> <span class="math inline">\(N(m,\,\sigma^2)\)</span>로 나타냅니다. 곡선의 위치는 평균 <span class="math inline">\(m\)</span>이, 퍼진 정도는 표준편차 <span class="math inline">\(\sigma\)</span>가 정합니다. 곡선 아래 구간의 <strong>넓이가 곧 확률</strong>입니다.</p>
-<p><span class="math display">\[Z = \frac{X - m}{\sigma} \;\sim\; N(0,\,1)\]</span></p>
+<p>주사위 눈처럼 값이 뚝뚝 떨어지는 변수는 <strong>이산확률변수</strong>였습니다. 반면 대기 시간·키·무게처럼 어떤 구간의 값을 <strong>연속적으로</strong> 가질 수 있는 변수가 <strong>연속확률변수</strong>입니다. 연속확률변수는 값이 무수히 많아 한 점의 확률을 따질 수 없으므로, 확률을 <strong>넓이</strong>로 나타냅니다.</p>
+<p>이때 쓰는 함수가 <strong>확률밀도함수</strong> <span class="math inline">\(f(x)\)</span>이고, 다음 두 성질을 만족합니다.</p>
+<p><span class="math display">\[f(x)\ge 0,\qquad \int_{-\infty}^{\infty} f(x)\,dx = 1\]</span></p>
 
 <div class="no-row-height column-margin column-container"><div class="">
-<p>수능 표준점수가 바로 표준화입니다. 과목마다 <span class="math inline">\(m\)</span>과 <span class="math inline">\(\sigma\)</span>가 달라도 <span class="math inline">\(Z\)</span>로 바꾸면 같은 자로 잴 수 있습니다.</p>
-</div></div><p>어떤 정규분포든 표준화하면 <strong>표준정규분포</strong> <span class="math inline">\(N(0, 1)\)</span>이 되므로, 확률 계산은 표준정규분포표 하나로 충분합니다. 아래 앱에서 <span class="math inline">\(m\)</span>, <span class="math inline">\(\sigma\)</span>를 움직여 곡선의 변화를 보고, 구간의 넓이가 표준화된 <span class="math inline">\(Z\)</span> 구간의 넓이와 같음을 확인해 보세요.</p>
+<p>막대그래프의 “높이=확률”이 연속에서는 “넓이=확률”로 바뀝니다. 그래서 <span class="math inline">\(f(x)\)</span> 자체는 확률이 아니라 <strong>밀도</strong>이고, 값이 1보다 클 수도 있습니다. 확률은 언제나 구간에 대한 넓이로만 정해집니다.</p>
+</div></div><p>확률변수 <span class="math inline">\(X\)</span>가 구간 <span class="math inline">\([a,\,b]\)</span>의 값을 가질 확률은 그 구간에서 밀도함수 아래의 넓이입니다.</p>
+<p><span class="math display">\[\mathrm{P}(a\le X\le b) = \int_{a}^{b} f(x)\,dx\]</span></p>
+<p>아래 앱은 삼각형 모양의 밀도함수를 씁니다. 구간 <span class="math inline">\([a,\,b]\)</span>를 움직이면 색칠된 넓이가 곧 그 구간의 확률이고, 전체 넓이는 항상 1임을 확인해 보세요.</p>
 </section>
 <section id="만지며-배우기" class="level2">
 <h2 class="anchored" data-anchor-id="만지며-배우기">만지며 배우기</h2>
@@ -201,17 +204,18 @@ window.Quarto = {
 #| standalone: true
 #| viewerHeight: 660
 
-from math import erf, sqrt
 from shiny import App, render, ui
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 
 matplotlib.rcParams["font.size"] = 10
-
 ACCENT = "#2563eb"
 INK = "#111827"
 MUTED = "#6b7280"
+
+L = 6.0          # X 의 범위: 0 ~ 6
+PEAK = 3.0       # 삼각형의 꼭짓점
 
 def tufte(ax):
     for side in ("top", "right"):
@@ -220,130 +224,124 @@ def tufte(ax):
         ax.spines[side].set_color("#9ca3af")
     ax.tick_params(colors=MUTED, labelsize=9)
 
-def pdf(x, m, s):
-    return np.exp(-((x - m) ** 2) / (2 * s * s)) / (s * sqrt(2 * np.pi))
+def density(x):
+    # 밑변 L, 넓이 1 인 이등변 삼각형 밀도 (꼭짓점 높이 = 2/L)
+    x = np.asarray(x, dtype=float)
+    h = 2.0 / L
+    left = h * (x / PEAK)
+    right = h * ((L - x) / (L - PEAK))
+    f = np.where(x &lt; PEAK, left, right)
+    return np.clip(f, 0, None) * ((x &gt;= 0) &amp; (x &lt;= L))
 
-def cdf(x, m, s):
-    return 0.5 * (1 + erf((x - m) / (s * sqrt(2))))
+def area(x, y):
+    # 사다리꼴 적분 (numpy 버전과 무관하게 동작)
+    return float(np.sum((y[:-1] + y[1:]) * 0.5 * np.diff(x)))
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
-        ui.input_slider("m", "평균 m", min=40, max=100, value=70, step=1),
-        ui.input_slider("s", "표준편차 σ", min=2, max=20, value=10, step=1),
-        ui.input_slider("ab", "구간 [a, b]", min=20, max=120, value=(65, 75), step=1),
-        ui.input_checkbox("show_z", "표준정규분포 Z 겹쳐 보기", False),
-        width=240,
+        ui.input_slider("rng", "구간 [a, b]", min=0.0, max=6.0,
+                        value=[2.0, 4.0], step=0.1),
+        width=250,
     ),
     ui.card(
-        ui.card_header("정규분포 곡선 — 색칠한 넓이가 곧 확률"),
-        ui.output_plot("curve", height="360px"),
+        ui.card_header("확률밀도함수 — 색칠한 넓이가 곧 확률입니다"),
+        ui.output_plot("dens", height="340px"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
 )
 
 def server(input, output, session):
-    @render.plot(alt="정규분포 곡선과 구간 확률")
-    def curve():
-        m, s = input.m(), input.s()
-        a, b = input.ab()
+    @render.plot(alt="삼각형 확률밀도함수와 구간의 넓이")
+    def dens():
+        a, b = input.rng()
+        xs = np.linspace(0, L, 400)
+        ys = density(xs)
 
-        if input.show_z():
-            fig, (ax1, ax2) = plt.subplots(1, 2)
-        else:
-            fig, ax1 = plt.subplots()
-
-        # 원래 분포 N(m, σ²)
-        xs = np.linspace(m - 4 * s, m + 4 * s, 400)
-        ax1.plot(xs, pdf(xs, m, s), color=INK, linewidth=1.5)
-        seg = np.linspace(a, b, 200)
-        ax1.fill_between(seg, pdf(seg, m, s), color=ACCENT, alpha=0.18)
-        ax1.axvline(m, color="#9ca3af", linewidth=0.7, linestyle=":")
-        ax1.set_title(f"N({m}, {s}²)", fontsize=10, color=INK)
-        ax1.set_xlabel("x", color=MUTED)
-        tufte(ax1)
-
-        # 표준화한 분포 N(0, 1)
-        if input.show_z():
-            za, zb = (a - m) / s, (b - m) / s
-            zs = np.linspace(-4, 4, 400)
-            ax2.plot(zs, pdf(zs, 0, 1), color=INK, linewidth=1.5)
-            zseg = np.linspace(max(za, -4), min(zb, 4), 200)
-            ax2.fill_between(zseg, pdf(zseg, 0, 1), color=ACCENT, alpha=0.18)
-            ax2.axvline(0, color="#9ca3af", linewidth=0.7, linestyle=":")
-            ax2.set_title("N(0, 1)", fontsize=10, color=INK)
-            ax2.set_xlabel("z", color=MUTED)
-            tufte(ax2)
-
+        fig, ax = plt.subplots()
+        ax.plot(xs, ys, color=INK, linewidth=1.6)
+        mask = (xs &gt;= a) &amp; (xs &lt;= b)
+        ax.fill_between(xs[mask], ys[mask], color=ACCENT, alpha=0.35)
+        ax.set_xlabel("x", color=MUTED)
+        ax.set_ylabel("f(x)", color=MUTED)
+        ax.set_ylim(0, 2.0 / L * 1.2)
+        tufte(ax)
         return fig
 
     @render.ui
     def readout():
-        m, s = input.m(), input.s()
-        a, b = input.ab()
-        p = cdf(b, m, s) - cdf(a, m, s)
-        za, zb = (a - m) / s, (b - m) / s
+        a, b = input.rng()
+        grid = np.linspace(a, b, 400)
+        prob = area(grid, density(grid)) if b &gt; a else 0.0
+        full = np.linspace(0, L, 800)
+        total = area(full, density(full))
         return ui.HTML(
-            f'&lt;p class="hs-readline"&gt;'
-            f"P({a} ≤ X ≤ {b}) = {p:.4f} — 표준화하면 "
-            f"P({za:.2f} ≤ Z ≤ {zb:.2f})와 같습니다. "
-            f"m과 σ를 바꿔도 z가 같으면 확률(넓이)은 변하지 않습니다.&lt;/p&gt;"
+            '&lt;p class="hs-readline"&gt;'
+            f"P({a:.1f} ≤ X ≤ {b:.1f}) = 색칠한 넓이 ≈ &lt;b&gt;{prob:.3f}&lt;/b&gt; 입니다. "
+            f"밀도함수 전체 넓이는 {total:.3f} ≈ 1 로, 어떤 구간을 잡아도 확률의 "
+            "합은 1을 넘지 않습니다. 구간을 넓히면 넓이가 커지고, a와 b를 붙이면 "
+            "넓이가 0에 가까워집니다 — 연속확률변수에서 한 점의 확률이 0인 이유입니다.&lt;/p&gt;"
         )
 
 app = App(app_ui, server)</code></pre>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<p>정규분포 확률은 표준화와 표준정규분포의 누적확률로 계산합니다.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> math <span class="im">import</span> erf, sqrt</span>
+<p>넓이(확률)는 사다리꼴 적분으로 간단히 구합니다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cdf(z):                       <span class="co"># 표준정규분포 P(Z ≤ z)</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.5</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">+</span> erf(z <span class="op">/</span> sqrt(<span class="dv">2</span>)))</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>m, s <span class="op">=</span> <span class="dv">70</span>, <span class="dv">10</span>                     <span class="co"># X ~ N(70, 10²)</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>a, b <span class="op">=</span> <span class="dv">65</span>, <span class="dv">75</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>za, zb <span class="op">=</span> (a <span class="op">-</span> m) <span class="op">/</span> s, (b <span class="op">-</span> m) <span class="op">/</span> s <span class="co"># 표준화</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(cdf(zb) <span class="op">-</span> cdf(za))          <span class="co"># P(65 ≤ X ≤ 75) = P(-0.5 ≤ Z ≤ 0.5)</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>L, PEAK <span class="op">=</span> <span class="fl">6.0</span>, <span class="fl">3.0</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(x):</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    h <span class="op">=</span> <span class="fl">2.0</span> <span class="op">/</span> L</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.where(x <span class="op">&lt;</span> PEAK, h <span class="op">*</span> x <span class="op">/</span> PEAK, h <span class="op">*</span> (L <span class="op">-</span> x) <span class="op">/</span> (L <span class="op">-</span> PEAK))</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> area(x, y):                      <span class="co"># 사다리꼴 적분</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.<span class="bu">sum</span>((y[:<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> y[<span class="dv">1</span>:]) <span class="op">*</span> <span class="fl">0.5</span> <span class="op">*</span> np.diff(x))</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.linspace(<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">400</span>)           <span class="co"># 구간 [2, 4]</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(area(x, f(x)))                 <span class="co"># P(2 ≤ X ≤ 4) ≈ 0.556</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>x_all <span class="op">=</span> np.linspace(<span class="dv">0</span>, L, <span class="dv">800</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(area(x_all, f(x_all)))         <span class="co"># 전체 넓이 ≈ 1</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
 </section>
 <section id="스스로-확인" class="level2">
 <h2 class="anchored" data-anchor-id="스스로-확인">스스로 확인</h2>
-<div class="callout callout-style-default callout-tip callout-titled" title="문제 1 — σ를 두 배로 하면 곡선은 어떻게 변하는가?">
+<div class="callout callout-style-default callout-tip callout-titled" title="문제 1 — 연속확률변수에서 P(X = 3) 은 얼마인가?">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">힌트</span>문제 1 — σ를 두 배로 하면 곡선은 어떻게 변하는가?
+<span class="screen-reader-only">힌트</span>문제 1 — 연속확률변수에서 P(X = 3) 은 얼마인가?
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>곡선이 옆으로 두 배 퍼지면서 봉우리는 절반 높이로 낮아집니다. 전체 넓이가 항상 1이어야 하기 때문입니다. 같은 구간 <span class="math inline">\([a, b]\)</span>의 확률(넓이)이 어떻게 변하는지도 함께 관찰해 보세요.</p>
+<p>정확히 <strong>0</strong>입니다. 한 점은 폭이 없어 넓이가 0이기 때문입니다. 연속확률변수의 확률은 언제나 구간(넓이)으로만 정해지므로, <span class="math inline">\(\mathrm{P}(X=3)\)</span>이 아니라 <span class="math inline">\(\mathrm{P}(2.9\le X\le 3.1)\)</span>처럼 구간으로 물어야 의미가 있습니다.</p>
 </div>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="문제 2 — m = 70, σ = 10일 때 P(60 ≤ X ≤ 80)은? 표준화하면 어떤 Z 구간인가?">
+<div class="callout callout-style-default callout-tip callout-titled" title="문제 2 — 밀도함수 f(x) 의 값이 1보다 커도 되는가?">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">힌트</span>문제 2 — m = 70, σ = 10일 때 P(60 ≤ X ≤ 80)은? 표준화하면 어떤 Z 구간인가?
+<span class="screen-reader-only">힌트</span>문제 2 — 밀도함수 f(x) 의 값이 1보다 커도 되는가?
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p><span class="math inline">\(Z = (X - 70)/10\)</span>이므로 <span class="math inline">\(P(-1 \le Z \le 1) \approx 0.6827\)</span> — “평균 ± 1σ 안에 약 68%”라는 정규분포의 기본 성질입니다. 앱에서 구간을 <span class="math inline">\([60, 80]\)</span>으로 맞춰 확인해 보세요.</p>
+<p>됩니다. <span class="math inline">\(f(x)\)</span>는 확률이 아니라 <strong>밀도</strong>이기 때문입니다. 이 앱의 삼각형은 꼭짓점 높이가 <span class="math inline">\(\tfrac{2}{6}\approx0.33\)</span>이지만, 범위가 좁은 분포라면 높이가 1을 훌쩍 넘을 수도 있습니다. 제약은 오직 “<span class="math inline">\(f(x)\ge0\)</span>이고 전체 넓이가 1”이라는 것뿐입니다.</p>
 </div>
 </div>
 </div>
 <div class="hs-prevnext">
-<p><a href="../../../pages/03_dist/continuous_rv/index.html">← 이전: 연속확률변수와 확률분포</a> <a href="../../../pages/04_infer/sampling/index.html">다음: 표본추출 →</a></p>
+<p><a href="../../../pages/03_dist/binomial/index.html">← 이전: 이항분포</a> <a href="../../../pages/03_dist/normal/index.html">다음: 정규분포와 표준화 →</a></p>
 </div>
 
 

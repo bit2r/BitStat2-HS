@@ -342,6 +342,61 @@ app = App(app_ui, server)</code></pre>
 </section>
 
 </main> <!-- /main -->
+<script>
+/* 앱 임베드 전체화면 토글 — 설계: images/2026-07-07_앱_전체화면_UI설계.svg
+   shinylive가 런타임에 만드는 iframe의 부모에 버튼만 주입한다(iframe 재부모화 금지 — 앱이 재시작됨). */
+(function () {
+  if (window.__bsAppFrame) return;
+  window.__bsAppFrame = true;
+  var seen = new WeakSet();
+  var canFS = !!document.fullscreenEnabled;
+
+  function enhance(frame) {
+    if (seen.has(frame) || !frame.parentElement) return;
+    seen.add(frame);
+    var host = frame.parentElement;
+    if (getComputedStyle(host).position === "static") host.style.position = "relative";
+    host.classList.add("bs-app-host");
+
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "bs-fs-btn";
+    btn.textContent = "⛶";
+    btn.setAttribute("aria-label", canFS ? "전체화면" : "새 탭에서 열기");
+    btn.title = canFS ? "전체화면 (ESC로 복귀)" : "새 탭에서 열기";
+    btn.addEventListener("click", function () {
+      if (!canFS) { window.open(location.href, "_blank"); return; }
+      if (document.fullscreenElement) document.exitFullscreen();
+      else host.requestFullscreen().catch(function () { window.open(location.href, "_blank"); });
+    });
+    host.appendChild(btn);
+
+    document.addEventListener("fullscreenchange", function () {
+      var on = document.fullscreenElement === host;
+      btn.textContent = on ? "✕" : "⛶";
+      btn.setAttribute("aria-label", on ? "전체화면 닫기 (ESC)" : "전체화면");
+    });
+  }
+
+  function scan(root) {
+    if (!root.querySelectorAll) return;
+    root.querySelectorAll("iframe").forEach(enhance);
+  }
+
+  new MutationObserver(function (muts) {
+    muts.forEach(function (m) {
+      m.addedNodes.forEach(function (n) {
+        if (n.nodeType !== 1) return;
+        if (n.tagName === "IFRAME") enhance(n);
+        else scan(n);
+      });
+    });
+  }).observe(document.documentElement, { childList: true, subtree: true });
+
+  if (document.readyState !== "loading") scan(document);
+  else document.addEventListener("DOMContentLoaded", function () { scan(document); });
+})();
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
@@ -415,7 +470,7 @@ app = App(app_ui, server)</code></pre>
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/bit2r\.github\.io\/BitStat2-HS\/");
+        var filterRegex = new RegExp('/' + window.location.host + '/');
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

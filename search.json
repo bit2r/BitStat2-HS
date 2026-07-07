@@ -147,32 +147,60 @@
     "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — 시행 횟수를 10에서 5000까지 늘리면 표본평균은 어떻게 변하는가?\n\n\n\n\n\n표본평균이 기댓값 \\(E(X)\\)에 점점 가까워집니다. 시행 횟수가 적을 때는 추첨할 때마다 표본평균이 크게 출렁이지만, 횟수가 커지면 안정됩니다. (대수의 법칙 — 04단원 표본평균의 분포에서 다시 만납니다.)\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 복권 시나리오에서 ’다시 추첨’을 여러 번 눌러 보라. n=100일 때 표본평균이 유독 크게 튀는 이유는?\n\n\n\n\n\n당첨금 1,000,000원의 확률이 0.001이라 100번 추첨에는 대개 한 번도 나오지 않다가, 어쩌다 한 번 나오면 표본평균이 크게 뜁니다. 드문 값이 평균에 미치는 영향을 눈으로 확인해 보세요.\n\n\n\n\n← 이전: 조건부확률과 독립 다음: 이항분포 →"
   },
   {
-    "objectID": "pages/03_dist/binomial/index.html",
-    "href": "pages/03_dist/binomial/index.html",
-    "title": "이항분포",
+    "objectID": "pages/03_dist/continuous_rv/index.html",
+    "href": "pages/03_dist/continuous_rv/index.html",
+    "title": "연속확률변수와 확률분포",
     "section": "",
     "text": "← 빛스탯 HS 홈"
   },
   {
-    "objectID": "pages/03_dist/binomial/index.html#개념",
-    "href": "pages/03_dist/binomial/index.html#개념",
-    "title": "이항분포",
+    "objectID": "pages/03_dist/continuous_rv/index.html#개념",
+    "href": "pages/03_dist/continuous_rv/index.html#개념",
+    "title": "연속확률변수와 확률분포",
     "section": "개념",
-    "text": "개념\n한 번의 시행에서 어떤 사건이 일어날 확률이 \\(p\\)로 일정할 때, 독립적으로 \\(n\\)번 반복한 시행에서 그 사건이 일어나는 횟수 \\(X\\)의 분포를 이항분포 \\(B(n,\\,p)\\)라고 합니다.\n\\[P(X = k) = \\binom{n}{k} p^k (1-p)^{n-k}, \\qquad\nE(X) = np, \\qquad \\sigma = \\sqrt{np(1-p)}\\]\n\n\n자유투 성공률이 \\(p\\)인 선수가 \\(n\\)번 던질 때의 성공 횟수, \\(n\\)문항 오지선다를 전부 찍었을 때의 정답 개수가 모두 이항분포입니다.\n\\(n\\)이 충분히 크면 이항분포는 정규분포 \\(N(np,\\; np(1-p))\\)에 가까워집니다. 아래 앱에서 \\(n\\)을 키우며 막대들이 종 모양 곡선에 붙는 모습을 확인해 보세요."
+    "text": "개념\n주사위 눈처럼 값이 뚝뚝 떨어지는 변수는 이산확률변수였습니다. 반면 대기 시간·키·무게처럼 어떤 구간의 값을 연속적으로 가질 수 있는 변수가 연속확률변수입니다. 연속확률변수는 값이 무수히 많아 한 점의 확률을 따질 수 없으므로, 확률을 넓이로 나타냅니다.\n이때 쓰는 함수가 확률밀도함수 \\(f(x)\\)이고, 다음 두 성질을 만족합니다.\n\\[f(x)\\ge 0,\\qquad \\int_{-\\infty}^{\\infty} f(x)\\,dx = 1\\]\n\n\n막대그래프의 “높이=확률”이 연속에서는 “넓이=확률”로 바뀝니다. 그래서 \\(f(x)\\) 자체는 확률이 아니라 밀도이고, 값이 1보다 클 수도 있습니다. 확률은 언제나 구간에 대한 넓이로만 정해집니다.\n확률변수 \\(X\\)가 구간 \\([a,\\,b]\\)의 값을 가질 확률은 그 구간에서 밀도함수 아래의 넓이입니다.\n\\[\\mathrm{P}(a\\le X\\le b) = \\int_{a}^{b} f(x)\\,dx\\]\n아래 앱은 삼각형 모양의 밀도함수를 씁니다. 구간 \\([a,\\,b]\\)를 움직이면 색칠된 넓이가 곧 그 구간의 확률이고, 전체 넓이는 항상 1임을 확인해 보세요."
   },
   {
-    "objectID": "pages/03_dist/binomial/index.html#만지며-배우기",
-    "href": "pages/03_dist/binomial/index.html#만지며-배우기",
-    "title": "이항분포",
+    "objectID": "pages/03_dist/continuous_rv/index.html#만지며-배우기",
+    "href": "pages/03_dist/continuous_rv/index.html#만지며-배우기",
+    "title": "연속확률변수와 확률분포",
     "section": "만지며 배우기",
-    "text": "만지며 배우기\n\n인터랙티브 앱파이썬 코드\n\n\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 640\n\nfrom math import comb, sqrt, floor, ceil\nfrom shiny import App, render, ui\nimport numpy as np\nimport matplotlib\nimport matplotlib.pyplot as plt\n\nmatplotlib.rcParams[\"font.size\"] = 10\n\nACCENT = \"#2563eb\"\nINK = \"#111827\"\nMUTED = \"#6b7280\"\n\ndef tufte(ax):\n    for side in (\"top\", \"right\"):\n        ax.spines[side].set_visible(False)\n    for side in (\"left\", \"bottom\"):\n        ax.spines[side].set_color(\"#9ca3af\")\n    ax.tick_params(colors=MUTED, labelsize=9)\n\ndef pmf(n, p):\n    return np.array([comb(n, k) * p**k * (1 - p)**(n - k) for k in range(n + 1)])\n\napp_ui = ui.page_sidebar(\n    ui.sidebar(\n        ui.input_slider(\"n\", \"시행 횟수 n\", min=1, max=80, value=20, step=1),\n        ui.input_slider(\"p\", \"확률 p\", min=0.05, max=0.95, value=0.5, step=0.05),\n        ui.input_checkbox(\"approx\", \"정규분포 근사 곡선 겹쳐 보기\", False),\n        width=240,\n    ),\n    ui.card(\n        ui.card_header(\"이항분포 B(n, p)\"),\n        ui.output_plot(\"pmf_plot\", height=\"340px\"),\n    ),\n    ui.card(ui.output_ui(\"readout\")),\n    fillable=True,\n)\n\ndef server(input, output, session):\n    @render.plot(alt=\"이항분포 확률질량함수\")\n    def pmf_plot():\n        n, p = input.n(), input.p()\n        probs = pmf(n, p)\n        mean, sd = n * p, sqrt(n * p * (1 - p))\n\n        # 보기 좋은 구간만 표시 (평균 ± 4σ)\n        lo = max(0, floor(mean - 4 * sd))\n        hi = min(n, ceil(mean + 4 * sd))\n        ks = np.arange(lo, hi + 1)\n\n        fig, ax = plt.subplots()\n        ax.bar(ks, probs[lo:hi + 1], width=0.8, color=ACCENT, alpha=0.85)\n        ax.axvline(mean, color=INK, linewidth=0.8, linestyle=\":\")\n        ax.text(mean, ax.get_ylim()[1] * 0.97, \" E(X)=np\",\n                color=INK, fontsize=9, va=\"top\")\n\n        if input.approx():\n            xs = np.linspace(lo - 0.5, hi + 0.5, 300)\n            ys = np.exp(-((xs - mean) ** 2) / (2 * sd * sd)) / (sd * sqrt(2 * np.pi))\n            ax.plot(xs, ys, color=INK, linewidth=1.4)\n\n        ax.set_xlabel(\"k\", color=MUTED)\n        ax.set_ylabel(\"P(X = k)\", color=MUTED)\n        tufte(ax)\n        return fig\n\n    @render.ui\n    def readout():\n        n, p = input.n(), input.p()\n        mean, sd = n * p, sqrt(n * p * (1 - p))\n        probs = pmf(n, p)\n        within = probs[max(0, ceil(mean - sd)):floor(mean + sd) + 1].sum()\n        return ui.HTML(\n            f'&lt;p class=\"hs-readline\"&gt;'\n            f\"E(X) = np = {mean:.1f} · σ = √np(1−p) = {sd:.2f} — \"\n            f\"X가 평균 ± σ 안에 있을 확률은 약 {within:.2f}입니다. \"\n            f\"n을 키우면 막대가 종 모양에 가까워집니다.&lt;/p&gt;\"\n        )\n\napp = App(app_ui, server)\n\n\nfrom math import comb, sqrt\n\nn, p = 20, 0.5\n\n# P(X = k), k = 0..n\nprobs = [comb(n, k) * p**k * (1 - p)**(n - k) for k in range(n + 1)]\n\nE = n * p                    # 기댓값\nsd = sqrt(n * p * (1 - p))   # 표준편차\nprint(E, sd, sum(probs))     # 확률의 합은 항상 1"
+    "text": "만지며 배우기\n\n인터랙티브 앱파이썬 코드\n\n\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 660\n\nfrom shiny import App, render, ui\nimport numpy as np\nimport matplotlib\nimport matplotlib.pyplot as plt\n\nmatplotlib.rcParams[\"font.size\"] = 10\nACCENT = \"#2563eb\"\nINK = \"#111827\"\nMUTED = \"#6b7280\"\n\nL = 6.0          # X 의 범위: 0 ~ 6\nPEAK = 3.0       # 삼각형의 꼭짓점\n\ndef tufte(ax):\n    for side in (\"top\", \"right\"):\n        ax.spines[side].set_visible(False)\n    for side in (\"left\", \"bottom\"):\n        ax.spines[side].set_color(\"#9ca3af\")\n    ax.tick_params(colors=MUTED, labelsize=9)\n\ndef density(x):\n    # 밑변 L, 넓이 1 인 이등변 삼각형 밀도 (꼭짓점 높이 = 2/L)\n    x = np.asarray(x, dtype=float)\n    h = 2.0 / L\n    left = h * (x / PEAK)\n    right = h * ((L - x) / (L - PEAK))\n    f = np.where(x &lt; PEAK, left, right)\n    return np.clip(f, 0, None) * ((x &gt;= 0) & (x &lt;= L))\n\ndef area(x, y):\n    # 사다리꼴 적분 (numpy 버전과 무관하게 동작)\n    return float(np.sum((y[:-1] + y[1:]) * 0.5 * np.diff(x)))\n\napp_ui = ui.page_sidebar(\n    ui.sidebar(\n        ui.input_slider(\"rng\", \"구간 [a, b]\", min=0.0, max=6.0,\n                        value=[2.0, 4.0], step=0.1),\n        width=250,\n    ),\n    ui.card(\n        ui.card_header(\"확률밀도함수 — 색칠한 넓이가 곧 확률입니다\"),\n        ui.output_plot(\"dens\", height=\"340px\"),\n    ),\n    ui.card(ui.output_ui(\"readout\")),\n    fillable=True,\n)\n\ndef server(input, output, session):\n    @render.plot(alt=\"삼각형 확률밀도함수와 구간의 넓이\")\n    def dens():\n        a, b = input.rng()\n        xs = np.linspace(0, L, 400)\n        ys = density(xs)\n\n        fig, ax = plt.subplots()\n        ax.plot(xs, ys, color=INK, linewidth=1.6)\n        mask = (xs &gt;= a) & (xs &lt;= b)\n        ax.fill_between(xs[mask], ys[mask], color=ACCENT, alpha=0.35)\n        ax.set_xlabel(\"x\", color=MUTED)\n        ax.set_ylabel(\"f(x)\", color=MUTED)\n        ax.set_ylim(0, 2.0 / L * 1.2)\n        tufte(ax)\n        return fig\n\n    @render.ui\n    def readout():\n        a, b = input.rng()\n        grid = np.linspace(a, b, 400)\n        prob = area(grid, density(grid)) if b &gt; a else 0.0\n        full = np.linspace(0, L, 800)\n        total = area(full, density(full))\n        return ui.HTML(\n            '&lt;p class=\"hs-readline\"&gt;'\n            f\"P({a:.1f} ≤ X ≤ {b:.1f}) = 색칠한 넓이 ≈ &lt;b&gt;{prob:.3f}&lt;/b&gt; 입니다. \"\n            f\"밀도함수 전체 넓이는 {total:.3f} ≈ 1 로, 어떤 구간을 잡아도 확률의 \"\n            \"합은 1을 넘지 않습니다. 구간을 넓히면 넓이가 커지고, a와 b를 붙이면 \"\n            \"넓이가 0에 가까워집니다 — 연속확률변수에서 한 점의 확률이 0인 이유입니다.&lt;/p&gt;\"\n        )\n\napp = App(app_ui, server)\n\n\n넓이(확률)는 사다리꼴 적분으로 간단히 구합니다.\nimport numpy as np\n\nL, PEAK = 6.0, 3.0\ndef f(x):\n    h = 2.0 / L\n    return np.where(x &lt; PEAK, h * x / PEAK, h * (L - x) / (L - PEAK))\n\ndef area(x, y):                      # 사다리꼴 적분\n    return np.sum((y[:-1] + y[1:]) * 0.5 * np.diff(x))\n\nx = np.linspace(2, 4, 400)           # 구간 [2, 4]\nprint(area(x, f(x)))                 # P(2 ≤ X ≤ 4) ≈ 0.556\n\nx_all = np.linspace(0, L, 800)\nprint(area(x_all, f(x_all)))         # 전체 넓이 ≈ 1"
   },
   {
-    "objectID": "pages/03_dist/binomial/index.html#스스로-확인",
-    "href": "pages/03_dist/binomial/index.html#스스로-확인",
-    "title": "이항분포",
+    "objectID": "pages/03_dist/continuous_rv/index.html#스스로-확인",
+    "href": "pages/03_dist/continuous_rv/index.html#스스로-확인",
+    "title": "연속확률변수와 확률분포",
     "section": "스스로 확인",
-    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — p = 0.5일 때와 p = 0.1일 때 분포의 모양은 어떻게 다른가?\n\n\n\n\n\n\\(p = 0.5\\)이면 평균 \\(np\\)를 중심으로 좌우 대칭이고, \\(p = 0.1\\)이면 왼쪽으로 치우친 비대칭이 됩니다. 다만 \\(n\\)을 충분히 키우면 어느 쪽이든 다시 종 모양에 가까워집니다.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 정규근사가 잘 맞으려면 n과 p가 어떤 조건이면 좋을까?\n\n\n\n\n\n경험적으로 \\(np \\ge 5\\), \\(n(1-p) \\ge 5\\) 정도면 근사가 쓸 만합니다. \\(p\\)가 0이나 1에 가까울수록 더 큰 \\(n\\)이 필요합니다 — 앱에서 \\(p = 0.05\\)로 두고 \\(n\\)을 움직이며 확인해 보세요.\n\n\n\n\n← 이전: 확률변수와 기댓값 다음: 정규분포와 표준화 →"
+    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — 연속확률변수에서 P(X = 3) 은 얼마인가?\n\n\n\n\n\n정확히 0입니다. 한 점은 폭이 없어 넓이가 0이기 때문입니다. 연속확률변수의 확률은 언제나 구간(넓이)으로만 정해지므로, \\(\\mathrm{P}(X=3)\\)이 아니라 \\(\\mathrm{P}(2.9\\le X\\le 3.1)\\)처럼 구간으로 물어야 의미가 있습니다.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 밀도함수 f(x) 의 값이 1보다 커도 되는가?\n\n\n\n\n\n됩니다. \\(f(x)\\)는 확률이 아니라 밀도이기 때문입니다. 이 앱의 삼각형은 꼭짓점 높이가 \\(\\tfrac{2}{6}\\approx0.33\\)이지만, 범위가 좁은 분포라면 높이가 1을 훌쩍 넘을 수도 있습니다. 제약은 오직 “\\(f(x)\\ge0\\)이고 전체 넓이가 1”이라는 것뿐입니다.\n\n\n\n\n← 이전: 이항분포 다음: 정규분포와 표준화 →"
+  },
+  {
+    "objectID": "pages/02_prob/prob_basic/index.html",
+    "href": "pages/02_prob/prob_basic/index.html",
+    "title": "확률의 뜻",
+    "section": "",
+    "text": "← 빛스탯 HS 홈"
+  },
+  {
+    "objectID": "pages/02_prob/prob_basic/index.html#개념",
+    "href": "pages/02_prob/prob_basic/index.html#개념",
+    "title": "확률의 뜻",
+    "section": "개념",
+    "text": "개념\n각 결과가 일어날 가능성이 모두 같은 시행에서, 사건 \\(A\\)의 수학적 확률은 전체 경우의 수에 대한 사건 \\(A\\)의 경우의 수의 비율입니다.\n\\[P(A) = \\frac{n(A)}{n(S)}\\]\n\n\n“시행을 늘릴수록 상대도수가 확률에 가까워진다”는 대수의 법칙은 04단원 표본평균의 분포에서 다시 만납니다.\n한편 실제로 시행을 \\(n\\)번 반복했을 때 사건 \\(A\\)가 일어난 상대도수 \\(\\dfrac{r_n}{n}\\)은 \\(n\\)이 커질수록 일정한 값에 가까워지는데, 이 값을 통계적 확률이라고 합니다. 동전 앞면처럼 수학적 확률을 아는 시행에서는 상대도수가 바로 그 수학적 확률로 다가갑니다. 아래 앱에서 시행 횟수를 늘려가며 파란 곡선(상대도수)이 점선(수학적 확률)에 달라붙는 모습을 확인해 보세요."
+  },
+  {
+    "objectID": "pages/02_prob/prob_basic/index.html#만지며-배우기",
+    "href": "pages/02_prob/prob_basic/index.html#만지며-배우기",
+    "title": "확률의 뜻",
+    "section": "만지며 배우기",
+    "text": "만지며 배우기\n\n인터랙티브 앱파이썬 코드\n\n\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 640\n\nfrom shiny import App, reactive, render, ui\nimport numpy as np\nimport matplotlib\nimport matplotlib.pyplot as plt\n\nmatplotlib.rcParams[\"font.size\"] = 10\n\nACCENT = \"#2563eb\"\nINK = \"#111827\"\nMUTED = \"#6b7280\"\n\nTRIALS = {\n    \"coin\": {\"name\": \"동전 던지기 — 앞면\", \"p\": 0.5, \"label\": \"1/2\"},\n    \"die\": {\"name\": \"주사위 던지기 — 6의 눈\", \"p\": 1 / 6, \"label\": \"1/6\"},\n}\n\ndef tufte(ax):\n    for side in (\"top\", \"right\"):\n        ax.spines[side].set_visible(False)\n    for side in (\"left\", \"bottom\"):\n        ax.spines[side].set_color(\"#9ca3af\")\n    ax.tick_params(colors=MUTED, labelsize=9)\n\napp_ui = ui.page_sidebar(\n    ui.sidebar(\n        ui.input_select(\n            \"trial\", \"시행 종류\",\n            {k: v[\"name\"] for k, v in TRIALS.items()},\n        ),\n        ui.input_slider(\"n\", \"시행 횟수 n\", min=10, max=10000, value=200, step=10),\n        ui.input_action_button(\"redraw\", \"다시 시행\"),\n        width=240,\n    ),\n    ui.card(\n        ui.card_header(\"상대도수의 변화(파랑) vs 수학적 확률(점선)\"),\n        ui.output_plot(\"freq_plot\", height=\"340px\"),\n    ),\n    ui.card(ui.output_ui(\"readout\")),\n    fillable=True,\n)\n\ndef server(input, output, session):\n    @reactive.calc\n    def draws():\n        input.redraw()  # 버튼을 누르면 새로 시행\n        p = TRIALS[input.trial()][\"p\"]\n        return (np.random.random(input.n()) &lt; p).astype(float)\n\n    @render.plot(alt=\"시행 횟수에 따른 상대도수의 변화 곡선\")\n    def freq_plot():\n        p = TRIALS[input.trial()][\"p\"]\n        hits = draws()\n        n = len(hits)\n        run = np.cumsum(hits) / np.arange(1, n + 1)\n\n        fig, ax = plt.subplots()\n        ax.plot(np.arange(1, n + 1), run, color=ACCENT, linewidth=1.2)\n        ax.axhline(p, color=INK, linewidth=1.0, linestyle=\"--\")\n        ax.set_ylim(0, 1)\n        ax.set_xlabel(\"trials\", color=MUTED)\n        ax.set_ylabel(\"relative freq.\", color=MUTED)\n        tufte(ax)\n        return fig\n\n    @render.ui\n    def readout():\n        sc = TRIALS[input.trial()]\n        hits = draws()\n        n = len(hits)\n        rel = hits.mean()\n        return ui.HTML(\n            f'&lt;p class=\"hs-readline\"&gt;'\n            f\"{n:,}번 시행했을 때 상대도수는 {rel:.4f}, \"\n            f\"수학적 확률은 {sc['label']} = {sc['p']:.4f}이고 \"\n            f\"차이는 {abs(rel - sc['p']):.4f}입니다. \"\n            f\"시행을 늘릴수록 상대도수가 수학적 확률에 가까워지는데, \"\n            f\"이렇게 정해지는 값이 통계적 확률입니다.&lt;/p&gt;\"\n        )\n\napp = App(app_ui, server)\n\n\n앱의 핵심 계산은 이 몇 줄이 전부입니다.\nimport numpy as np\n\np = 1 / 6                                # 주사위 6의 눈의 수학적 확률\nn = 10000\n\nhits = np.random.random(n) &lt; p           # n번 시행 (성공 여부)\nrun = np.cumsum(hits) / np.arange(1, n + 1)  # 시점별 상대도수\n\nprint(run[9], run[99], run[-1], p)       # n이 커질수록 p에 접근"
+  },
+  {
+    "objectID": "pages/02_prob/prob_basic/index.html#스스로-확인",
+    "href": "pages/02_prob/prob_basic/index.html#스스로-확인",
+    "title": "확률의 뜻",
+    "section": "스스로 확인",
+    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — n = 10일 때와 n = 10000일 때 ’다시 시행’을 여러 번 눌러 보라. 곡선의 끝값은 어느 쪽이 더 안정적인가?\n\n\n\n\n\n\\(n = 10\\)일 때는 누를 때마다 끝값이 0.1 단위로 크게 출렁이지만, \\(n = 10000\\)일 때는 거의 매번 수학적 확률 바로 근처에서 끝납니다. 상대도수는 시행 횟수가 충분히 커야 믿을 수 있는 값이 됩니다.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 윷가락처럼 앞뒤 모양이 다른 물체는 수학적 확률을 구하기 어렵다. 이럴 때 확률은 어떻게 정하는가?\n\n\n\n\n\n각 결과의 가능성이 같다고 볼 수 없으므로 경우의 수의 비로는 구할 수 없습니다. 대신 실제로 많이 던져 보고 상대도수가 다가가는 값, 즉 통계적 확률로 정합니다. 의약품의 치료 효과, 야구 타율처럼 현실의 많은 확률이 이 방식으로 정해집니다.\n\n\n\n\n← 이전: 이항정리 다음: 확률의 덧셈정리 →"
   },
   {
     "objectID": "pages/02_prob/counting/index.html",
@@ -200,7 +228,63 @@
     "href": "pages/02_prob/counting/index.html#스스로-확인",
     "title": "순열과 조합",
     "section": "스스로 확인",
-    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — n을 고정하고 r을 0부터 n까지 움직이면 막대의 높이는 어떤 모양으로 변하는가?\n\n\n\n\n\n가운데(\\(k = n/2\\) 근처)가 가장 높고 양끝(\\(k=0,\\,n\\))이 1인 좌우 대칭 모양입니다. \\({}_n\\mathrm{C}_r = {}_n\\mathrm{C}_{n-r}\\)이기 때문입니다 — \\(r\\)개를 “뽑는” 것과 \\(n-r\\)개를 “남기는” 것은 같은 선택입니다.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 8명 중 대표 3명을 뽑는 경우의 수와, 회장·부회장·총무를 뽑는 경우의 수는 각각 얼마인가?\n\n\n\n\n\n대표 3명은 순서가 없으니 \\({}_8\\mathrm{C}_3 = 56\\), 회장·부회장·총무는 자리가 구별되니 \\({}_8\\mathrm{P}_3 = 336\\)입니다. \\(336 = 56 \\times 3!\\) — 같은 3명을 세 자리에 배치하는 방법이 \\(3! = 6\\)가지라서 정확히 6배가 됩니다. 앱에서 \\(n=8\\), \\(r=3\\)으로 확인해 보세요.\n\n\n\n\n← 이전: 산점도와 상관관계 다음: 확률의 뜻 →"
+    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — n을 고정하고 r을 0부터 n까지 움직이면 막대의 높이는 어떤 모양으로 변하는가?\n\n\n\n\n\n가운데(\\(k = n/2\\) 근처)가 가장 높고 양끝(\\(k=0,\\,n\\))이 1인 좌우 대칭 모양입니다. \\({}_n\\mathrm{C}_r = {}_n\\mathrm{C}_{n-r}\\)이기 때문입니다 — \\(r\\)개를 “뽑는” 것과 \\(n-r\\)개를 “남기는” 것은 같은 선택입니다.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 8명 중 대표 3명을 뽑는 경우의 수와, 회장·부회장·총무를 뽑는 경우의 수는 각각 얼마인가?\n\n\n\n\n\n대표 3명은 순서가 없으니 \\({}_8\\mathrm{C}_3 = 56\\), 회장·부회장·총무는 자리가 구별되니 \\({}_8\\mathrm{P}_3 = 336\\)입니다. \\(336 = 56 \\times 3!\\) — 같은 3명을 세 자리에 배치하는 방법이 \\(3! = 6\\)가지라서 정확히 6배가 됩니다. 앱에서 \\(n=8\\), \\(r=3\\)으로 확인해 보세요.\n\n\n\n\n← 이전: 산점도와 상관관계 다음: 여러 가지 순열 →"
+  },
+  {
+    "objectID": "pages/02_prob/combi_repeat/index.html",
+    "href": "pages/02_prob/combi_repeat/index.html",
+    "title": "중복조합",
+    "section": "",
+    "text": "← 빛스탯 HS 홈"
+  },
+  {
+    "objectID": "pages/02_prob/combi_repeat/index.html#개념",
+    "href": "pages/02_prob/combi_repeat/index.html#개념",
+    "title": "중복조합",
+    "section": "개념",
+    "text": "개념\n조합은 서로 다른 것에서 순서 없이 뽑는 것이었습니다. 여기서 같은 것을 여러 번 뽑아도 된다고 허용하면 중복조합이 됩니다. 예를 들어 세 종류의 붕어빵(팥·슈크림·피자) 중에서 5개를 살 때, 같은 맛을 몇 개든 골라도 되는 상황이 중복조합입니다.\n서로 다른 \\(n\\)개에서 중복을 허용해 \\(r\\)개를 뽑는 중복조합의 수는\n\\[{}_n\\mathrm{H}_r = {}_{n+r-1}\\mathrm{C}_r\\]\n\n\n왜 \\(n+r-1\\)일까요? “무엇을 몇 개 뽑았는가”는 칸막이 \\(n-1\\)개로 종류를 나누고 공 \\(r\\)개를 늘어놓는 배열과 같습니다. 전체 \\(n+r-1\\)개 자리 중 공이 놓일 \\(r\\)자리를 고르는 문제가 되어 \\({}_{n+r-1}\\mathrm{C}_r\\)입니다.\n핵심은 공과 칸막이(●와 │) 로 바꿔 세는 것입니다. 종류가 \\(n\\)개면 칸막이는 \\(n-1\\)개, 뽑는 개수가 \\(r\\)개면 공은 \\(r\\)개입니다. 이 \\(n+r-1\\)개를 일렬로 놓는 방법 중 공의 자리를 고르면 되므로 \\({}_{n+r-1}\\mathrm{C}_r\\)가지가 됩니다. 아래 앱에서 종류와 개수를 바꾸며 공-칸막이 그림과 그 수가 어떻게 변하는지 보세요."
+  },
+  {
+    "objectID": "pages/02_prob/combi_repeat/index.html#만지며-배우기",
+    "href": "pages/02_prob/combi_repeat/index.html#만지며-배우기",
+    "title": "중복조합",
+    "section": "만지며 배우기",
+    "text": "만지며 배우기\n\n인터랙티브 앱파이썬 코드\n\n\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 620\n\nfrom math import comb\nfrom shiny import App, render, ui\n\nACCENT = \"#2563eb\"\n\napp_ui = ui.page_sidebar(\n    ui.sidebar(\n        ui.input_slider(\"n\", \"붕어빵 종류 수 (n)\", min=2, max=6, value=3, step=1),\n        ui.input_slider(\"r\", \"사는 개수 (r)\", min=1, max=8, value=5, step=1),\n        width=250,\n    ),\n    ui.card(\n        ui.card_header(\"공(●)과 칸막이(│) 로 바꿔 세기\"),\n        ui.output_ui(\"diagram\"),\n    ),\n    ui.card(ui.output_ui(\"readout\")),\n    fillable=True,\n)\n\ndef server(input, output, session):\n    @render.ui\n    def diagram():\n        n, r = input.n(), input.r()\n        # 한 가지 예시 분배: 첫 종류에 몰아주고 나머지는 한 개씩 흩뿌리기\n        counts = [0] * n\n        for k in range(r):\n            counts[k % n] += 1\n        parts = []\n        for i, c in enumerate(counts):\n            balls = \"\".join(\n                f'&lt;span style=\"color:{ACCENT}; font-size:1.4em;\"&gt;●&lt;/span&gt;'\n                for _ in range(c)\n            )\n            parts.append(balls if c else\n                         '&lt;span style=\"color:#d1d5db;\"&gt;·&lt;/span&gt;')\n        bar = ('&lt;span style=\"color:#9ca3af; font-size:1.4em;'\n               ' margin:0 6px;\"&gt;│&lt;/span&gt;')\n        row = bar.join(parts)\n        labels = \" · \".join(f\"{i+1}번 {c}개\" for i, c in enumerate(counts))\n        return ui.HTML(\n            f'&lt;div style=\"padding:1em 0.3em; letter-spacing:2px;\"&gt;{row}&lt;/div&gt;'\n            f'&lt;div style=\"color:#6b7280; font-size:0.85em;\"&gt;예시 분배: {labels}&lt;/div&gt;'\n        )\n\n    @render.ui\n    def readout():\n        n, r = input.n(), input.r()\n        val = comb(n + r - 1, r)\n        return ui.HTML(\n            '&lt;p class=\"hs-readline\"&gt;'\n            f\"{n}종류에서 중복을 허용해 {r}개를 고르는 방법은 \"\n            f\"nHr = (n+r-1)Cr = {n + r - 1}C{r} = &lt;b&gt;{val:,}가지&lt;/b&gt;입니다. \"\n            f\"공 {r}개와 칸막이 {n - 1}개, 모두 {n + r - 1}개를 늘어놓고 \"\n            f\"그중 공이 놓일 {r}자리를 고르는 문제와 똑같습니다.&lt;/p&gt;\"\n        )\n\napp = App(app_ui, server)\n\n\n중복조합은 조합 함수 comb 로 자리 수만 바꾸면 됩니다.\nfrom math import comb\n\n# 3종류 붕어빵에서 5개 사기 (중복 허용)\nn, r = 3, 5\nprint(comb(n + r - 1, r))            # 7C5 = 21\n\n# 비교: 서로 다른 3개에서 순서 없이 5개는 불가능하지만,\n# 중복을 허용하면 21가지가 나온다."
+  },
+  {
+    "objectID": "pages/02_prob/combi_repeat/index.html#스스로-확인",
+    "href": "pages/02_prob/combi_repeat/index.html#스스로-확인",
+    "title": "중복조합",
+    "section": "스스로 확인",
+    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — 세 종류 음료에서 4잔을 고르는 방법은 몇 가지인가? (같은 종류 여러 잔 가능)\n\n\n\n\n\n중복조합 \\({}_3\\mathrm{H}_4 = {}_{3+4-1}\\mathrm{C}_4 = {}_6\\mathrm{C}_4 = 15\\)가지입니다. 공 4개와 칸막이 2개, 모두 6개를 늘어놓고 공의 자리 4개를 고르는 것과 같습니다.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 중복조합과 중복순열은 무엇이 다른가?\n\n\n\n\n\n둘 다 같은 것을 다시 뽑을 수 있지만, 순서를 따지는지가 다릅니다. 중복순열 \\({}_n\\Pi_r = n^r\\)는 뽑은 순서까지 구별하고, 중복조합 \\({}_n\\mathrm{H}_r\\)는 “무엇을 몇 개” 만 보고 순서는 무시합니다. 그래서 같은 \\(n,\\,r\\)이면 항상 \\({}_n\\mathrm{H}_r \\le {}_n\\Pi_r\\)입니다.\n\n\n\n\n← 이전: 여러 가지 순열 다음: 이항정리 →"
+  },
+  {
+    "objectID": "pages/02_prob/add_rule/index.html",
+    "href": "pages/02_prob/add_rule/index.html",
+    "title": "확률의 덧셈정리",
+    "section": "",
+    "text": "← 빛스탯 HS 홈"
+  },
+  {
+    "objectID": "pages/02_prob/add_rule/index.html#개념",
+    "href": "pages/02_prob/add_rule/index.html#개념",
+    "title": "확률의 덧셈정리",
+    "section": "개념",
+    "text": "개념\n두 사건 \\(A\\) 또는 \\(B\\)가 일어날 확률은 각각을 더한 뒤, 겹치는 부분을 한 번 빼서 구합니다. 겹치는 \\(A\\cap B\\)를 그냥 더하면 두 번 세어지기 때문입니다. 이것이 확률의 덧셈정리입니다.\n\\[\\mathrm{P}(A\\cup B) = \\mathrm{P}(A) + \\mathrm{P}(B) - \\mathrm{P}(A\\cap B)\\]\n\n\n1부터 20까지 카드에서 “3의 배수 또는 5의 배수”를 세어 봅시다. 3의 배수는 6장, 5의 배수는 4장이지만, 15는 둘 다이므로 한 번만 세야 합니다. 그래서 \\(6 + 4 - 1 = 9\\)장입니다.\n두 사건이 동시에 일어날 수 없으면(배반사건) 겹치는 부분이 없으므로 \\(\\mathrm{P}(A\\cap B)=0\\)이 되어, 덧셈정리는 간단히 다음이 됩니다.\n\\[\\mathrm{P}(A\\cup B) = \\mathrm{P}(A) + \\mathrm{P}(B)\\quad(\\text{배반사건})\\]\n아래 앱에서 두 배수 조건을 바꾸며, 겹치는 카드가 있을 때와 없을 때 합집합의 크기가 어떻게 달라지는지 색으로 확인해 보세요."
+  },
+  {
+    "objectID": "pages/02_prob/add_rule/index.html#만지며-배우기",
+    "href": "pages/02_prob/add_rule/index.html#만지며-배우기",
+    "title": "확률의 덧셈정리",
+    "section": "만지며 배우기",
+    "text": "만지며 배우기\n\n인터랙티브 앱파이썬 코드\n\n\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 660\n\nfrom fractions import Fraction\nfrom shiny import App, render, ui\n\nN = 20\nA_COLOR = \"#2563eb\"   # A만\nB_COLOR = \"#f59e0b\"   # B만\nBOTH = \"#7c3aed\"      # 교집합\nNONE = \"#e5e7eb\"      # 해당 없음\n\napp_ui = ui.page_sidebar(\n    ui.sidebar(\n        ui.input_select(\"a\", \"사건 A: 이 수의 배수\",\n                        {str(k): f\"{k}의 배수\" for k in (2, 3, 4, 5)},\n                        selected=\"3\"),\n        ui.input_select(\"b\", \"사건 B: 이 수의 배수\",\n                        {str(k): f\"{k}의 배수\" for k in (2, 3, 4, 5)},\n                        selected=\"5\"),\n        width=250,\n    ),\n    ui.card(\n        ui.card_header(\"1~20 카드 — 파랑=A, 주황=B, 보라=둘 다\"),\n        ui.output_ui(\"grid\"),\n    ),\n    ui.card(ui.output_ui(\"readout\")),\n    fillable=True,\n)\n\ndef server(input, output, session):\n    def sets():\n        a, b = int(input.a()), int(input.b())\n        A = {k for k in range(1, N + 1) if k % a == 0}\n        B = {k for k in range(1, N + 1) if k % b == 0}\n        return a, b, A, B\n\n    @render.ui\n    def grid():\n        a, b, A, B = sets()\n        cells = \"\"\n        for k in range(1, N + 1):\n            inA, inB = k in A, k in B\n            if inA and inB:\n                bg, fg = BOTH, \"white\"\n            elif inA:\n                bg, fg = A_COLOR, \"white\"\n            elif inB:\n                bg, fg = B_COLOR, \"white\"\n            else:\n                bg, fg = NONE, \"#6b7280\"\n            cells += (\n                f'&lt;div style=\"width:38px; height:38px; border-radius:6px;'\n                f' background:{bg}; color:{fg}; display:flex;'\n                f' align-items:center; justify-content:center;'\n                f' font-size:0.9em; font-weight:600;\"&gt;{k}&lt;/div&gt;'\n            )\n        return ui.HTML(\n            '&lt;div style=\"display:flex; flex-wrap:wrap; gap:6px;'\n            f' padding:0.4em 0.2em;\"&gt;{cells}&lt;/div&gt;'\n        )\n\n    @render.ui\n    def readout():\n        a, b, A, B = sets()\n        both = A & B\n        union = A | B\n        pa, pb = Fraction(len(A), N), Fraction(len(B), N)\n        pab = Fraction(len(both), N)\n        pu = Fraction(len(union), N)\n        disjoint = \"겹치는 카드가 없어 배반사건입니다. \" if not both else \"\"\n        return ui.HTML(\n            '&lt;p class=\"hs-readline\"&gt;'\n            f\"P(A) = {len(A)}/{N}, P(B) = {len(B)}/{N}, \"\n            f\"P(A∩B) = {len(both)}/{N} 이므로&lt;br&gt;\"\n            f\"P(A∪B) = {pa} + {pb} − {pab} = &lt;b&gt;{pu}&lt;/b&gt; \"\n            f\"(카드 {len(union)}장). {disjoint}\"\n            \"겹치는 부분을 빼지 않으면 그만큼 확률이 부풀려집니다.&lt;/p&gt;\"\n        )\n\napp = App(app_ui, server)\n\n\n집합 연산으로 덧셈정리를 그대로 확인할 수 있습니다.\nfrom fractions import Fraction\n\nN = 20\nA = {k for k in range(1, N + 1) if k % 3 == 0}   # 3의 배수\nB = {k for k in range(1, N + 1) if k % 5 == 0}   # 5의 배수\n\nunion = Fraction(len(A | B), N)\nby_rule = Fraction(len(A), N) + Fraction(len(B), N) - Fraction(len(A & B), N)\nprint(union, by_rule)                # 9/20 9/20 — 일치"
+  },
+  {
+    "objectID": "pages/02_prob/add_rule/index.html#스스로-확인",
+    "href": "pages/02_prob/add_rule/index.html#스스로-확인",
+    "title": "확률의 덧셈정리",
+    "section": "스스로 확인",
+    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — 1~20 카드에서 ’2의 배수 또는 3의 배수’일 확률은?\n\n\n\n\n\n2의 배수는 10장, 3의 배수는 6장, 둘 다인 6의 배수는 3장(6·12·18)입니다. 덧셈정리로 \\(\\dfrac{10}{20} + \\dfrac{6}{20} - \\dfrac{3}{20} = \\dfrac{13}{20}\\)입니다. 겹치는 6의 배수를 빼 주는 것이 핵심입니다.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 언제 P(A∪B)=P(A)+P(B) 로 그냥 더해도 되는가?\n\n\n\n\n\n두 사건이 동시에 일어날 수 없을 때(배반사건, \\(A\\cap B=\\varnothing\\))입니다. 예를 들어 한 장을 뽑아 “3의 배수”와 “3으로 나눈 나머지가 1”은 동시에 성립할 수 없으므로, 두 확률을 그냥 더하면 됩니다. 겹침이 조금이라도 있으면 반드시 \\(\\mathrm{P}(A\\cap B)\\)를 빼야 합니다.\n\n\n\n\n← 이전: 확률의 뜻 다음: 조건부확률과 독립 →"
   },
   {
     "objectID": "pages/01_data/spread/index.html",
@@ -256,14 +340,7 @@
     "href": "pages/01_data/freq_table/index.html#스스로-확인",
     "title": "도수분포표와 히스토그램",
     "section": "스스로 확인",
-    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — 계급의 크기를 10분에서 60분까지 바꾸면 히스토그램은 어떻게 변하는가?\n\n\n\n\n\n계급이 좁으면 막대가 많아져 자료의 세부가 드러나지만 들쭉날쭉해지고, 계급이 넓으면 매끈해지는 대신 분포의 모양(어디에 몰려 있는지)이 뭉개집니다. 자료의 특징이 가장 잘 보이는 “적당한” 계급의 크기를 직접 찾아보세요.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 상대도수로 바꾸면 막대의 높이는 변하는데 모양은 왜 그대로인가?\n\n\n\n\n\n상대도수는 모든 도수를 같은 수(전체 도수 40)로 나눈 값이라, 세로축의 눈금만 바뀌고 막대들 사이의 비율은 그대로이기 때문입니다. 상대도수는 전체 자료 수가 다른 두 집단을 비교할 때 특히 유용합니다.\n\n\n\n\n← 홈 다음: 대푯값 →"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "빛스탯 HS",
-    "section": "",
-    "text": "BitStat HS\n  고교 통계, 만지며 배운다\n  슬라이더를 움직이면 그래프가 답합니다. 교과서 순서 그대로,\n  설치도 계정도 없이 브라우저에서 — 파이썬이 브라우저 안에서 직접 돌아갑니다.\n  \n    Pyodide 서버리스\n    「확률과 통계」·「통계와 사회」 정렬\n    실생활 데이터\n  \n  정규분포 체험 시작 →\n  교육과정 지도 보기\n\n\n\n  \n  18개 모듈 전부 라이브 — 5개 단원 공개\n\n\n\n  \n    ① 만지기\n    슬라이더·버튼으로 모수를 바꾸면 그래프가 즉시 반응합니다.\n    (Shiny for Python × shinylive 앱)\n  \n  \n    ② 열어보기\n    같은 계산의 파이썬 코드를 탭에서 확인합니다.\n    앱 뒤에 숨은 수식이 몇 줄의 코드인지 눈으로 봅니다.\n  \n  \n    ③ 탐구하기\n    예시 데이터로 수행평가·탐구 프로젝트를 진행합니다.\n    (05 통계와 사회 — 데이터 탐색기 · 탐구 안내)\n  \n\n\n\n  교육과정 지도\n  \n    \n      01\n      자료와 그래프\n      중등 복습 · 진단\n      \n        도수분포표와 히스토그램\n        대푯값\n        산포도와 상자그림\n        산점도와 상관관계\n      \n    \n    \n      02\n      경우의 수와 확률\n      확률과 통계\n      \n        순열과 조합\n        확률의 뜻\n        조건부확률과 독립\n      \n    \n    \n      03\n      확률분포\n      확률과 통계\n      \n        확률변수와 기댓값\n        이항분포\n        정규분포와 표준화\n      \n    \n    \n      04\n      통계적 추정\n      확률과 통계\n      \n        표본추출\n        표본평균의 분포\n        모평균의 신뢰구간\n        모비율의 추정\n      \n    \n    \n      05\n      통계와 사회\n      실생활 데이터 · 수행평가\n      \n        데이터 탐색기\n        통계 그래프 만들기\n        여론조사 읽기\n        통계적 탐구 프로젝트\n      \n    \n  \n\n\n\n첫 방문 시 앱이 뜨기까지 수십 초가 걸릴 수 있습니다(브라우저가 파이썬 실행 환경을 내려받는 시간 —\n이후에는 캐시되어 빠릅니다). 자매 사이트:\n빛스탯2 포털 ·\n제작: 한국 R 사용자회"
+    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — 계급의 크기를 10분에서 60분까지 바꾸면 히스토그램은 어떻게 변하는가?\n\n\n\n\n\n계급이 좁으면 막대가 많아져 자료의 세부가 드러나지만 들쭉날쭉해지고, 계급이 넓으면 매끈해지는 대신 분포의 모양(어디에 몰려 있는지)이 뭉개집니다. 자료의 특징이 가장 잘 보이는 “적당한” 계급의 크기를 직접 찾아보세요.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 상대도수로 바꾸면 막대의 높이는 변하는데 모양은 왜 그대로인가?\n\n\n\n\n\n상대도수는 모든 도수를 같은 수(전체 도수 40)로 나눈 값이라, 세로축의 눈금만 바뀌고 막대들 사이의 비율은 그대로이기 때문입니다. 상대도수는 전체 자료 수가 다른 두 집단을 비교할 때 특히 유용합니다.\n\n\n\n\n← 이전: 정보의 구조화 다음: 대푯값 →"
   },
   {
     "objectID": "pages/01_data/center/index.html",
@@ -294,6 +371,41 @@
     "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — 슬라이더를 3에서 100으로 올리면 세 대푯값은 각각 얼마나 변하는가?\n\n\n\n\n\n평균은 자료 16개의 합이 97만큼 늘어 약 6권 넘게 커지지만, 중앙값은 크기순 배열의 한가운데 위치가 그대로라 거의 변하지 않고, 최빈값 3권은 전혀 변하지 않습니다. 값 하나가 평균을 얼마나 좌우할 수 있는지 눈으로 확인해 보세요.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 어떤 자료에는 평균보다 중앙값이 더 좋은 대푯값인가?\n\n\n\n\n\n연봉·집값·SNS 팔로워 수처럼 한쪽으로 길게 꼬리가 늘어진 자료입니다. 극단적으로 큰 값 몇 개가 평균을 끌어올려 “보통”과 멀어지게 하므로, 이런 자료의 대푯값으로는 중앙값이 더 적절합니다.\n\n\n\n\n← 이전: 도수분포표와 히스토그램 다음: 산포도와 상자그림 →"
   },
   {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "빛스탯 HS",
+    "section": "",
+    "text": "BitStat HS\n  고교 통계, 만지며 배운다\n  슬라이더를 움직이면 그래프가 답합니다. 교과서 순서 그대로,\n  설치도 계정도 없이 브라우저에서 — 파이썬이 브라우저 안에서 직접 돌아갑니다.\n  \n    Pyodide 서버리스\n    「확률과 통계」·「통계와 사회」 정렬\n    실생활 데이터\n  \n  정규분포 체험 시작 →\n  교육과정 지도 보기\n\n\n\n  \n  25개 모듈 전부 라이브 — 5개 단원 공개\n\n\n\n  \n    ① 만지기\n    슬라이더·버튼으로 모수를 바꾸면 그래프가 즉시 반응합니다.\n    (Shiny for Python × shinylive 앱)\n  \n  \n    ② 열어보기\n    같은 계산의 파이썬 코드를 탭에서 확인합니다.\n    앱 뒤에 숨은 수식이 몇 줄의 코드인지 눈으로 봅니다.\n  \n  \n    ③ 탐구하기\n    예시 데이터로 수행평가·탐구 프로젝트를 진행합니다.\n    (05 통계와 사회 — 데이터 탐색기 · 탐구 안내)\n  \n\n\n\n  교육과정 지도\n  \n    \n      01\n      자료와 그래프\n      중등 복습 · 진단\n      \n        자료와 정보\n        정보의 구조화\n        도수분포표와 히스토그램\n        대푯값\n        산포도와 상자그림\n        산점도와 상관관계\n      \n    \n    \n      02\n      경우의 수와 확률\n      확률과 통계\n      \n        순열과 조합\n        여러 가지 순열\n        중복조합\n        이항정리\n        확률의 뜻\n        확률의 덧셈정리\n        조건부확률과 독립\n      \n    \n    \n      03\n      확률분포\n      확률과 통계\n      \n        확률변수와 기댓값\n        이항분포\n        연속확률변수와 확률분포\n        정규분포와 표준화\n      \n    \n    \n      04\n      통계적 추정\n      확률과 통계\n      \n        표본추출\n        표본평균의 분포\n        모평균의 신뢰구간\n        모비율의 추정\n      \n    \n    \n      05\n      통계와 사회\n      실생활 데이터 · 수행평가\n      \n        데이터 탐색기\n        통계 그래프 만들기\n        여론조사 읽기\n        통계적 탐구 프로젝트\n      \n    \n  \n\n\n\n첫 방문 시 앱이 뜨기까지 수십 초가 걸릴 수 있습니다(브라우저가 파이썬 실행 환경을 내려받는 시간 —\n이후에는 캐시되어 빠릅니다). 자매 사이트:\n빛스탯2 포털 ·\n제작: 한국 R 사용자회"
+  },
+  {
+    "objectID": "pages/01_data/data_info/index.html",
+    "href": "pages/01_data/data_info/index.html",
+    "title": "자료와 정보",
+    "section": "",
+    "text": "← 빛스탯 HS 홈"
+  },
+  {
+    "objectID": "pages/01_data/data_info/index.html#개념",
+    "href": "pages/01_data/data_info/index.html#개념",
+    "title": "자료와 정보",
+    "section": "개념",
+    "text": "개념\n관찰이나 측정으로 얻은 가공 전의 사실이 자료(data) 입니다. 숫자·문자·그림·소리처럼 그 자체로는 아직 의미가 잘 드러나지 않습니다. 이 자료를 문제 해결에 도움이 되도록 정리·가공한 것이 정보(information) 이고, 정보가 쌓여 판단의 근거가 되면 지식이 됩니다.\n\\[\\text{자료(data)} \\;\\longrightarrow\\; \\text{정보(information)} \\;\\longrightarrow\\; \\text{지식(knowledge)}\\]\n\n\n중등 「정보」 교과서는 자료를 “컴퓨터가 처리할 수 있는 문자·숫자·소리·그림 형태의 것”, 정보를 “관찰이나 측정을 통해 수집한 자료를 실제 문제에 도움이 될 수 있도록 정리한 지식” 으로 구분합니다. 통계는 바로 이 자료 → 정보 변환을 다루는 과목입니다.\n자료는 값의 성격에 따라 나뉩니다. 인구수·키·가격처럼 크기를 재는 수치형(양적) 자료와, 행정구역·성별·선호도처럼 종류를 나누는 범주형(질적) 자료입니다. 어떤 유형이냐에 따라 쓸 수 있는 그래프와 대푯값이 달라지므로, 분석에 앞서 자료의 유형부터 확인해야 합니다.\n문제를 데이터로 해결할 때는 대체로 네 단계를 거칩니다 — ① 문제 분석(무엇이 필요한가) → ② 자료 수집(인터넷·설문으로 모으기) → ③ 분류·관리(스프레드시트로 정렬·선택·분석) → ④ 공유(정리한 결과를 함께 보기). 아래 앱은 이 가운데 ③의 핵심인 정렬을 다룹니다. 같은 표라도 정렬하고 상위 몇 개만 추리면, 뒤섞인 자료가 곧바로 읽히는 정보로 바뀝니다."
+  },
+  {
+    "objectID": "pages/01_data/data_info/index.html#만지며-배우기",
+    "href": "pages/01_data/data_info/index.html#만지며-배우기",
+    "title": "자료와 정보",
+    "section": "만지며 배우기",
+    "text": "만지며 배우기\n\n인터랙티브 앱파이썬 코드\n\n\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 680\n\nfrom shiny import App, render, ui\n\nACCENT = \"#2563eb\"\n\n# 우리나라 시도별 인구수 — 중등 「정보」 교과서 예시 표\n# (matplotlib 대신 HTML 막대를 쓰는 이유: Pyodide에는 한글 폰트가 없어\n#  차트 축 라벨의 한글이 깨진다. HTML 막대는 브라우저 폰트로 그려 정상 표시된다.)\nPOP = [\n    (\"서울\", 10022181), (\"부산\", 3513777), (\"대구\", 2487829),\n    (\"인천\", 2925815), (\"광주\", 1472199), (\"대전\", 1518775),\n    (\"울산\", 1173534), (\"세종\", 210884), (\"경기\", 12522606),\n    (\"강원\", 1549507), (\"충북\", 1583952), (\"충남\", 2077649),\n    (\"전북\", 1869711), (\"전남\", 1908996), (\"경북\", 2702826),\n    (\"경남\", 3364702), (\"제주\", 624395),\n]\nPOP_MAX = max(p for _, p in POP)\n\napp_ui = ui.page_sidebar(\n    ui.sidebar(\n        ui.input_select(\n            \"order\", \"정렬 기준\",\n            {\"desc\": \"인구 많은 순\", \"asc\": \"인구 적은 순\", \"name\": \"가나다 순\"},\n            selected=\"desc\",\n        ),\n        ui.input_slider(\"topn\", \"상위 몇 개 시도만 보기\", min=3, max=17, value=8, step=1),\n        width=250,\n    ),\n    ui.card(\n        ui.card_header(\"시도별 인구수 — 정렬하면 뒤섞인 자료가 정보가 됩니다\"),\n        ui.output_ui(\"bars\"),\n    ),\n    ui.card(ui.output_ui(\"readout\")),\n    fillable=True,\n)\n\ndef server(input, output, session):\n    def arranged():\n        data = list(POP)\n        if input.order() == \"desc\":\n            data.sort(key=lambda r: r[1], reverse=True)\n        elif input.order() == \"asc\":\n            data.sort(key=lambda r: r[1])\n        else:\n            data.sort(key=lambda r: r[0])\n        # 가나다 순일 때는 전체를, 크기순일 때는 상위 N개를 보여 준다\n        if input.order() == \"name\":\n            return data\n        return data[: input.topn()]\n\n    @render.ui\n    def bars():\n        rows = \"\"\n        for name, p in arranged():\n            w = p / POP_MAX * 100\n            rows += (\n                '&lt;div style=\"display:flex; align-items:center; margin:5px 0;\"&gt;'\n                f'&lt;div style=\"width:44px; text-align:right; padding-right:10px;'\n                f' font-size:0.9em; flex:none;\"&gt;{name}&lt;/div&gt;'\n                f'&lt;div style=\"height:19px; width:{w:.1f}%; background:{ACCENT};'\n                f' border-radius:3px; flex:none;\"&gt;&lt;/div&gt;'\n                f'&lt;div style=\"padding-left:8px; font-size:0.82em; color:#6b7280;'\n                f' flex:none;\"&gt;{p/10000:,.0f}만&lt;/div&gt;&lt;/div&gt;'\n            )\n        return ui.HTML(f'&lt;div style=\"padding:0.4em 0.2em;\"&gt;{rows}&lt;/div&gt;')\n\n    @render.ui\n    def readout():\n        data = arranged()\n        top = max(POP, key=lambda r: r[1])\n        bot = min(POP, key=lambda r: r[1])\n        total = sum(r[1] for r in POP)\n        return ui.HTML(\n            '&lt;p class=\"hs-readline\"&gt;'\n            f\"17개 시도 인구를 모두 더하면 약 {total/10000:,.0f}만 명입니다. \"\n            f\"가장 많은 곳은 {top[0]}({top[1]:,}명), 가장 적은 곳은 {bot[0]}({bot[1]:,}명)로 \"\n            f\"약 {top[1]/bot[1]:.0f}배 차이가 납니다. \"\n            \"정렬 기준과 개수를 바꿔 보세요. 표의 숫자는 그대로지만, \"\n            \"무엇을 위로 올리고 몇 개만 남기느냐에 따라 전혀 다른 사실이 눈에 들어옵니다. \"\n            \"이것이 자료를 정보로 바꾸는 가장 기본적인 가공입니다.&lt;/p&gt;\"\n        )\n\napp = App(app_ui, server)\n\n\n정렬과 상위 N개 추리기는 sorted 한 줄이면 됩니다.\npop = [\n    (\"서울\", 10022181), (\"경기\", 12522606), (\"부산\", 3513777),\n    (\"세종\", 210884), (\"제주\", 624395),\n]\n\n# 인구 많은 순으로 정렬 (뒤섞인 자료 → 읽히는 정보)\nranked = sorted(pop, key=lambda r: r[1], reverse=True)\n\nfor name, n in ranked[:3]:          # 상위 3개만\n    print(f\"{name}: {n:,}명\")"
+  },
+  {
+    "objectID": "pages/01_data/data_info/index.html#스스로-확인",
+    "href": "pages/01_data/data_info/index.html#스스로-확인",
+    "title": "자료와 정보",
+    "section": "스스로 확인",
+    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — ’서울 10,022,181’은 자료인가 정보인가?\n\n\n\n\n\n숫자 하나만 놓고 보면 아직 가공 전의 자료입니다. 이 값을 17개 시도와 함께 인구 많은 순으로 정렬해 “서울이 두 번째로 인구가 많다”처럼 문제 해결에 쓸 수 있게 정리하면 비로소 정보가 됩니다. 같은 값도 정리·해석의 목적에 따라 자료가 되기도, 정보가 되기도 합니다.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 행정구역과 인구수는 각각 어떤 유형의 자료인가?\n\n\n\n\n\n행정구역(서울·부산…)은 종류를 나누는 범주형(질적) 자료, 인구수는 크기를 재는 수치형(양적) 자료입니다. 범주형은 막대그래프·원그래프로, 수치형은 히스토그램· 상자그림으로 요약하는 것이 자연스럽습니다. 다음 모듈부터 이 그래프들을 하나씩 다룹니다.\n\n\n\n\n← 홈 다음: 정보의 구조화 →"
+  },
+  {
     "objectID": "pages/01_data/scatter/index.html",
     "href": "pages/01_data/scatter/index.html",
     "title": "산점도와 상관관계",
@@ -322,6 +434,62 @@
     "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — r = 1(또는 −1)로 맞추면 점들은 어떤 모양이 되는가?\n\n\n\n\n\n모든 점이 하나의 직선 위에 완벽하게 늘어섭니다. \\(r = 1\\)이면 오른쪽 위로, \\(r = -1\\)이면 오른쪽 아래로 향하는 직선입니다. 상관계수의 절댓값은 “점들이 직선에 얼마나 가깝게 모이는가”를 재는 수임을 확인해 보세요.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — r = 0.3, n = 20으로 두고 ’다시 생성’을 여러 번 누르면 계산된 상관계수는 얼마나 출렁이는가?\n\n\n\n\n\n표본이 작으면 계산된 상관계수가 0 근처부터 0.6 이상까지 크게 출렁입니다. 심지어 부호가 뒤집히기도 합니다. 적은 자료에서 관찰한 상관관계를 성급하게 믿으면 안 되는 이유입니다. n을 200으로 키워 비교해 보세요.\n\n\n\n\n← 이전: 산포도와 상자그림 다음: 순열과 조합 →"
   },
   {
+    "objectID": "pages/01_data/structure/index.html",
+    "href": "pages/01_data/structure/index.html",
+    "title": "정보의 구조화",
+    "section": "",
+    "text": "← 빛스탯 HS 홈"
+  },
+  {
+    "objectID": "pages/01_data/structure/index.html#개념",
+    "href": "pages/01_data/structure/index.html#개념",
+    "title": "정보의 구조화",
+    "section": "개념",
+    "text": "개념\n같은 내용이라도 어떻게 구조화하느냐에 따라 전달력이 크게 달라집니다. 잘 정리된 정보는 의미가 한눈에 들어오지만, 뒤섞인 정보는 뜻이 잘못 전달되기도 합니다. 중등 「정보」 교과서는 정보를 정리하는 네 가지 대표 형태를 소개합니다.\n\n순차적 구조 — 내용을 순서대로 나열합니다. 쉽고 빠르지만 양이 많아지면 관리가 어렵습니다.\n표(테이블) 구조 — 행과 열로 나눕니다. 시간표·출석부처럼 항목별 비교에 강합니다.\n계층형 구조 — 수준별로 묶습니다. 조직도·목차·폴더처럼 큰 것에서 작은 것으로 내려갑니다.\n다이어그램 구조 — 기호·선·점으로 관계와 크기를 보여 줍니다. 그래프가 여기에 속합니다.\n\n\n\n“우리나라 시도별 인구수를 어떻게 하면 효과적으로 전달할까?” — 교과서가 던지는 이 질문이 바로 통계 그래프의 출발점입니다. 정답은 하나가 아니라 활용 목적에 따라 달라집니다.\n핵심은 어느 하나가 항상 옳은 것이 아니라, 정보의 활용 목적에 맞는 형태를 고르는 것입니다. 개별 값을 정확히 찾아야 하면 표가, 소속 관계를 보여야 하면 계층이, 크기를 한눈에 비교하려면 다이어그램이 유리합니다. 아래 앱에서 같은 인구 데이터를 네 형태로 바꿔 보며 차이를 느껴 보세요."
+  },
+  {
+    "objectID": "pages/01_data/structure/index.html#만지며-배우기",
+    "href": "pages/01_data/structure/index.html#만지며-배우기",
+    "title": "정보의 구조화",
+    "section": "만지며 배우기",
+    "text": "만지며 배우기\n\n인터랙티브 앱파이썬 코드\n\n\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 640\n\nfrom shiny import App, render, ui\n\nACCENT = \"#2563eb\"\n\n# 시도를 권역으로 묶은 계층 구조 (인구는 백만 명 단위, 교과서 표 기준 반올림)\nREGIONS = {\n    \"수도권\": [(\"서울\", 10.0), (\"인천\", 2.9), (\"경기\", 12.5)],\n    \"충청권\": [(\"대전\", 1.5), (\"세종\", 0.2), (\"충북\", 1.6), (\"충남\", 2.1)],\n    \"호남권\": [(\"광주\", 1.5), (\"전북\", 1.9), (\"전남\", 1.9)],\n    \"영남권\": [(\"부산\", 3.5), (\"대구\", 2.5), (\"울산\", 1.2),\n             (\"경북\", 2.7), (\"경남\", 3.4)],\n    \"강원권\": [(\"강원\", 1.5)],\n    \"제주권\": [(\"제주\", 0.6)],\n}\nFLAT = [(name, pop) for cities in REGIONS.values() for (name, pop) in cities]\n\napp_ui = ui.page_sidebar(\n    ui.sidebar(\n        ui.input_radio_buttons(\n            \"form\", \"구조화 형태\",\n            {\"seq\": \"순차적\", \"table\": \"표(테이블)\",\n             \"tree\": \"계층형\", \"diagram\": \"다이어그램\"},\n            selected=\"table\",\n        ),\n        width=250,\n    ),\n    ui.card(\n        ui.card_header(\"같은 데이터, 네 가지 구조 — 목적에 맞는 형태는?\"),\n        ui.output_ui(\"view\"),\n    ),\n    ui.card(ui.output_ui(\"note\")),\n    fillable=True,\n)\n\ndef server(input, output, session):\n    @render.ui\n    def view():\n        form = input.form()\n\n        if form == \"seq\":\n            items = \" → \".join(f\"{n} {p}\" for n, p in FLAT)\n            return ui.HTML(\n                '&lt;p style=\"line-height:2; font-size:0.95em;\"&gt;' + items + \"&lt;/p&gt;\"\n            )\n\n        if form == \"table\":\n            td = ('style=\"border:1px solid #d1d5db; padding:3px 12px;'\n                  ' text-align:center;\"')\n            rows = \"\".join(\n                f\"&lt;tr&gt;&lt;td {td}&gt;{n}&lt;/td&gt;&lt;td {td}&gt;{p:.1f}&lt;/td&gt;&lt;/tr&gt;\"\n                for n, p in FLAT\n            )\n            return ui.HTML(\n                '&lt;table style=\"border-collapse:collapse; margin:0 auto;'\n                ' font-size:0.9em;\"&gt;'\n                f\"&lt;tr&gt;&lt;th {td}&gt;시도&lt;/th&gt;&lt;th {td}&gt;인구(백만)&lt;/th&gt;&lt;/tr&gt;\"\n                f\"{rows}&lt;/table&gt;\"\n            )\n\n        if form == \"tree\":\n            blocks = \"\"\n            for region, cities in REGIONS.items():\n                total = sum(p for _, p in cities)\n                leaves = \"\".join(\n                    f'&lt;li style=\"margin-left:1.4em;\"&gt;{n} — {p:.1f}백만&lt;/li&gt;'\n                    for n, p in cities\n                )\n                blocks += (\n                    f'&lt;li style=\"font-weight:600; margin-top:0.4em;\"&gt;'\n                    f\"{region} ({total:.1f}백만)&lt;/li&gt;{leaves}\"\n                )\n            return ui.HTML(\n                f'&lt;ul style=\"list-style:none; padding-left:0.5em;'\n                f' line-height:1.7; font-size:0.92em;\"&gt;{blocks}&lt;/ul&gt;'\n            )\n\n        # diagram — 권역별 합계를 HTML 막대로\n        totals = {r: sum(p for _, p in c) for r, c in REGIONS.items()}\n        mx = max(totals.values())\n        bars = \"\"\n        for region, t in sorted(totals.items(), key=lambda x: -x[1]):\n            w = t / mx * 100\n            bars += (\n                '&lt;div style=\"display:flex; align-items:center; margin:6px 0;\"&gt;'\n                f'&lt;div style=\"width:70px; text-align:right; padding-right:10px;'\n                f' font-size:0.88em;\"&gt;{region}&lt;/div&gt;'\n                f'&lt;div style=\"height:20px; width:{w:.1f}%; background:{ACCENT};'\n                f' border-radius:3px;\"&gt;&lt;/div&gt;'\n                f'&lt;div style=\"padding-left:8px; font-size:0.85em;'\n                f' color:#6b7280;\"&gt;{t:.1f}&lt;/div&gt;&lt;/div&gt;'\n            )\n        return ui.HTML(f'&lt;div style=\"padding:0.5em 0;\"&gt;{bars}&lt;/div&gt;')\n\n    @render.ui\n    def note():\n        msg = {\n            \"seq\": \"순차적 구조는 빠르게 나열하지만, 17개가 한 줄로 늘어서면 \"\n                   \"어디에 무엇이 있는지 찾기 어렵습니다.\",\n            \"table\": \"표는 개별 시도의 정확한 값을 찾기에 가장 좋습니다. \"\n                     \"대신 전체 크기를 한눈에 비교하기는 어렵습니다.\",\n            \"tree\": \"계층형은 '어느 권역에 속하는가'라는 소속 관계를 드러냅니다. \"\n                    \"권역별 합계까지 함께 보여 줄 수 있습니다.\",\n            \"diagram\": \"다이어그램(막대)은 크기 비교가 즉각적입니다. \"\n                       \"수도권이 다른 권역을 압도한다는 사실이 바로 읽힙니다. \"\n                       \"통계 그래프가 여기에 해당합니다.\",\n        }[input.form()]\n        return ui.HTML(f'&lt;p class=\"hs-readline\"&gt;{msg}&lt;/p&gt;')\n\napp = App(app_ui, server)\n\n\n계층형 구조는 딕셔너리로, 권역별 합계는 반복문으로 간단히 표현됩니다.\nregions = {\n    \"수도권\": {\"서울\": 10.0, \"인천\": 2.9, \"경기\": 12.5},\n    \"영남권\": {\"부산\": 3.5, \"대구\": 2.5, \"울산\": 1.2, \"경북\": 2.7, \"경남\": 3.4},\n}\n\nfor region, cities in regions.items():\n    total = sum(cities.values())         # 권역 = 상위 계층\n    print(f\"{region}: {total:.1f}백만\")   # 시도 = 하위 계층"
+  },
+  {
+    "objectID": "pages/01_data/structure/index.html#스스로-확인",
+    "href": "pages/01_data/structure/index.html#스스로-확인",
+    "title": "정보의 구조화",
+    "section": "스스로 확인",
+    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — ’특정 시의 정확한 인구’를 알려면 어떤 구조가 좋은가?\n\n\n\n\n\n개별 값을 정확히 찾는 데는 표(테이블) 구조가 가장 적합합니다. 다이어그램은 크기를 눈대중으로 비교하기엔 좋지만 정확한 숫자를 읽기는 어렵고, 순차 구조는 항목이 많으면 원하는 값을 찾기 번거롭습니다.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 뉴스에서 지역별 인구를 한 장의 그림으로 전할 때 왜 다이어그램(그래프)을 쓰는가?\n\n\n\n\n\n독자에게 필요한 것은 정확한 자릿수가 아니라 “어디가 많고 어디가 적은가” 라는 크기 관계이기 때문입니다. 다이어그램은 이 비교를 순식간에 전달합니다. 활용 목적이 ’정확한 조회’가 아니라 ’한눈에 비교’일 때 다이어그램이 가장 효과적입니다.\n\n\n\n\n← 이전: 자료와 정보 다음: 도수분포표와 히스토그램 →"
+  },
+  {
+    "objectID": "pages/02_prob/binom_thm/index.html",
+    "href": "pages/02_prob/binom_thm/index.html",
+    "title": "이항정리",
+    "section": "",
+    "text": "← 빛스탯 HS 홈"
+  },
+  {
+    "objectID": "pages/02_prob/binom_thm/index.html#개념",
+    "href": "pages/02_prob/binom_thm/index.html#개념",
+    "title": "이항정리",
+    "section": "개념",
+    "text": "개념\n\\((a+b)^n\\)을 펼치면 각 항은 \\(n\\)개의 괄호 \\((a+b)\\)에서 \\(a\\) 또는 \\(b\\)를 하나씩 골라 곱한 것입니다. \\(b\\)를 \\(r\\)번 고르는 방법이 곧 \\({}_n\\mathrm{C}_r\\)가지이므로, \\(a^{\\,n-r}b^{\\,r}\\)의 계수는 \\({}_n\\mathrm{C}_r\\)가 됩니다. 이것이 이항정리입니다.\n\\[(a+b)^n = \\sum_{r=0}^{n} {}_n\\mathrm{C}_r\\, a^{\\,n-r} b^{\\,r}\\]\n\n\n계수 \\({}_n\\mathrm{C}_0,\\,{}_n\\mathrm{C}_1,\\,\\dots,\\,{}_n\\mathrm{C}_n\\)을 이항계수라고 합니다. 조합의 수가 전개식의 계수로 그대로 나타나는 것이 경우의 수와 대수를 잇는 다리입니다.\n이항계수를 위에서부터 차례로 쌓으면 파스칼의 삼각형이 됩니다. 각 수는 바로 위 두 수의 합이고(\\({}_{n-1}\\mathrm{C}_{r-1} + {}_{n-1}\\mathrm{C}_{r} = {}_n\\mathrm{C}_r\\)), 좌우 대칭입니다(\\({}_n\\mathrm{C}_r = {}_n\\mathrm{C}_{n-r}\\)). 아래 앱에서 차수 \\(n\\)을 바꾸며 삼각형의 한 줄이 \\((a+b)^n\\)의 계수와 정확히 일치함을 확인해 보세요."
+  },
+  {
+    "objectID": "pages/02_prob/binom_thm/index.html#만지며-배우기",
+    "href": "pages/02_prob/binom_thm/index.html#만지며-배우기",
+    "title": "이항정리",
+    "section": "만지며 배우기",
+    "text": "만지며 배우기\n\n인터랙티브 앱파이썬 코드\n\n\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 640\n\nfrom math import comb\nfrom shiny import App, render, ui\n\nACCENT = \"#2563eb\"\n\napp_ui = ui.page_sidebar(\n    ui.sidebar(\n        ui.input_slider(\"n\", \"차수 n — (a+b)ⁿ\", min=1, max=8, value=4, step=1),\n        width=250,\n    ),\n    ui.card(\n        ui.card_header(\"파스칼의 삼각형 — 파란 줄이 (a+b)ⁿ의 계수입니다\"),\n        ui.output_ui(\"triangle\"),\n    ),\n    ui.card(ui.output_ui(\"readout\")),\n    fillable=True,\n)\n\ndef server(input, output, session):\n    @render.ui\n    def triangle():\n        n = input.n()\n        rows = \"\"\n        for i in range(n + 1):\n            hi = (i == n)\n            cells = \"\"\n            for r in range(i + 1):\n                c = comb(i, r)\n                color = \"white\" if hi else \"#374151\"\n                bg = ACCENT if hi else \"transparent\"\n                cells += (\n                    f'&lt;span style=\"display:inline-block; min-width:34px;'\n                    f' margin:2px; padding:2px 4px; text-align:center;'\n                    f' border-radius:4px; background:{bg}; color:{color};'\n                    f' font-size:0.85em;\"&gt;{c}&lt;/span&gt;'\n                )\n            rows += f'&lt;div style=\"white-space:nowrap;\"&gt;{cells}&lt;/div&gt;'\n        return ui.HTML(\n            '&lt;div style=\"text-align:center; overflow-x:auto;'\n            f' padding:0.5em 0;\"&gt;{rows}&lt;/div&gt;'\n        )\n\n    @render.ui\n    def readout():\n        n = input.n()\n        coeffs = [comb(n, r) for r in range(n + 1)]\n        terms = []\n        for r in range(n + 1):\n            c = coeffs[r]\n            cs = \"\" if c == 1 else str(c)\n            ap = \"\" if n - r == 0 else (\"a\" if n - r == 1 else f\"a^{n-r}\")\n            bp = \"\" if r == 0 else (\"b\" if r == 1 else f\"b^{r}\")\n            body = (ap + bp) or \"1\"\n            terms.append(cs + body)\n        expr = \" + \".join(terms)\n        return ui.HTML(\n            '&lt;p class=\"hs-readline\"&gt;'\n            f\"(a+b)^{n} 의 계수는 {coeffs} 입니다. 삼각형의 아래에서 첫째 줄(파란색)과 \"\n            f\"정확히 같습니다.&lt;br&gt;&lt;b&gt;(a+b)^{n} = {expr}&lt;/b&gt;&lt;br&gt;\"\n            f\"계수를 모두 더하면 {sum(coeffs):,} = 2^{n} 인데, 이는 (a+b)에 a=b=1을 \"\n            f\"넣은 값과 같습니다.&lt;/p&gt;\"\n        )\n\napp = App(app_ui, server)\n\n\n이항계수는 조합 함수 comb 로 한 줄에 얻습니다.\nfrom math import comb\n\nn = 5\ncoeffs = [comb(n, r) for r in range(n + 1)]\nprint(coeffs)                        # [1, 5, 10, 10, 5, 1]\n\n# (x+2)^4 에서 x^2 의 계수: r=2 항의 계수 × 2^2\nprint(comb(4, 2) * 2 ** 2)           # 6 × 4 = 24"
+  },
+  {
+    "objectID": "pages/02_prob/binom_thm/index.html#스스로-확인",
+    "href": "pages/02_prob/binom_thm/index.html#스스로-확인",
+    "title": "이항정리",
+    "section": "스스로 확인",
+    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — (x+2)⁴ 의 전개식에서 x² 의 계수는?\n\n\n\n\n\n\\(a=x,\\,b=2,\\,n=4\\)에서 \\(x^2\\) 항은 \\(r=2\\)일 때이므로 계수는 \\({}_4\\mathrm{C}_2 \\times 2^2 = 6 \\times 4 = 24\\)입니다. 파스칼의 삼각형 넷째 줄 \\(1,4,6,4,1\\)에서 가운데 \\(6\\)에 \\(b=2\\)의 거듭제곱 \\(2^2\\)를 곱한 값입니다.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 이항계수를 한 줄 모두 더하면 왜 2ⁿ 이 되는가?\n\n\n\n\n\n이항정리 \\((a+b)^n = \\sum {}_n\\mathrm{C}_r\\,a^{n-r}b^r\\)에 \\(a=b=1\\)을 넣으면 좌변은 \\(2^n\\), 우변은 이항계수의 합이 됩니다. 즉 \\({}_n\\mathrm{C}_0 + {}_n\\mathrm{C}_1 + \\cdots + {}_n\\mathrm{C}_n = 2^n\\)입니다. 이는 원소가 \\(n\\)개인 집합의 부분집합이 \\(2^n\\)개인 것과도 같은 사실입니다.\n\n\n\n\n← 이전: 중복조합 다음: 확률의 뜻 →"
+  },
+  {
     "objectID": "pages/02_prob/conditional/index.html",
     "href": "pages/02_prob/conditional/index.html",
     "title": "조건부확률과 독립",
@@ -347,35 +515,63 @@
     "href": "pages/02_prob/conditional/index.html#스스로-확인",
     "title": "조건부확률과 독립",
     "section": "스스로 확인",
-    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — P(B|A)와 P(B|Aᶜ)를 같은 값으로 맞추면 무슨 일이 일어나는가?\n\n\n\n\n\n두 값이 같으면 \\(P(B) = P(B \\mid A) = P(B \\mid A^c)\\)가 되어 \\(A\\)와 \\(B\\)는 서로 독립이 됩니다. 운동을 하든 안 하든 아침밥을 먹을 확률이 같다는 뜻입니다. 격자에서 \\(A\\) 영역과 \\(A^c\\) 영역의 색칠 비율이 같아지는 것을 확인해 보세요.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 기본값(P(A)=0.4, P(B|A)=0.8, P(B|Aᶜ)=0.5)에서 P(A|B)를 손으로 구해 보라.\n\n\n\n\n\n전체확률로 \\(P(B) = 0.4 \\times 0.8 + 0.6 \\times 0.5 = 0.62\\), 따라서 \\(P(A \\mid B) = \\dfrac{P(A \\cap B)}{P(B)} = \\dfrac{0.32}{0.62} \\approx 0.52\\) 입니다. 아침밥을 먹었다는 정보만으로 운동했을 확률이 \\(0.4\\)에서 \\(0.52\\)로 올라갑니다 — 정보가 확률을 갱신한 것입니다.\n\n\n\n\n← 이전: 확률의 뜻 다음: 확률변수와 기댓값 →"
+    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — P(B|A)와 P(B|Aᶜ)를 같은 값으로 맞추면 무슨 일이 일어나는가?\n\n\n\n\n\n두 값이 같으면 \\(P(B) = P(B \\mid A) = P(B \\mid A^c)\\)가 되어 \\(A\\)와 \\(B\\)는 서로 독립이 됩니다. 운동을 하든 안 하든 아침밥을 먹을 확률이 같다는 뜻입니다. 격자에서 \\(A\\) 영역과 \\(A^c\\) 영역의 색칠 비율이 같아지는 것을 확인해 보세요.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 기본값(P(A)=0.4, P(B|A)=0.8, P(B|Aᶜ)=0.5)에서 P(A|B)를 손으로 구해 보라.\n\n\n\n\n\n전체확률로 \\(P(B) = 0.4 \\times 0.8 + 0.6 \\times 0.5 = 0.62\\), 따라서 \\(P(A \\mid B) = \\dfrac{P(A \\cap B)}{P(B)} = \\dfrac{0.32}{0.62} \\approx 0.52\\) 입니다. 아침밥을 먹었다는 정보만으로 운동했을 확률이 \\(0.4\\)에서 \\(0.52\\)로 올라갑니다 — 정보가 확률을 갱신한 것입니다.\n\n\n\n\n← 이전: 확률의 덧셈정리 다음: 확률변수와 기댓값 →"
   },
   {
-    "objectID": "pages/02_prob/prob_basic/index.html",
-    "href": "pages/02_prob/prob_basic/index.html",
-    "title": "확률의 뜻",
+    "objectID": "pages/02_prob/perm_various/index.html",
+    "href": "pages/02_prob/perm_various/index.html",
+    "title": "여러 가지 순열",
     "section": "",
     "text": "← 빛스탯 HS 홈"
   },
   {
-    "objectID": "pages/02_prob/prob_basic/index.html#개념",
-    "href": "pages/02_prob/prob_basic/index.html#개념",
-    "title": "확률의 뜻",
+    "objectID": "pages/02_prob/perm_various/index.html#개념",
+    "href": "pages/02_prob/perm_various/index.html#개념",
+    "title": "여러 가지 순열",
     "section": "개념",
-    "text": "개념\n각 결과가 일어날 가능성이 모두 같은 시행에서, 사건 \\(A\\)의 수학적 확률은 전체 경우의 수에 대한 사건 \\(A\\)의 경우의 수의 비율입니다.\n\\[P(A) = \\frac{n(A)}{n(S)}\\]\n\n\n“시행을 늘릴수록 상대도수가 확률에 가까워진다”는 대수의 법칙은 04단원 표본평균의 분포에서 다시 만납니다.\n한편 실제로 시행을 \\(n\\)번 반복했을 때 사건 \\(A\\)가 일어난 상대도수 \\(\\dfrac{r_n}{n}\\)은 \\(n\\)이 커질수록 일정한 값에 가까워지는데, 이 값을 통계적 확률이라고 합니다. 동전 앞면처럼 수학적 확률을 아는 시행에서는 상대도수가 바로 그 수학적 확률로 다가갑니다. 아래 앱에서 시행 횟수를 늘려가며 파란 곡선(상대도수)이 점선(수학적 확률)에 달라붙는 모습을 확인해 보세요."
+    "text": "개념\n기본 순열을 세 방향으로 넓히면 자리 배치 문제 대부분을 다룰 수 있습니다.\n원순열은 서로 다른 것을 원형으로 늘어놓는 배열입니다. 원형에서는 전체를 돌려 겹치는 배치를 같은 것으로 보므로, 한 자리를 고정하고 나머지를 세면 됩니다.\n\\[\\text{서로 다른 } n\\text{개의 원순열} = \\frac{n!}{n} = (n-1)!\\]\n\n\n회전 대칭이 핵심입니다. 일렬 배치 \\(n!\\)가지는 원형에서 \\(n\\)개씩 같은 배치로 겹치므로, 그만큼 나눠 준 것이 \\((n-1)!\\)입니다.\n중복순열은 같은 것을 다시 뽑아도 되는 나열입니다. 서로 다른 \\(n\\)개에서 중복을 허용해 \\(r\\)개를 뽑아 늘어놓으면, 매 자리마다 \\(n\\)가지 선택이 있으므로\n\\[{}_n\\Pi_r = n^r\\]\n같은 것이 있는 순열은 구별되지 않는 것이 섞인 나열입니다. \\(n\\)개 중 같은 것이 각각 \\(p,\\,q,\\,\\dots,\\,r\\)개 있으면, 자기들끼리 자리를 바꿔도 같은 배열이므로 그만큼 나눕니다.\n\\[\\frac{n!}{p!\\,q!\\cdots r!}\\quad(p+q+\\cdots+r=n)\\]\n아래 앱은 이 중 원순열을 눈으로 보여 줍니다. 사람 수를 바꾸며 원형 배치 수 \\((n-1)!\\)가 일렬 배치 수 \\(n!\\)의 \\(\\tfrac{1}{n}\\)임을 확인해 보세요."
   },
   {
-    "objectID": "pages/02_prob/prob_basic/index.html#만지며-배우기",
-    "href": "pages/02_prob/prob_basic/index.html#만지며-배우기",
-    "title": "확률의 뜻",
+    "objectID": "pages/02_prob/perm_various/index.html#만지며-배우기",
+    "href": "pages/02_prob/perm_various/index.html#만지며-배우기",
+    "title": "여러 가지 순열",
     "section": "만지며 배우기",
-    "text": "만지며 배우기\n\n인터랙티브 앱파이썬 코드\n\n\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 640\n\nfrom shiny import App, reactive, render, ui\nimport numpy as np\nimport matplotlib\nimport matplotlib.pyplot as plt\n\nmatplotlib.rcParams[\"font.size\"] = 10\n\nACCENT = \"#2563eb\"\nINK = \"#111827\"\nMUTED = \"#6b7280\"\n\nTRIALS = {\n    \"coin\": {\"name\": \"동전 던지기 — 앞면\", \"p\": 0.5, \"label\": \"1/2\"},\n    \"die\": {\"name\": \"주사위 던지기 — 6의 눈\", \"p\": 1 / 6, \"label\": \"1/6\"},\n}\n\ndef tufte(ax):\n    for side in (\"top\", \"right\"):\n        ax.spines[side].set_visible(False)\n    for side in (\"left\", \"bottom\"):\n        ax.spines[side].set_color(\"#9ca3af\")\n    ax.tick_params(colors=MUTED, labelsize=9)\n\napp_ui = ui.page_sidebar(\n    ui.sidebar(\n        ui.input_select(\n            \"trial\", \"시행 종류\",\n            {k: v[\"name\"] for k, v in TRIALS.items()},\n        ),\n        ui.input_slider(\"n\", \"시행 횟수 n\", min=10, max=10000, value=200, step=10),\n        ui.input_action_button(\"redraw\", \"다시 시행\"),\n        width=240,\n    ),\n    ui.card(\n        ui.card_header(\"상대도수의 변화(파랑) vs 수학적 확률(점선)\"),\n        ui.output_plot(\"freq_plot\", height=\"340px\"),\n    ),\n    ui.card(ui.output_ui(\"readout\")),\n    fillable=True,\n)\n\ndef server(input, output, session):\n    @reactive.calc\n    def draws():\n        input.redraw()  # 버튼을 누르면 새로 시행\n        p = TRIALS[input.trial()][\"p\"]\n        return (np.random.random(input.n()) &lt; p).astype(float)\n\n    @render.plot(alt=\"시행 횟수에 따른 상대도수의 변화 곡선\")\n    def freq_plot():\n        p = TRIALS[input.trial()][\"p\"]\n        hits = draws()\n        n = len(hits)\n        run = np.cumsum(hits) / np.arange(1, n + 1)\n\n        fig, ax = plt.subplots()\n        ax.plot(np.arange(1, n + 1), run, color=ACCENT, linewidth=1.2)\n        ax.axhline(p, color=INK, linewidth=1.0, linestyle=\"--\")\n        ax.set_ylim(0, 1)\n        ax.set_xlabel(\"trials\", color=MUTED)\n        ax.set_ylabel(\"relative freq.\", color=MUTED)\n        tufte(ax)\n        return fig\n\n    @render.ui\n    def readout():\n        sc = TRIALS[input.trial()]\n        hits = draws()\n        n = len(hits)\n        rel = hits.mean()\n        return ui.HTML(\n            f'&lt;p class=\"hs-readline\"&gt;'\n            f\"{n:,}번 시행했을 때 상대도수는 {rel:.4f}, \"\n            f\"수학적 확률은 {sc['label']} = {sc['p']:.4f}이고 \"\n            f\"차이는 {abs(rel - sc['p']):.4f}입니다. \"\n            f\"시행을 늘릴수록 상대도수가 수학적 확률에 가까워지는데, \"\n            f\"이렇게 정해지는 값이 통계적 확률입니다.&lt;/p&gt;\"\n        )\n\napp = App(app_ui, server)\n\n\n앱의 핵심 계산은 이 몇 줄이 전부입니다.\nimport numpy as np\n\np = 1 / 6                                # 주사위 6의 눈의 수학적 확률\nn = 10000\n\nhits = np.random.random(n) &lt; p           # n번 시행 (성공 여부)\nrun = np.cumsum(hits) / np.arange(1, n + 1)  # 시점별 상대도수\n\nprint(run[9], run[99], run[-1], p)       # n이 커질수록 p에 접근"
+    "text": "만지며 배우기\n\n인터랙티브 앱파이썬 코드\n\n\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 640\n\nfrom math import factorial\nfrom shiny import App, render, ui\nimport numpy as np\nimport matplotlib\nimport matplotlib.pyplot as plt\n\nmatplotlib.rcParams[\"font.size\"] = 10\nACCENT = \"#2563eb\"\nINK = \"#111827\"\nMUTED = \"#6b7280\"\n\napp_ui = ui.page_sidebar(\n    ui.sidebar(\n        ui.input_slider(\"n\", \"원형 탁자에 앉는 사람 수\", min=3, max=9, value=5, step=1),\n        width=250,\n    ),\n    ui.card(\n        ui.card_header(\"원형 배치 — 통째로 돌리면 같은 배치입니다\"),\n        ui.output_plot(\"circle\", height=\"330px\"),\n    ),\n    ui.card(ui.output_ui(\"readout\")),\n    fillable=True,\n)\n\ndef server(input, output, session):\n    @render.plot(alt=\"원형으로 앉은 사람들의 자리 번호\")\n    def circle():\n        n = input.n()\n        ang = np.linspace(0, 2 * np.pi, n, endpoint=False) + np.pi / 2\n        x, y = np.cos(ang), np.sin(ang)\n\n        fig, ax = plt.subplots()\n        t = np.linspace(0, 2 * np.pi, 200)\n        ax.plot(np.cos(t), np.sin(t), color=\"#d1d5db\", linewidth=1)\n        ax.scatter(x, y, s=520, color=ACCENT, alpha=0.9, zorder=3)\n        for i, (xi, yi) in enumerate(zip(x, y)):\n            ax.text(xi, yi, str(i + 1), color=\"white\", ha=\"center\",\n                    va=\"center\", fontsize=11, fontweight=\"bold\", zorder=4)\n        ax.set_xlim(-1.3, 1.3)\n        ax.set_ylim(-1.3, 1.3)\n        ax.set_aspect(\"equal\")\n        ax.axis(\"off\")\n        return fig\n\n    @render.ui\n    def readout():\n        n = input.n()\n        circular = factorial(n - 1)\n        linear = factorial(n)\n        return ui.HTML(\n            '&lt;p class=\"hs-readline\"&gt;'\n            f\"{n}명을 원형으로 앉히는 방법은 (n-1)! = {n - 1}! = &lt;b&gt;{circular:,}가지&lt;/b&gt;입니다. \"\n            f\"같은 사람들을 일렬로 세우면 n! = {n}! = {linear:,}가지지만, \"\n            f\"원형에서는 통째로 돌린 {n}가지가 모두 한 배치로 겹칩니다. \"\n            f\"그래서 {linear:,} ÷ {n} = {circular:,}가지가 됩니다.&lt;/p&gt;\"\n        )\n\napp = App(app_ui, server)\n\n\n세 가지 순열 모두 factorial 로 바로 계산됩니다.\nfrom math import factorial\n\n# 원순열: 6명을 원탁에 앉히기\nprint(factorial(6 - 1))              # (n-1)! = 120\n\n# 중복순열: 0~9 숫자로 4자리 잠금번호\nprint(10 ** 4)                       # n^r = 10000\n\n# 같은 것이 있는 순열: 앞3·뒤2로 동전 5개 늘어놓기\nprint(factorial(5) // (factorial(3) * factorial(2)))   # 5!/(3!2!) = 10"
   },
   {
-    "objectID": "pages/02_prob/prob_basic/index.html#스스로-확인",
-    "href": "pages/02_prob/prob_basic/index.html#스스로-확인",
-    "title": "확률의 뜻",
+    "objectID": "pages/02_prob/perm_various/index.html#스스로-확인",
+    "href": "pages/02_prob/perm_various/index.html#스스로-확인",
+    "title": "여러 가지 순열",
     "section": "스스로 확인",
-    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — n = 10일 때와 n = 10000일 때 ’다시 시행’을 여러 번 눌러 보라. 곡선의 끝값은 어느 쪽이 더 안정적인가?\n\n\n\n\n\n\\(n = 10\\)일 때는 누를 때마다 끝값이 0.1 단위로 크게 출렁이지만, \\(n = 10000\\)일 때는 거의 매번 수학적 확률 바로 근처에서 끝납니다. 상대도수는 시행 횟수가 충분히 커야 믿을 수 있는 값이 됩니다.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 윷가락처럼 앞뒤 모양이 다른 물체는 수학적 확률을 구하기 어렵다. 이럴 때 확률은 어떻게 정하는가?\n\n\n\n\n\n각 결과의 가능성이 같다고 볼 수 없으므로 경우의 수의 비로는 구할 수 없습니다. 대신 실제로 많이 던져 보고 상대도수가 다가가는 값, 즉 통계적 확률로 정합니다. 의약품의 치료 효과, 야구 타율처럼 현실의 많은 확률이 이 방식으로 정해집니다.\n\n\n\n\n← 이전: 순열과 조합 다음: 조건부확률과 독립 →"
+    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — 6명을 원탁에 앉히는 방법과 일렬로 세우는 방법은 몇 배 차이인가?\n\n\n\n\n\n원순열은 \\((6-1)! = 120\\)가지, 일렬 순열은 \\(6! = 720\\)가지로 정확히 6배 차이입니다. 원형에서는 전체를 한 칸씩 돌린 6가지 배치가 모두 같은 것으로 묶이기 때문에, 일렬 배치 수를 자리 수 6으로 나눈 값이 됩니다.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 빨간 공 3개와 파란 공 2개를 일렬로 놓는 방법은 몇 가지인가?\n\n\n\n\n\n색이 같은 공끼리는 구별되지 않으므로 같은 것이 있는 순열입니다. \\(\\dfrac{5!}{3!\\,2!} = \\dfrac{120}{12} = 10\\)가지입니다. 만약 다섯 공이 모두 색이 달랐다면 \\(5! = 120\\)가지지만, 같은 색끼리 자리를 바꿔도 구별되지 않는 만큼(\\(3!\\times2!\\)배) 나눠 준 것입니다.\n\n\n\n\n← 이전: 순열과 조합 다음: 중복조합 →"
+  },
+  {
+    "objectID": "pages/03_dist/binomial/index.html",
+    "href": "pages/03_dist/binomial/index.html",
+    "title": "이항분포",
+    "section": "",
+    "text": "← 빛스탯 HS 홈"
+  },
+  {
+    "objectID": "pages/03_dist/binomial/index.html#개념",
+    "href": "pages/03_dist/binomial/index.html#개념",
+    "title": "이항분포",
+    "section": "개념",
+    "text": "개념\n한 번의 시행에서 어떤 사건이 일어날 확률이 \\(p\\)로 일정할 때, 독립적으로 \\(n\\)번 반복한 시행에서 그 사건이 일어나는 횟수 \\(X\\)의 분포를 이항분포 \\(B(n,\\,p)\\)라고 합니다.\n\\[P(X = k) = \\binom{n}{k} p^k (1-p)^{n-k}, \\qquad\nE(X) = np, \\qquad \\sigma = \\sqrt{np(1-p)}\\]\n\n\n자유투 성공률이 \\(p\\)인 선수가 \\(n\\)번 던질 때의 성공 횟수, \\(n\\)문항 오지선다를 전부 찍었을 때의 정답 개수가 모두 이항분포입니다.\n\\(n\\)이 충분히 크면 이항분포는 정규분포 \\(N(np,\\; np(1-p))\\)에 가까워집니다. 아래 앱에서 \\(n\\)을 키우며 막대들이 종 모양 곡선에 붙는 모습을 확인해 보세요."
+  },
+  {
+    "objectID": "pages/03_dist/binomial/index.html#만지며-배우기",
+    "href": "pages/03_dist/binomial/index.html#만지며-배우기",
+    "title": "이항분포",
+    "section": "만지며 배우기",
+    "text": "만지며 배우기\n\n인터랙티브 앱파이썬 코드\n\n\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 640\n\nfrom math import comb, sqrt, floor, ceil\nfrom shiny import App, render, ui\nimport numpy as np\nimport matplotlib\nimport matplotlib.pyplot as plt\n\nmatplotlib.rcParams[\"font.size\"] = 10\n\nACCENT = \"#2563eb\"\nINK = \"#111827\"\nMUTED = \"#6b7280\"\n\ndef tufte(ax):\n    for side in (\"top\", \"right\"):\n        ax.spines[side].set_visible(False)\n    for side in (\"left\", \"bottom\"):\n        ax.spines[side].set_color(\"#9ca3af\")\n    ax.tick_params(colors=MUTED, labelsize=9)\n\ndef pmf(n, p):\n    return np.array([comb(n, k) * p**k * (1 - p)**(n - k) for k in range(n + 1)])\n\napp_ui = ui.page_sidebar(\n    ui.sidebar(\n        ui.input_slider(\"n\", \"시행 횟수 n\", min=1, max=80, value=20, step=1),\n        ui.input_slider(\"p\", \"확률 p\", min=0.05, max=0.95, value=0.5, step=0.05),\n        ui.input_checkbox(\"approx\", \"정규분포 근사 곡선 겹쳐 보기\", False),\n        width=240,\n    ),\n    ui.card(\n        ui.card_header(\"이항분포 B(n, p)\"),\n        ui.output_plot(\"pmf_plot\", height=\"340px\"),\n    ),\n    ui.card(ui.output_ui(\"readout\")),\n    fillable=True,\n)\n\ndef server(input, output, session):\n    @render.plot(alt=\"이항분포 확률질량함수\")\n    def pmf_plot():\n        n, p = input.n(), input.p()\n        probs = pmf(n, p)\n        mean, sd = n * p, sqrt(n * p * (1 - p))\n\n        # 보기 좋은 구간만 표시 (평균 ± 4σ)\n        lo = max(0, floor(mean - 4 * sd))\n        hi = min(n, ceil(mean + 4 * sd))\n        ks = np.arange(lo, hi + 1)\n\n        fig, ax = plt.subplots()\n        ax.bar(ks, probs[lo:hi + 1], width=0.8, color=ACCENT, alpha=0.85)\n        ax.axvline(mean, color=INK, linewidth=0.8, linestyle=\":\")\n        ax.text(mean, ax.get_ylim()[1] * 0.97, \" E(X)=np\",\n                color=INK, fontsize=9, va=\"top\")\n\n        if input.approx():\n            xs = np.linspace(lo - 0.5, hi + 0.5, 300)\n            ys = np.exp(-((xs - mean) ** 2) / (2 * sd * sd)) / (sd * sqrt(2 * np.pi))\n            ax.plot(xs, ys, color=INK, linewidth=1.4)\n\n        ax.set_xlabel(\"k\", color=MUTED)\n        ax.set_ylabel(\"P(X = k)\", color=MUTED)\n        tufte(ax)\n        return fig\n\n    @render.ui\n    def readout():\n        n, p = input.n(), input.p()\n        mean, sd = n * p, sqrt(n * p * (1 - p))\n        probs = pmf(n, p)\n        within = probs[max(0, ceil(mean - sd)):floor(mean + sd) + 1].sum()\n        return ui.HTML(\n            f'&lt;p class=\"hs-readline\"&gt;'\n            f\"E(X) = np = {mean:.1f} · σ = √np(1−p) = {sd:.2f} — \"\n            f\"X가 평균 ± σ 안에 있을 확률은 약 {within:.2f}입니다. \"\n            f\"n을 키우면 막대가 종 모양에 가까워집니다.&lt;/p&gt;\"\n        )\n\napp = App(app_ui, server)\n\n\nfrom math import comb, sqrt\n\nn, p = 20, 0.5\n\n# P(X = k), k = 0..n\nprobs = [comb(n, k) * p**k * (1 - p)**(n - k) for k in range(n + 1)]\n\nE = n * p                    # 기댓값\nsd = sqrt(n * p * (1 - p))   # 표준편차\nprint(E, sd, sum(probs))     # 확률의 합은 항상 1"
+  },
+  {
+    "objectID": "pages/03_dist/binomial/index.html#스스로-확인",
+    "href": "pages/03_dist/binomial/index.html#스스로-확인",
+    "title": "이항분포",
+    "section": "스스로 확인",
+    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — p = 0.5일 때와 p = 0.1일 때 분포의 모양은 어떻게 다른가?\n\n\n\n\n\n\\(p = 0.5\\)이면 평균 \\(np\\)를 중심으로 좌우 대칭이고, \\(p = 0.1\\)이면 왼쪽으로 치우친 비대칭이 됩니다. 다만 \\(n\\)을 충분히 키우면 어느 쪽이든 다시 종 모양에 가까워집니다.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — 정규근사가 잘 맞으려면 n과 p가 어떤 조건이면 좋을까?\n\n\n\n\n\n경험적으로 \\(np \\ge 5\\), \\(n(1-p) \\ge 5\\) 정도면 근사가 쓸 만합니다. \\(p\\)가 0이나 1에 가까울수록 더 큰 \\(n\\)이 필요합니다 — 앱에서 \\(p = 0.05\\)로 두고 \\(n\\)을 움직이며 확인해 보세요.\n\n\n\n\n← 이전: 확률변수와 기댓값 다음: 연속확률변수와 확률분포 →"
   },
   {
     "objectID": "pages/03_dist/normal/index.html",
@@ -403,7 +599,7 @@
     "href": "pages/03_dist/normal/index.html#스스로-확인",
     "title": "정규분포와 표준화",
     "section": "스스로 확인",
-    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — σ를 두 배로 하면 곡선은 어떻게 변하는가?\n\n\n\n\n\n곡선이 옆으로 두 배 퍼지면서 봉우리는 절반 높이로 낮아집니다. 전체 넓이가 항상 1이어야 하기 때문입니다. 같은 구간 \\([a, b]\\)의 확률(넓이)이 어떻게 변하는지도 함께 관찰해 보세요.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — m = 70, σ = 10일 때 P(60 ≤ X ≤ 80)은? 표준화하면 어떤 Z 구간인가?\n\n\n\n\n\n\\(Z = (X - 70)/10\\)이므로 \\(P(-1 \\le Z \\le 1) \\approx 0.6827\\) — “평균 ± 1σ 안에 약 68%”라는 정규분포의 기본 성질입니다. 앱에서 구간을 \\([60, 80]\\)으로 맞춰 확인해 보세요.\n\n\n\n\n← 이전: 이항분포 다음: 표본추출 →"
+    "text": "스스로 확인\n\n\n\n\n\n\n힌트문제 1 — σ를 두 배로 하면 곡선은 어떻게 변하는가?\n\n\n\n\n\n곡선이 옆으로 두 배 퍼지면서 봉우리는 절반 높이로 낮아집니다. 전체 넓이가 항상 1이어야 하기 때문입니다. 같은 구간 \\([a, b]\\)의 확률(넓이)이 어떻게 변하는지도 함께 관찰해 보세요.\n\n\n\n\n\n\n\n\n\n힌트문제 2 — m = 70, σ = 10일 때 P(60 ≤ X ≤ 80)은? 표준화하면 어떤 Z 구간인가?\n\n\n\n\n\n\\(Z = (X - 70)/10\\)이므로 \\(P(-1 \\le Z \\le 1) \\approx 0.6827\\) — “평균 ± 1σ 안에 약 68%”라는 정규분포의 기본 성질입니다. 앱에서 구간을 \\([60, 80]\\)으로 맞춰 확인해 보세요.\n\n\n\n\n← 이전: 연속확률변수와 확률분포 다음: 표본추출 →"
   },
   {
     "objectID": "pages/04_infer/ci_mean/index.html",

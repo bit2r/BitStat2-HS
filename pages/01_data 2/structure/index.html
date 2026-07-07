@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>정규분포와 표준화 – 빛스탯 HS</title>
+<title>정보의 구조화 – 빛스탯 HS</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -110,35 +110,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="../../../assets/styles.css">
 </head>
@@ -157,7 +128,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">정규분포와 표준화</h1>
+<h1 class="title">정보의 구조화</h1>
 </div>
 
 
@@ -178,16 +149,21 @@ window.Quarto = {
 <p><a href="../../../index.html">← 빛스탯 HS 홈</a></p>
 </div>
 <div class="hs-meta">
-<p>단원 03 확률분포 · 「확률과 통계」 · 1차시(45분)</p>
+<p>단원 01 자료와 그래프 · 중등 정보교과 연계 · 도입</p>
 </div>
 <section id="개념" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="개념">개념</h2>
-<p>키, 시험 점수처럼 평균 근처에 자료가 몰리고 양쪽으로 대칭인 분포를 <strong>정규분포</strong> <span class="math inline">\(N(m,\,\sigma^2)\)</span>로 나타냅니다. 곡선의 위치는 평균 <span class="math inline">\(m\)</span>이, 퍼진 정도는 표준편차 <span class="math inline">\(\sigma\)</span>가 정합니다. 곡선 아래 구간의 <strong>넓이가 곧 확률</strong>입니다.</p>
-<p><span class="math display">\[Z = \frac{X - m}{\sigma} \;\sim\; N(0,\,1)\]</span></p>
+<p>같은 내용이라도 <strong>어떻게 구조화하느냐</strong>에 따라 전달력이 크게 달라집니다. 잘 정리된 정보는 의미가 한눈에 들어오지만, 뒤섞인 정보는 뜻이 잘못 전달되기도 합니다. 중등 「정보」 교과서는 정보를 정리하는 네 가지 대표 형태를 소개합니다.</p>
+<ul>
+<li><strong>순차적 구조</strong> — 내용을 순서대로 나열합니다. 쉽고 빠르지만 양이 많아지면 관리가 어렵습니다.</li>
+<li><strong>표(테이블) 구조</strong> — 행과 열로 나눕니다. 시간표·출석부처럼 항목별 비교에 강합니다.</li>
+<li><strong>계층형 구조</strong> — 수준별로 묶습니다. 조직도·목차·폴더처럼 큰 것에서 작은 것으로 내려갑니다.</li>
+<li><strong>다이어그램 구조</strong> — 기호·선·점으로 관계와 크기를 보여 줍니다. 그래프가 여기에 속합니다.</li>
+</ul>
 
 <div class="no-row-height column-margin column-container"><div class="">
-<p>수능 표준점수가 바로 표준화입니다. 과목마다 <span class="math inline">\(m\)</span>과 <span class="math inline">\(\sigma\)</span>가 달라도 <span class="math inline">\(Z\)</span>로 바꾸면 같은 자로 잴 수 있습니다.</p>
-</div></div><p>어떤 정규분포든 표준화하면 <strong>표준정규분포</strong> <span class="math inline">\(N(0, 1)\)</span>이 되므로, 확률 계산은 표준정규분포표 하나로 충분합니다. 아래 앱에서 <span class="math inline">\(m\)</span>, <span class="math inline">\(\sigma\)</span>를 움직여 곡선의 변화를 보고, 구간의 넓이가 표준화된 <span class="math inline">\(Z\)</span> 구간의 넓이와 같음을 확인해 보세요.</p>
+<p>“우리나라 시도별 인구수를 어떻게 하면 효과적으로 전달할까?” — 교과서가 던지는 이 질문이 바로 통계 그래프의 출발점입니다. 정답은 하나가 아니라 <strong>활용 목적</strong>에 따라 달라집니다.</p>
+</div></div><p>핵심은 어느 하나가 항상 옳은 것이 아니라, <strong>정보의 활용 목적에 맞는 형태를 고르는 것</strong>입니다. 개별 값을 정확히 찾아야 하면 표가, 소속 관계를 보여야 하면 계층이, 크기를 한눈에 비교하려면 다이어그램이 유리합니다. 아래 앱에서 같은 인구 데이터를 네 형태로 바꿔 보며 차이를 느껴 보세요.</p>
 </section>
 <section id="만지며-배우기" class="level2">
 <h2 class="anchored" data-anchor-id="만지며-배우기">만지며 배우기</h2>
@@ -199,151 +175,168 @@ window.Quarto = {
 #|   shinylive does not work in self-contained HTML documents.
 #|   Please set `embed-resources: false` in your metadata.
 #| standalone: true
-#| viewerHeight: 660
+#| viewerHeight: 640
 
-from math import erf, sqrt
 from shiny import App, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
-INK = "#111827"
-MUTED = "#6b7280"
 
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
-
-def pdf(x, m, s):
-    return np.exp(-((x - m) ** 2) / (2 * s * s)) / (s * sqrt(2 * np.pi))
-
-def cdf(x, m, s):
-    return 0.5 * (1 + erf((x - m) / (s * sqrt(2))))
+# 시도를 권역으로 묶은 계층 구조 (인구는 백만 명 단위, 교과서 표 기준 반올림)
+REGIONS = {
+    "수도권": [("서울", 10.0), ("인천", 2.9), ("경기", 12.5)],
+    "충청권": [("대전", 1.5), ("세종", 0.2), ("충북", 1.6), ("충남", 2.1)],
+    "호남권": [("광주", 1.5), ("전북", 1.9), ("전남", 1.9)],
+    "영남권": [("부산", 3.5), ("대구", 2.5), ("울산", 1.2),
+             ("경북", 2.7), ("경남", 3.4)],
+    "강원권": [("강원", 1.5)],
+    "제주권": [("제주", 0.6)],
+}
+FLAT = [(name, pop) for cities in REGIONS.values() for (name, pop) in cities]
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
-        ui.input_slider("m", "평균 m", min=40, max=100, value=70, step=1),
-        ui.input_slider("s", "표준편차 σ", min=2, max=20, value=10, step=1),
-        ui.input_slider("ab", "구간 [a, b]", min=20, max=120, value=(65, 75), step=1),
-        ui.input_checkbox("show_z", "표준정규분포 Z 겹쳐 보기", False),
-        width=240,
+        ui.input_radio_buttons(
+            "form", "구조화 형태",
+            {"seq": "순차적", "table": "표(테이블)",
+             "tree": "계층형", "diagram": "다이어그램"},
+            selected="table",
+        ),
+        width=250,
     ),
     ui.card(
-        ui.card_header("정규분포 곡선 — 색칠한 넓이가 곧 확률"),
-        ui.output_plot("curve", height="360px"),
+        ui.card_header("같은 데이터, 네 가지 구조 — 목적에 맞는 형태는?"),
+        ui.output_ui("view"),
     ),
-    ui.card(ui.output_ui("readout")),
+    ui.card(ui.output_ui("note")),
     fillable=True,
 )
 
 def server(input, output, session):
-    @render.plot(alt="정규분포 곡선과 구간 확률")
-    def curve():
-        m, s = input.m(), input.s()
-        a, b = input.ab()
+    @render.ui
+    def view():
+        form = input.form()
 
-        if input.show_z():
-            fig, (ax1, ax2) = plt.subplots(1, 2)
-        else:
-            fig, ax1 = plt.subplots()
+        if form == "seq":
+            items = " → ".join(f"{n} {p}" for n, p in FLAT)
+            return ui.HTML(
+                '&lt;p style="line-height:2; font-size:0.95em;"&gt;' + items + "&lt;/p&gt;"
+            )
 
-        # 원래 분포 N(m, σ²)
-        xs = np.linspace(m - 4 * s, m + 4 * s, 400)
-        ax1.plot(xs, pdf(xs, m, s), color=INK, linewidth=1.5)
-        seg = np.linspace(a, b, 200)
-        ax1.fill_between(seg, pdf(seg, m, s), color=ACCENT, alpha=0.18)
-        ax1.axvline(m, color="#9ca3af", linewidth=0.7, linestyle=":")
-        ax1.set_title(f"N({m}, {s}²)", fontsize=10, color=INK)
-        ax1.set_xlabel("x", color=MUTED)
-        tufte(ax1)
+        if form == "table":
+            td = ('style="border:1px solid #d1d5db; padding:3px 12px;'
+                  ' text-align:center;"')
+            rows = "".join(
+                f"&lt;tr&gt;&lt;td {td}&gt;{n}&lt;/td&gt;&lt;td {td}&gt;{p:.1f}&lt;/td&gt;&lt;/tr&gt;"
+                for n, p in FLAT
+            )
+            return ui.HTML(
+                '&lt;table style="border-collapse:collapse; margin:0 auto;'
+                ' font-size:0.9em;"&gt;'
+                f"&lt;tr&gt;&lt;th {td}&gt;시도&lt;/th&gt;&lt;th {td}&gt;인구(백만)&lt;/th&gt;&lt;/tr&gt;"
+                f"{rows}&lt;/table&gt;"
+            )
 
-        # 표준화한 분포 N(0, 1)
-        if input.show_z():
-            za, zb = (a - m) / s, (b - m) / s
-            zs = np.linspace(-4, 4, 400)
-            ax2.plot(zs, pdf(zs, 0, 1), color=INK, linewidth=1.5)
-            zseg = np.linspace(max(za, -4), min(zb, 4), 200)
-            ax2.fill_between(zseg, pdf(zseg, 0, 1), color=ACCENT, alpha=0.18)
-            ax2.axvline(0, color="#9ca3af", linewidth=0.7, linestyle=":")
-            ax2.set_title("N(0, 1)", fontsize=10, color=INK)
-            ax2.set_xlabel("z", color=MUTED)
-            tufte(ax2)
+        if form == "tree":
+            blocks = ""
+            for region, cities in REGIONS.items():
+                total = sum(p for _, p in cities)
+                leaves = "".join(
+                    f'&lt;li style="margin-left:1.4em;"&gt;{n} — {p:.1f}백만&lt;/li&gt;'
+                    for n, p in cities
+                )
+                blocks += (
+                    f'&lt;li style="font-weight:600; margin-top:0.4em;"&gt;'
+                    f"{region} ({total:.1f}백만)&lt;/li&gt;{leaves}"
+                )
+            return ui.HTML(
+                f'&lt;ul style="list-style:none; padding-left:0.5em;'
+                f' line-height:1.7; font-size:0.92em;"&gt;{blocks}&lt;/ul&gt;'
+            )
 
-        return fig
+        # diagram — 권역별 합계를 HTML 막대로
+        totals = {r: sum(p for _, p in c) for r, c in REGIONS.items()}
+        mx = max(totals.values())
+        bars = ""
+        for region, t in sorted(totals.items(), key=lambda x: -x[1]):
+            w = t / mx * 100
+            bars += (
+                '&lt;div style="display:flex; align-items:center; margin:6px 0;"&gt;'
+                f'&lt;div style="width:70px; text-align:right; padding-right:10px;'
+                f' font-size:0.88em;"&gt;{region}&lt;/div&gt;'
+                f'&lt;div style="height:20px; width:{w:.1f}%; background:{ACCENT};'
+                f' border-radius:3px;"&gt;&lt;/div&gt;'
+                f'&lt;div style="padding-left:8px; font-size:0.85em;'
+                f' color:#6b7280;"&gt;{t:.1f}&lt;/div&gt;&lt;/div&gt;'
+            )
+        return ui.HTML(f'&lt;div style="padding:0.5em 0;"&gt;{bars}&lt;/div&gt;')
 
     @render.ui
-    def readout():
-        m, s = input.m(), input.s()
-        a, b = input.ab()
-        p = cdf(b, m, s) - cdf(a, m, s)
-        za, zb = (a - m) / s, (b - m) / s
-        return ui.HTML(
-            f'&lt;p class="hs-readline"&gt;'
-            f"P({a} ≤ X ≤ {b}) = {p:.4f} — 표준화하면 "
-            f"P({za:.2f} ≤ Z ≤ {zb:.2f})와 같습니다. "
-            f"m과 σ를 바꿔도 z가 같으면 확률(넓이)은 변하지 않습니다.&lt;/p&gt;"
-        )
+    def note():
+        msg = {
+            "seq": "순차적 구조는 빠르게 나열하지만, 17개가 한 줄로 늘어서면 "
+                   "어디에 무엇이 있는지 찾기 어렵습니다.",
+            "table": "표는 개별 시도의 정확한 값을 찾기에 가장 좋습니다. "
+                     "대신 전체 크기를 한눈에 비교하기는 어렵습니다.",
+            "tree": "계층형은 '어느 권역에 속하는가'라는 소속 관계를 드러냅니다. "
+                    "권역별 합계까지 함께 보여 줄 수 있습니다.",
+            "diagram": "다이어그램(막대)은 크기 비교가 즉각적입니다. "
+                       "수도권이 다른 권역을 압도한다는 사실이 바로 읽힙니다. "
+                       "통계 그래프가 여기에 해당합니다.",
+        }[input.form()]
+        return ui.HTML(f'&lt;p class="hs-readline"&gt;{msg}&lt;/p&gt;')
 
 app = App(app_ui, server)</code></pre>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<p>정규분포 확률은 표준화와 표준정규분포의 누적확률로 계산합니다.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> math <span class="im">import</span> erf, sqrt</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cdf(z):                       <span class="co"># 표준정규분포 P(Z ≤ z)</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.5</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">+</span> erf(z <span class="op">/</span> sqrt(<span class="dv">2</span>)))</span>
+<p>계층형 구조는 딕셔너리로, 권역별 합계는 반복문으로 간단히 표현됩니다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>regions <span class="op">=</span> {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"수도권"</span>: {<span class="st">"서울"</span>: <span class="fl">10.0</span>, <span class="st">"인천"</span>: <span class="fl">2.9</span>, <span class="st">"경기"</span>: <span class="fl">12.5</span>},</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"영남권"</span>: {<span class="st">"부산"</span>: <span class="fl">3.5</span>, <span class="st">"대구"</span>: <span class="fl">2.5</span>, <span class="st">"울산"</span>: <span class="fl">1.2</span>, <span class="st">"경북"</span>: <span class="fl">2.7</span>, <span class="st">"경남"</span>: <span class="fl">3.4</span>},</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>m, s <span class="op">=</span> <span class="dv">70</span>, <span class="dv">10</span>                     <span class="co"># X ~ N(70, 10²)</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>a, b <span class="op">=</span> <span class="dv">65</span>, <span class="dv">75</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>za, zb <span class="op">=</span> (a <span class="op">-</span> m) <span class="op">/</span> s, (b <span class="op">-</span> m) <span class="op">/</span> s <span class="co"># 표준화</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(cdf(zb) <span class="op">-</span> cdf(za))          <span class="co"># P(65 ≤ X ≤ 75) = P(-0.5 ≤ Z ≤ 0.5)</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> region, cities <span class="kw">in</span> regions.items():</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> <span class="bu">sum</span>(cities.values())         <span class="co"># 권역 = 상위 계층</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>region<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>total<span class="sc">:.1f}</span><span class="ss">백만"</span>)   <span class="co"># 시도 = 하위 계층</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
 </section>
 <section id="스스로-확인" class="level2">
 <h2 class="anchored" data-anchor-id="스스로-확인">스스로 확인</h2>
-<div class="callout callout-style-default callout-tip callout-titled" title="문제 1 — σ를 두 배로 하면 곡선은 어떻게 변하는가?">
+<div class="callout callout-style-default callout-tip callout-titled" title="문제 1 — '특정 시의 정확한 인구'를 알려면 어떤 구조가 좋은가?">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">힌트</span>문제 1 — σ를 두 배로 하면 곡선은 어떻게 변하는가?
+<span class="screen-reader-only">힌트</span>문제 1 — ’특정 시의 정확한 인구’를 알려면 어떤 구조가 좋은가?
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>곡선이 옆으로 두 배 퍼지면서 봉우리는 절반 높이로 낮아집니다. 전체 넓이가 항상 1이어야 하기 때문입니다. 같은 구간 <span class="math inline">\([a, b]\)</span>의 확률(넓이)이 어떻게 변하는지도 함께 관찰해 보세요.</p>
+<p>개별 값을 정확히 찾는 데는 <strong>표(테이블) 구조</strong>가 가장 적합합니다. 다이어그램은 크기를 눈대중으로 비교하기엔 좋지만 정확한 숫자를 읽기는 어렵고, 순차 구조는 항목이 많으면 원하는 값을 찾기 번거롭습니다.</p>
 </div>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="문제 2 — m = 70, σ = 10일 때 P(60 ≤ X ≤ 80)은? 표준화하면 어떤 Z 구간인가?">
+<div class="callout callout-style-default callout-tip callout-titled" title="문제 2 — 뉴스에서 지역별 인구를 한 장의 그림으로 전할 때 왜 다이어그램(그래프)을 쓰는가?">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">힌트</span>문제 2 — m = 70, σ = 10일 때 P(60 ≤ X ≤ 80)은? 표준화하면 어떤 Z 구간인가?
+<span class="screen-reader-only">힌트</span>문제 2 — 뉴스에서 지역별 인구를 한 장의 그림으로 전할 때 왜 다이어그램(그래프)을 쓰는가?
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p><span class="math inline">\(Z = (X - 70)/10\)</span>이므로 <span class="math inline">\(P(-1 \le Z \le 1) \approx 0.6827\)</span> — “평균 ± 1σ 안에 약 68%”라는 정규분포의 기본 성질입니다. 앱에서 구간을 <span class="math inline">\([60, 80]\)</span>으로 맞춰 확인해 보세요.</p>
+<p>독자에게 필요한 것은 정확한 자릿수가 아니라 <strong>“어디가 많고 어디가 적은가”</strong> 라는 크기 관계이기 때문입니다. 다이어그램은 이 비교를 순식간에 전달합니다. 활용 목적이 ’정확한 조회’가 아니라 ’한눈에 비교’일 때 다이어그램이 가장 효과적입니다.</p>
 </div>
 </div>
 </div>
 <div class="hs-prevnext">
-<p><a href="../../../pages/03_dist/continuous_rv/index.html">← 이전: 연속확률변수와 확률분포</a> <a href="../../../pages/04_infer/sampling/index.html">다음: 표본추출 →</a></p>
+<p><a href="../../../pages/01_data/data_info/index.html">← 이전: 자료와 정보</a> <a href="../../../pages/01_data/freq_table/index.html">다음: 도수분포표와 히스토그램 →</a></p>
 </div>
 
 

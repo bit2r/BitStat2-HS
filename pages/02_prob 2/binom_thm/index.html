@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>정규분포와 표준화 – 빛스탯 HS</title>
+<title>이항정리 – 빛스탯 HS</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -157,7 +157,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">정규분포와 표준화</h1>
+<h1 class="title">이항정리</h1>
 </div>
 
 
@@ -178,16 +178,16 @@ window.Quarto = {
 <p><a href="../../../index.html">← 빛스탯 HS 홈</a></p>
 </div>
 <div class="hs-meta">
-<p>단원 03 확률분포 · 「확률과 통계」 · 1차시(45분)</p>
+<p>단원 02 경우의 수와 확률 · 「확률과 통계」 · 조합의 응용</p>
 </div>
 <section id="개념" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="개념">개념</h2>
-<p>키, 시험 점수처럼 평균 근처에 자료가 몰리고 양쪽으로 대칭인 분포를 <strong>정규분포</strong> <span class="math inline">\(N(m,\,\sigma^2)\)</span>로 나타냅니다. 곡선의 위치는 평균 <span class="math inline">\(m\)</span>이, 퍼진 정도는 표준편차 <span class="math inline">\(\sigma\)</span>가 정합니다. 곡선 아래 구간의 <strong>넓이가 곧 확률</strong>입니다.</p>
-<p><span class="math display">\[Z = \frac{X - m}{\sigma} \;\sim\; N(0,\,1)\]</span></p>
+<p><span class="math inline">\((a+b)^n\)</span>을 펼치면 각 항은 <span class="math inline">\(n\)</span>개의 괄호 <span class="math inline">\((a+b)\)</span>에서 <span class="math inline">\(a\)</span> 또는 <span class="math inline">\(b\)</span>를 하나씩 골라 곱한 것입니다. <span class="math inline">\(b\)</span>를 <span class="math inline">\(r\)</span>번 고르는 방법이 곧 <span class="math inline">\({}_n\mathrm{C}_r\)</span>가지이므로, <span class="math inline">\(a^{\,n-r}b^{\,r}\)</span>의 계수는 <span class="math inline">\({}_n\mathrm{C}_r\)</span>가 됩니다. 이것이 <strong>이항정리</strong>입니다.</p>
+<p><span class="math display">\[(a+b)^n = \sum_{r=0}^{n} {}_n\mathrm{C}_r\, a^{\,n-r} b^{\,r}\]</span></p>
 
 <div class="no-row-height column-margin column-container"><div class="">
-<p>수능 표준점수가 바로 표준화입니다. 과목마다 <span class="math inline">\(m\)</span>과 <span class="math inline">\(\sigma\)</span>가 달라도 <span class="math inline">\(Z\)</span>로 바꾸면 같은 자로 잴 수 있습니다.</p>
-</div></div><p>어떤 정규분포든 표준화하면 <strong>표준정규분포</strong> <span class="math inline">\(N(0, 1)\)</span>이 되므로, 확률 계산은 표준정규분포표 하나로 충분합니다. 아래 앱에서 <span class="math inline">\(m\)</span>, <span class="math inline">\(\sigma\)</span>를 움직여 곡선의 변화를 보고, 구간의 넓이가 표준화된 <span class="math inline">\(Z\)</span> 구간의 넓이와 같음을 확인해 보세요.</p>
+<p>계수 <span class="math inline">\({}_n\mathrm{C}_0,\,{}_n\mathrm{C}_1,\,\dots,\,{}_n\mathrm{C}_n\)</span>을 <strong>이항계수</strong>라고 합니다. 조합의 수가 전개식의 계수로 그대로 나타나는 것이 경우의 수와 대수를 잇는 다리입니다.</p>
+</div></div><p>이항계수를 위에서부터 차례로 쌓으면 <strong>파스칼의 삼각형</strong>이 됩니다. 각 수는 바로 위 두 수의 합이고(<span class="math inline">\({}_{n-1}\mathrm{C}_{r-1} + {}_{n-1}\mathrm{C}_{r} = {}_n\mathrm{C}_r\)</span>), 좌우 대칭입니다(<span class="math inline">\({}_n\mathrm{C}_r = {}_n\mathrm{C}_{n-r}\)</span>). 아래 앱에서 차수 <span class="math inline">\(n\)</span>을 바꾸며 삼각형의 한 줄이 <span class="math inline">\((a+b)^n\)</span>의 계수와 정확히 일치함을 확인해 보세요.</p>
 </section>
 <section id="만지며-배우기" class="level2">
 <h2 class="anchored" data-anchor-id="만지며-배우기">만지며 배우기</h2>
@@ -199,151 +199,123 @@ window.Quarto = {
 #|   shinylive does not work in self-contained HTML documents.
 #|   Please set `embed-resources: false` in your metadata.
 #| standalone: true
-#| viewerHeight: 660
+#| viewerHeight: 640
 
-from math import erf, sqrt
+from math import comb
 from shiny import App, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
-INK = "#111827"
-MUTED = "#6b7280"
-
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
-
-def pdf(x, m, s):
-    return np.exp(-((x - m) ** 2) / (2 * s * s)) / (s * sqrt(2 * np.pi))
-
-def cdf(x, m, s):
-    return 0.5 * (1 + erf((x - m) / (s * sqrt(2))))
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
-        ui.input_slider("m", "평균 m", min=40, max=100, value=70, step=1),
-        ui.input_slider("s", "표준편차 σ", min=2, max=20, value=10, step=1),
-        ui.input_slider("ab", "구간 [a, b]", min=20, max=120, value=(65, 75), step=1),
-        ui.input_checkbox("show_z", "표준정규분포 Z 겹쳐 보기", False),
-        width=240,
+        ui.input_slider("n", "차수 n — (a+b)ⁿ", min=1, max=8, value=4, step=1),
+        width=250,
     ),
     ui.card(
-        ui.card_header("정규분포 곡선 — 색칠한 넓이가 곧 확률"),
-        ui.output_plot("curve", height="360px"),
+        ui.card_header("파스칼의 삼각형 — 파란 줄이 (a+b)ⁿ의 계수입니다"),
+        ui.output_ui("triangle"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
 )
 
 def server(input, output, session):
-    @render.plot(alt="정규분포 곡선과 구간 확률")
-    def curve():
-        m, s = input.m(), input.s()
-        a, b = input.ab()
-
-        if input.show_z():
-            fig, (ax1, ax2) = plt.subplots(1, 2)
-        else:
-            fig, ax1 = plt.subplots()
-
-        # 원래 분포 N(m, σ²)
-        xs = np.linspace(m - 4 * s, m + 4 * s, 400)
-        ax1.plot(xs, pdf(xs, m, s), color=INK, linewidth=1.5)
-        seg = np.linspace(a, b, 200)
-        ax1.fill_between(seg, pdf(seg, m, s), color=ACCENT, alpha=0.18)
-        ax1.axvline(m, color="#9ca3af", linewidth=0.7, linestyle=":")
-        ax1.set_title(f"N({m}, {s}²)", fontsize=10, color=INK)
-        ax1.set_xlabel("x", color=MUTED)
-        tufte(ax1)
-
-        # 표준화한 분포 N(0, 1)
-        if input.show_z():
-            za, zb = (a - m) / s, (b - m) / s
-            zs = np.linspace(-4, 4, 400)
-            ax2.plot(zs, pdf(zs, 0, 1), color=INK, linewidth=1.5)
-            zseg = np.linspace(max(za, -4), min(zb, 4), 200)
-            ax2.fill_between(zseg, pdf(zseg, 0, 1), color=ACCENT, alpha=0.18)
-            ax2.axvline(0, color="#9ca3af", linewidth=0.7, linestyle=":")
-            ax2.set_title("N(0, 1)", fontsize=10, color=INK)
-            ax2.set_xlabel("z", color=MUTED)
-            tufte(ax2)
-
-        return fig
+    @render.ui
+    def triangle():
+        n = input.n()
+        rows = ""
+        for i in range(n + 1):
+            hi = (i == n)
+            cells = ""
+            for r in range(i + 1):
+                c = comb(i, r)
+                color = "white" if hi else "#374151"
+                bg = ACCENT if hi else "transparent"
+                cells += (
+                    f'&lt;span style="display:inline-block; min-width:34px;'
+                    f' margin:2px; padding:2px 4px; text-align:center;'
+                    f' border-radius:4px; background:{bg}; color:{color};'
+                    f' font-size:0.85em;"&gt;{c}&lt;/span&gt;'
+                )
+            rows += f'&lt;div style="white-space:nowrap;"&gt;{cells}&lt;/div&gt;'
+        return ui.HTML(
+            '&lt;div style="text-align:center; overflow-x:auto;'
+            f' padding:0.5em 0;"&gt;{rows}&lt;/div&gt;'
+        )
 
     @render.ui
     def readout():
-        m, s = input.m(), input.s()
-        a, b = input.ab()
-        p = cdf(b, m, s) - cdf(a, m, s)
-        za, zb = (a - m) / s, (b - m) / s
+        n = input.n()
+        coeffs = [comb(n, r) for r in range(n + 1)]
+        terms = []
+        for r in range(n + 1):
+            c = coeffs[r]
+            cs = "" if c == 1 else str(c)
+            ap = "" if n - r == 0 else ("a" if n - r == 1 else f"a^{n-r}")
+            bp = "" if r == 0 else ("b" if r == 1 else f"b^{r}")
+            body = (ap + bp) or "1"
+            terms.append(cs + body)
+        expr = " + ".join(terms)
         return ui.HTML(
-            f'&lt;p class="hs-readline"&gt;'
-            f"P({a} ≤ X ≤ {b}) = {p:.4f} — 표준화하면 "
-            f"P({za:.2f} ≤ Z ≤ {zb:.2f})와 같습니다. "
-            f"m과 σ를 바꿔도 z가 같으면 확률(넓이)은 변하지 않습니다.&lt;/p&gt;"
+            '&lt;p class="hs-readline"&gt;'
+            f"(a+b)^{n} 의 계수는 {coeffs} 입니다. 삼각형의 아래에서 첫째 줄(파란색)과 "
+            f"정확히 같습니다.&lt;br&gt;&lt;b&gt;(a+b)^{n} = {expr}&lt;/b&gt;&lt;br&gt;"
+            f"계수를 모두 더하면 {sum(coeffs):,} = 2^{n} 인데, 이는 (a+b)에 a=b=1을 "
+            f"넣은 값과 같습니다.&lt;/p&gt;"
         )
 
 app = App(app_ui, server)</code></pre>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<p>정규분포 확률은 표준화와 표준정규분포의 누적확률로 계산합니다.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> math <span class="im">import</span> erf, sqrt</span>
+<p>이항계수는 조합 함수 <code>comb</code> 로 한 줄에 얻습니다.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> math <span class="im">import</span> comb</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cdf(z):                       <span class="co"># 표준정규분포 P(Z ≤ z)</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.5</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">+</span> erf(z <span class="op">/</span> sqrt(<span class="dv">2</span>)))</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>m, s <span class="op">=</span> <span class="dv">70</span>, <span class="dv">10</span>                     <span class="co"># X ~ N(70, 10²)</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>a, b <span class="op">=</span> <span class="dv">65</span>, <span class="dv">75</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>za, zb <span class="op">=</span> (a <span class="op">-</span> m) <span class="op">/</span> s, (b <span class="op">-</span> m) <span class="op">/</span> s <span class="co"># 표준화</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(cdf(zb) <span class="op">-</span> cdf(za))          <span class="co"># P(65 ≤ X ≤ 75) = P(-0.5 ≤ Z ≤ 0.5)</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>coeffs <span class="op">=</span> [comb(n, r) <span class="cf">for</span> r <span class="kw">in</span> <span class="bu">range</span>(n <span class="op">+</span> <span class="dv">1</span>)]</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(coeffs)                        <span class="co"># [1, 5, 10, 10, 5, 1]</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># (x+2)^4 에서 x^2 의 계수: r=2 항의 계수 × 2^2</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(comb(<span class="dv">4</span>, <span class="dv">2</span>) <span class="op">*</span> <span class="dv">2</span> <span class="op">**</span> <span class="dv">2</span>)           <span class="co"># 6 × 4 = 24</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
 </section>
 <section id="스스로-확인" class="level2">
 <h2 class="anchored" data-anchor-id="스스로-확인">스스로 확인</h2>
-<div class="callout callout-style-default callout-tip callout-titled" title="문제 1 — σ를 두 배로 하면 곡선은 어떻게 변하는가?">
+<div class="callout callout-style-default callout-tip callout-titled" title="문제 1 — (x+2)⁴ 의 전개식에서 x² 의 계수는?">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">힌트</span>문제 1 — σ를 두 배로 하면 곡선은 어떻게 변하는가?
+<span class="screen-reader-only">힌트</span>문제 1 — (x+2)⁴ 의 전개식에서 x² 의 계수는?
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>곡선이 옆으로 두 배 퍼지면서 봉우리는 절반 높이로 낮아집니다. 전체 넓이가 항상 1이어야 하기 때문입니다. 같은 구간 <span class="math inline">\([a, b]\)</span>의 확률(넓이)이 어떻게 변하는지도 함께 관찰해 보세요.</p>
+<p><span class="math inline">\(a=x,\,b=2,\,n=4\)</span>에서 <span class="math inline">\(x^2\)</span> 항은 <span class="math inline">\(r=2\)</span>일 때이므로 계수는 <span class="math inline">\({}_4\mathrm{C}_2 \times 2^2 = 6 \times 4 = 24\)</span>입니다. 파스칼의 삼각형 넷째 줄 <span class="math inline">\(1,4,6,4,1\)</span>에서 가운데 <span class="math inline">\(6\)</span>에 <span class="math inline">\(b=2\)</span>의 거듭제곱 <span class="math inline">\(2^2\)</span>를 곱한 값입니다.</p>
 </div>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="문제 2 — m = 70, σ = 10일 때 P(60 ≤ X ≤ 80)은? 표준화하면 어떤 Z 구간인가?">
+<div class="callout callout-style-default callout-tip callout-titled" title="문제 2 — 이항계수를 한 줄 모두 더하면 왜 2ⁿ 이 되는가?">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">힌트</span>문제 2 — m = 70, σ = 10일 때 P(60 ≤ X ≤ 80)은? 표준화하면 어떤 Z 구간인가?
+<span class="screen-reader-only">힌트</span>문제 2 — 이항계수를 한 줄 모두 더하면 왜 2ⁿ 이 되는가?
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p><span class="math inline">\(Z = (X - 70)/10\)</span>이므로 <span class="math inline">\(P(-1 \le Z \le 1) \approx 0.6827\)</span> — “평균 ± 1σ 안에 약 68%”라는 정규분포의 기본 성질입니다. 앱에서 구간을 <span class="math inline">\([60, 80]\)</span>으로 맞춰 확인해 보세요.</p>
+<p>이항정리 <span class="math inline">\((a+b)^n = \sum {}_n\mathrm{C}_r\,a^{n-r}b^r\)</span>에 <span class="math inline">\(a=b=1\)</span>을 넣으면 좌변은 <span class="math inline">\(2^n\)</span>, 우변은 이항계수의 합이 됩니다. 즉 <span class="math inline">\({}_n\mathrm{C}_0 + {}_n\mathrm{C}_1 + \cdots + {}_n\mathrm{C}_n = 2^n\)</span>입니다. 이는 원소가 <span class="math inline">\(n\)</span>개인 집합의 부분집합이 <span class="math inline">\(2^n\)</span>개인 것과도 같은 사실입니다.</p>
 </div>
 </div>
 </div>
 <div class="hs-prevnext">
-<p><a href="../../../pages/03_dist/continuous_rv/index.html">← 이전: 연속확률변수와 확률분포</a> <a href="../../../pages/04_infer/sampling/index.html">다음: 표본추출 →</a></p>
+<p><a href="../../../pages/02_prob/combi_repeat/index.html">← 이전: 중복조합</a> <a href="../../../pages/02_prob/prob_basic/index.html">다음: 확률의 뜻 →</a></p>
 </div>
 
 

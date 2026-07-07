@@ -1,1 +1,0 @@
-Sitemap: https://bit2r.github.io/BitStat2-HS/sitemap.xml
