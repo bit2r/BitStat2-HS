@@ -202,6 +202,6 @@ for i, c in enumerate(counts):
 :::
 
 ::: {.hs-prevnext}
-[← 이전: 정보의 구조화](../structure/index.qmd)
+[← 이전: 줄기와 잎 그림·도수분포다각형](../stem_leaf/index.qmd)
 [다음: 대푯값 →](../center/index.qmd)
 :::

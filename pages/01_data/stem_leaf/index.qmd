@@ -1,0 +1,218 @@
+---
+title: "줄기와 잎 그림·도수분포다각형"
+---
+
+::: {.hs-back}
+[← 빛스탯 HS 홈](../../../index.qmd)
+:::
+
+::: {.hs-meta}
+단원 01 자료와 그래프 · 중학 통계 복습 · 자료의 정리
+:::
+
+## 개념
+
+수집한 자료를 잃지 않으면서 분포까지 보여 주는 정리 방법이 **줄기와 잎 그림**입니다.
+각 값을 큰 자리(보통 십의 자리)인 **줄기**와 작은 자리(일의 자리)인 **잎**으로 나누어,
+같은 줄기끼리 잎을 늘어놓습니다. 원래 값이 그대로 남아 있어 최댓값·최솟값·중앙값을
+바로 읽을 수 있는 것이 장점입니다.
+
+::: {.column-margin}
+`3 | 1 2 5` 는 31, 32, 35 세 값을 뜻합니다. 줄기 하나에 잎이 몇 개인지가
+그 계급의 도수이므로, 줄기와 잎 그림을 옆으로 눕히면 히스토그램 모양이 됩니다.
+:::
+
+한편 도수분포표를 **꺾은선**으로 나타낸 것이 **도수분포다각형**입니다. 히스토그램에서
+각 직사각형 윗변의 **중점**을 차례로 선분으로 잇고, 양 끝에는 도수가 0인 계급을 하나씩
+더해 그래프가 가로축과 만나게 합니다. 이렇게 하면 다각형과 가로축이 둘러싼 넓이가
+히스토그램의 넓이와 같아지고, 여러 자료 집단의 분포를 한 그림에 겹쳐 비교하기 좋습니다.
+아래 앱에서 같은 자료를 줄기와 잎 그림과 도수분포다각형으로 동시에 살펴보세요.
+
+## 만지며 배우기
+
+::: {.panel-tabset}
+
+### 인터랙티브 앱
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 740
+
+import math
+from collections import defaultdict
+from shiny import App, render, ui
+
+ACCENT = "#2563eb"
+INK = "#111827"
+MUTED = "#6b7280"
+GRID = "#e5e7eb"
+
+# 학생 30명의 1분간 윗몸일으키기 개수
+DATA = [23, 31, 18, 42, 27, 35, 14, 29, 38, 21,
+        46, 25, 33, 19, 28, 41, 24, 36, 30, 17,
+        44, 26, 39, 22, 32, 15, 43, 28, 34, 20]
+LO = 10  # 첫 계급의 시작값
+
+def stem_leaf_html(data):
+    d = defaultdict(list)
+    for v in sorted(data):
+        d[v // 10].append(v % 10)
+    smin, smax = min(d), max(d)
+    th = ('style="padding:3px 14px;border-bottom:1px solid #9ca3af;'
+          'text-align:center;"')
+    td = 'style="padding:3px 14px;border-bottom:1px solid #e5e7eb;"'
+    rows = ""
+    for s in range(smin, smax + 1):
+        leaves = "&nbsp;".join(str(x) for x in d.get(s, []))
+        rows += (f'<tr><td {td} style="text-align:center;font-weight:600;">{s}</td>'
+                 f'<td {td}><span style="letter-spacing:2px;font-family:monospace;">'
+                 f'{leaves}</span></td>'
+                 f'<td {td} style="text-align:center;color:{MUTED};">'
+                 f'{len(d.get(s, []))}</td></tr>')
+    return ui.HTML(
+        '<table style="border-collapse:collapse;margin:0 auto;font-size:0.95em;">'
+        f'<tr><th {th}>줄기(십)</th><th {th}>잎(일)</th><th {th}>도수</th></tr>'
+        f'{rows}</table>'
+        f'<p style="text-align:center;color:{MUTED};font-size:0.8em;margin-top:6px;">'
+        '읽는 법: 줄기 3, 잎 1 → 31개</p>'
+    )
+
+def histogram(edges):
+    counts = [0] * (len(edges) - 1)
+    last = len(edges) - 2
+    for x in DATA:
+        for i in range(len(edges) - 1):
+            if edges[i] <= x < edges[i + 1] or (i == last and x == edges[-1]):
+                counts[i] += 1
+                break
+    return counts
+
+def polygon_svg(width, show_hist):
+    n_bins = int(math.ceil((max(DATA) - LO) / width))
+    edges = [LO + width * i for i in range(n_bins + 1)]
+    counts = histogram(edges)
+    W, H, ml, mr, mt, mb = 480, 320, 44, 14, 14, 40
+    pw, ph = W - ml - mr, H - mt - mb
+    xlo, xhi = edges[0] - width, edges[-1] + width
+    vmax = max(counts) + 1
+    def X(v):
+        return ml + ((v - xlo) / (xhi - xlo)) * pw
+    def Y(c):
+        return mt + ph - (c / vmax) * ph
+    grid = ""
+    for t in range(vmax + 1):
+        yy = Y(t)
+        grid += (f'<line x1="{ml}" y1="{yy:.1f}" x2="{W-mr}" y2="{yy:.1f}" stroke="{GRID}"/>'
+                 f'<text x="{ml-6}" y="{yy+3:.1f}" font-size="9" fill="{MUTED}" '
+                 f'text-anchor="end">{t}</text>')
+    bars = ""
+    if show_hist:
+        for i, c in enumerate(counts):
+            x = X(edges[i])
+            w = X(edges[i + 1]) - x
+            bars += (f'<rect x="{x:.1f}" y="{Y(c):.1f}" width="{w-1:.1f}" '
+                     f'height="{Y(0)-Y(c):.1f}" fill="{ACCENT}" opacity="0.14"/>')
+    # 양 끝에 도수 0 계급을 더한 꺾은선
+    mids = [(edges[i] + edges[i + 1]) / 2 for i in range(len(counts))]
+    px = [edges[0] - width / 2] + mids + [edges[-1] + width / 2]
+    py = [0] + counts + [0]
+    poly = "M" + " L".join(f"{X(x):.1f},{Y(c):.1f}" for x, c in zip(px, py))
+    dots = "".join(f'<circle cx="{X(x):.1f}" cy="{Y(c):.1f}" r="3" fill="{ACCENT}"/>'
+                   for x, c in zip(px, py))
+    xlab = ""
+    for e in edges:
+        xlab += (f'<text x="{X(e):.1f}" y="{mt+ph+14:.1f}" font-size="9" '
+                 f'fill="{MUTED}" text-anchor="middle">{e}</text>')
+    return ui.HTML(
+        f'<svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;'
+        'font-family:-apple-system,sans-serif;">'
+        f'{grid}{bars}<path d="{poly}" fill="none" stroke="{ACCENT}" stroke-width="1.8"/>'
+        f'{dots}{xlab}'
+        f'<text x="{ml+pw/2:.0f}" y="{H-4}" font-size="10" fill="{MUTED}" '
+        'text-anchor="middle">윗몸일으키기 개수</text>'
+        f'<text x="8" y="{mt+8}" font-size="10" fill="{MUTED}">도수(명)</text>'
+        '</svg>'
+    )
+
+app_ui = ui.page_sidebar(
+    ui.sidebar(
+        ui.input_slider("width", "계급의 크기(개)", min=5, max=15, value=10, step=5),
+        ui.input_checkbox("hist", "히스토그램 함께 보기", True),
+        width=240,
+    ),
+    ui.card(
+        ui.card_header("줄기와 잎 그림 — 원자료가 그대로 보입니다"),
+        ui.output_ui("stemleaf"),
+    ),
+    ui.card(
+        ui.card_header("도수분포다각형 — 양 끝은 도수 0 계급"),
+        ui.output_ui("polygon"),
+    ),
+    ui.card(ui.output_ui("readout")),
+    fillable=True,
+)
+
+def server(input, output, session):
+    @render.ui
+    def stemleaf():
+        return stem_leaf_html(DATA)
+
+    @render.ui
+    def polygon():
+        return polygon_svg(input.width(), input.hist())
+
+    @render.ui
+    def readout():
+        n = len(DATA)
+        s = sorted(DATA)
+        mid = (s[n // 2 - 1] + s[n // 2]) / 2
+        return ui.HTML(
+            '<p class="hs-readline">'
+            f"학생 {n}명의 자료입니다. 줄기와 잎 그림에서 최솟값 {min(DATA)}개, "
+            f"최댓값 {max(DATA)}개, 한가운데 값(중앙값) {mid:.1f}개를 바로 읽을 수 있습니다. "
+            "계급의 크기를 바꾸면 도수분포다각형의 봉우리 모양이 달라지지만, "
+            "줄기와 잎 그림은 원자료를 그대로 담고 있어 변하지 않습니다.</p>"
+        )
+
+app = App(app_ui, server)
+```
+
+### 파이썬 코드
+
+줄기와 잎 그림은 값을 10으로 나눈 몫과 나머지로 묶으면 됩니다.
+
+```python
+from collections import defaultdict
+
+data = [23, 31, 18, 42, 27, 35, 14, 29]
+
+stems = defaultdict(list)
+for v in sorted(data):
+    stems[v // 10].append(v % 10)   # 줄기=몫, 잎=나머지
+
+for stem in sorted(stems):
+    leaves = " ".join(str(x) for x in stems[stem])
+    print(f"{stem} | {leaves}")     # 예: 3 | 1 5
+```
+
+:::
+
+## 스스로 확인
+
+::: {.callout-tip collapse="true" title="문제 1 — 줄기와 잎 그림이 히스토그램보다 나은 점은 무엇인가?"}
+**원래 자료의 값이 그대로 남는다**는 점입니다. 히스토그램은 계급으로 묶는 순간
+개별 값을 알 수 없지만, 줄기와 잎 그림은 잎을 보면 31, 32처럼 정확한 값과
+최댓값·최솟값·중앙값을 바로 찾을 수 있습니다. 대신 자료 수가 아주 많으면
+잎이 길어져 히스토그램이 더 편합니다.
+:::
+
+::: {.callout-tip collapse="true" title="문제 2 — 도수분포다각형에서 양 끝에 도수가 0인 계급을 왜 하나씩 더하는가?"}
+꺾은선이 가로축과 만나 **닫힌 도형**이 되게 하기 위해서입니다. 그래야 다각형과
+가로축이 둘러싼 넓이가 히스토그램 전체 넓이와 같아지고, 도수의 총합이 그대로
+보존됩니다. 또 여러 집단의 다각형을 겹쳐 그릴 때 시작과 끝이 분명해집니다.
+:::
+
+::: {.hs-prevnext}
+[← 이전: 정보의 구조화](../structure/index.qmd)
+[다음: 도수분포표와 히스토그램 →](../freq_table/index.qmd)
+:::
