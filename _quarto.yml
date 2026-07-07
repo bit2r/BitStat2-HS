@@ -18,6 +18,7 @@ format:
     theme: cosmo
     css: assets/styles.css
     toc: false
+    include-after-body: assets/_app-frame-include.html
 
 filters:
   - shinylive
