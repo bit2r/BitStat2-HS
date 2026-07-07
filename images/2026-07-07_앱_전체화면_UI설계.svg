@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 860" font-family="Georgia, 'Apple SD Gothic Neo', 'Noto Serif KR', serif">
+  <!-- Tufte-style 설계 문서: 잉크 최소 · 헤어라인 · 단일 액센트(#2563EB) · 직접 라벨 -->
+  <!-- 2026-07-07: shinylive 임베드 앱의 오버플로·전체화면 UI 설계 (모든 모듈 공통) -->
+  <rect width="1240" height="860" fill="#ffffff"/>
+
+  <!-- ===== 헤더 ===== -->
+  <text x="40" y="42" font-size="22" fill="#111827" font-weight="bold">인터랙티브 앱 — 오버플로·전체화면 UI 설계</text>
+  <text x="40" y="64" font-size="12" fill="#6b7280">현황: 고정 viewerHeight(620–760px) 임베드 24개 · ui.page_sidebar — 전체화면 기능 없음 · 2026-07-07 · BitStat2-HS 전 모듈 공통</text>
+  <line x1="40" y1="76" x2="1200" y2="76" stroke="#e5e7eb" stroke-width="1"/>
+
+  <!-- ===== ① 문제 진단 ===== -->
+  <text x="40" y="108" font-size="13" fill="#111827" font-weight="bold">① 문제 — UI가 canvas(임베드 높이)를 넘어갈 때</text>
+
+  <!-- 문서 페이지 프레임 -->
+  <rect x="40" y="122" width="330" height="300" fill="none" stroke="#9ca3af" stroke-width="1"/>
+  <text x="54" y="144" font-size="9" fill="#9ca3af">문서 페이지 (브라우저 스크롤)</text>
+  <!-- iframe -->
+  <rect x="58" y="156" width="294" height="200" fill="none" stroke="#e5e7eb" stroke-width="1.5"/>
+  <text x="70" y="174" font-size="8.5" fill="#9ca3af">iframe · viewerHeight 640 고정</text>
+  <!-- 사이드바/플롯 -->
+  <rect x="66" y="182" width="80" height="120" fill="#f3f4f6"/>
+  <text x="106" y="216" font-size="8" fill="#6b7280" text-anchor="middle">사이드바</text>
+  <text x="106" y="228" font-size="8" fill="#9ca3af" text-anchor="middle">(슬라이더×3)</text>
+  <rect x="154" y="182" width="180" height="120" fill="none" stroke="#d1d5db"/>
+  <text x="244" y="238" font-size="8" fill="#9ca3af" text-anchor="middle">플롯 (잘림 ↓)</text>
+  <!-- 내부 스크롤바 -->
+  <rect x="344" y="160" width="4" height="192" fill="#f3f4f6"/>
+  <rect x="344" y="170" width="4" height="70" fill="#9ca3af"/>
+  <!-- 잘린 표 표시 -->
+  <line x1="66" y1="340" x2="334" y2="340" stroke="#d1d5db" stroke-dasharray="3 3"/>
+  <text x="200" y="352" font-size="8" fill="#9ca3af" text-anchor="middle">… 결과 표·해설이 접혀 안 보임 …</text>
+
+  <g font-size="9.5" fill="#6b7280" font-style="italic">
+    <text x="40" y="444">• 스크롤 이중화 — 페이지 스크롤과 iframe 내부</text>
+    <text x="52" y="457">스크롤이 겹쳐 슬라이더 조작 중 화면이 튄다</text>
+    <text x="40" y="474">• 콘텐츠가 640px를 넘으면 표·해설이 잘리고,</text>
+    <text x="52" y="487">모자라면 하단에 죽은 여백이 남는다</text>
+    <text x="40" y="504">• 좁은 화면: 사이드바가 플롯 폭을 압박</text>
+  </g>
+
+  <!-- ===== ② 설계 — 임베드 상태 ===== -->
+  <text x="430" y="108" font-size="13" fill="#111827" font-weight="bold">② 설계 — 임베드 상태 (기본)</text>
+
+  <rect x="430" y="122" width="330" height="300" fill="none" stroke="#9ca3af" stroke-width="1"/>
+  <rect x="448" y="156" width="294" height="230" fill="none" stroke="#e5e7eb" stroke-width="1.5"/>
+  <!-- 전체화면 버튼 (핵심) -->
+  <rect x="706" y="164" width="28" height="28" rx="6" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="720" y="183" font-size="12" fill="#2563eb" text-anchor="middle" font-weight="bold">⛶</text>
+  <line x1="706" y1="176" x2="650" y2="144" stroke="#d1d5db" stroke-width="1"/>
+  <text x="646" y="141" font-size="9.5" fill="#6b7280" font-style="italic" text-anchor="end">전체화면 토글 — 우상단 8px, 32px,</text>
+  <text x="646" y="154" font-size="9.5" fill="#6b7280" font-style="italic" text-anchor="end">평소 연하게 · hover 시 진하게</text>
+
+  <rect x="456" y="182" width="80" height="196" fill="#f3f4f6"/>
+  <text x="496" y="270" font-size="8" fill="#6b7280" text-anchor="middle">사이드바 260px</text>
+  <rect x="544" y="182" width="190" height="196" fill="none" stroke="#d1d5db"/>
+  <text x="639" y="276" font-size="8" fill="#9ca3af" text-anchor="middle">플롯 fill</text>
+
+  <g font-size="9.5" fill="#6b7280" font-style="italic">
+    <text x="430" y="444">• viewerHeight = 앱 실측 높이 + 20px —</text>
+    <text x="442" y="457">내부 스크롤 0이 목표(잘림도 여백도 금지)</text>
+    <text x="430" y="474">• 앱은 page_sidebar + 플롯 fill — 세로가</text>
+    <text x="442" y="487">더 필요한 내용은 임베드에 욱여넣지 말고</text>
+    <text x="442" y="500">전체화면으로 해소한다</text>
+  </g>
+
+  <!-- ===== ③ 설계 — 전체화면 상태 ===== -->
+  <text x="820" y="108" font-size="13" fill="#111827" font-weight="bold">③ 설계 — 전체화면 상태</text>
+
+  <rect x="820" y="122" width="380" height="300" fill="none" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="836" y="144" font-size="9" fill="#2563eb">100vw × 100vh — Fullscreen API (요소 전체화면)</text>
+  <!-- 축소 버튼 -->
+  <rect x="1156" y="134" width="28" height="28" rx="6" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="1170" y="153" font-size="11" fill="#2563eb" text-anchor="middle" font-weight="bold">✕</text>
+  <rect x="836" y="158" width="100" height="240" fill="#f3f4f6"/>
+  <text x="886" y="270" font-size="8.5" fill="#6b7280" text-anchor="middle">사이드바 300px</text>
+  <rect x="944" y="158" width="240" height="240" fill="none" stroke="#d1d5db"/>
+  <text x="1064" y="270" font-size="8.5" fill="#9ca3af" text-anchor="middle">플롯 · 표 — 전부 펼쳐짐</text>
+
+  <g font-size="9.5" fill="#6b7280" font-style="italic">
+    <text x="820" y="444">• 래퍼 div에 requestFullscreen() — iframe이</text>
+    <text x="832" y="457">100vh로 늘고 앱 fill 레이아웃이 채운다</text>
+    <text x="820" y="474">• 복귀: ✕ 버튼 · ESC (브라우저 기본)</text>
+    <text x="820" y="491">• 폴백(iOS Safari 등 미지원): 같은 버튼이</text>
+    <text x="832" y="504">"새 탭에서 열기"로 동작 — 앱 단독 페이지</text>
+  </g>
+
+  <!-- ===== 구분선 ===== -->
+  <line x1="40" y1="528" x2="1200" y2="528" stroke="#e5e7eb" stroke-width="1"/>
+
+  <!-- ===== ④ 좁은 화면 규칙 ===== -->
+  <text x="40" y="558" font-size="13" fill="#111827" font-weight="bold">④ 좁은 화면(&lt;768px) — 스택 규칙</text>
+  <rect x="40" y="572" width="150" height="210" fill="none" stroke="#9ca3af" stroke-width="1"/>
+  <rect x="50" y="584" width="130" height="60" fill="#f3f4f6"/>
+  <text x="115" y="618" font-size="8" fill="#6b7280" text-anchor="middle">사이드바 → 상단 스택</text>
+  <rect x="50" y="652" width="130" height="118" fill="none" stroke="#d1d5db"/>
+  <text x="115" y="714" font-size="8" fill="#9ca3af" text-anchor="middle">플롯 min 320px</text>
+
+  <g font-size="9.5" fill="#6b7280" font-style="italic">
+    <text x="210" y="596">• Shiny sidebar의 기본 반응형(상단 접힘)을 그대로 쓰되</text>
+    <text x="222" y="609">모바일에선 viewerHeight를 +160px 보정</text>
+    <text x="210" y="626">• 슬라이더 터치 타깃 ≥ 44px · 플롯 폰트 10 → 11</text>
+    <text x="210" y="643">• 전체화면 버튼은 모바일에서 항상 표시(hover 없음)</text>
+  </g>
+
+  <!-- ===== ⑤ 구현 스펙 ===== -->
+  <text x="620" y="558" font-size="13" fill="#111827" font-weight="bold">⑤ 구현 스펙 — 한 곳만 고친다</text>
+  <g font-size="10" fill="#6b7280">
+    <text x="620" y="584">1. <tspan fill="#111827">assets/app-frame.js + styles.css 추가</tspan> — 문서 로드 후 모든</text>
+    <text x="636" y="598">.shinylive-python iframe을 래퍼 div로 감싸고 ⛶ 버튼 주입 (모듈 수정 0)</text>
+    <text x="620" y="618">2. 버튼 클릭 → wrapper.requestFullscreen() / document.exitFullscreen()</text>
+    <text x="620" y="638">3. CSS :fullscreen .shinylive-frame { height:100vh } — 평소엔 viewerHeight 유지</text>
+    <text x="620" y="658">4. 미지원 감지(document.fullscreenEnabled === false) → 버튼을 새 탭 열기로 전환</text>
+    <text x="620" y="678">5. 접근성: aria-label="전체화면" · 키보드 포커스·Enter 동작 · ESC 복귀 안내 툴팁</text>
+    <text x="620" y="698">6. _quarto.yml: include-in-header 한 줄 — 24개 모듈 전부 자동 적용</text>
+  </g>
+
+  <!-- ===== 푸터 ===== -->
+  <line x1="40" y1="800" x2="1200" y2="800" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="40" y="824" font-size="10.5" fill="#6b7280">원칙 — 임베드는 "잘리지도 남지도 않게"(실측 viewerHeight), 넘치는 요구는 전체화면이 받는다 · 버튼은 잉크 최소(평소 연함) · 폴백 없는 기능 금지(새 탭 열기) · 모듈 코드 무수정(래퍼 주입식)</text>
+  <text x="40" y="842" font-size="10.5" fill="#6b7280">적용 대상 — BitStat2-HS 24개 shinylive 임베드 전부 · 참고: pages/02_prob/counting(순열과 조합, viewerHeight 640) · 이 문서: images/2026-07-07_앱_전체화면_UI설계.svg</text>
+</svg>
