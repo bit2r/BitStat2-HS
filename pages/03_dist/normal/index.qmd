@@ -164,6 +164,6 @@ $Z = (X - 70)/10$이므로 $P(-1 \le Z \le 1) \approx 0.6827$ —
 :::
 
 ::: {.hs-prevnext}
-[← 이전: 이항분포](../binomial/index.qmd)
+[← 이전: 연속확률변수와 확률분포](../continuous_rv/index.qmd)
 [다음: 표본추출 →](../../04_infer/sampling/index.qmd)
 :::

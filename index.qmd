@@ -21,7 +21,7 @@ toc: false
 
 <div class="bs-progress">
   <div class="bs-bar"><div style="width: 100%;"></div></div>
-  <div class="bs-note">18개 모듈 전부 라이브 — 5개 단원 공개</div>
+  <div class="bs-note">25개 모듈 전부 라이브 — 5개 단원 공개</div>
 </div>
 
 <section class="bs-how">
@@ -50,6 +50,8 @@ toc: false
       <h3>자료와 그래프</h3>
       <div class="bs-sub">중등 복습 · 진단</div>
       <ul>
+        <li class="bs-live"><a href="pages/01_data/data_info/index.html">자료와 정보</a></li>
+        <li class="bs-live"><a href="pages/01_data/structure/index.html">정보의 구조화</a></li>
         <li class="bs-live"><a href="pages/01_data/freq_table/index.html">도수분포표와 히스토그램</a></li>
         <li class="bs-live"><a href="pages/01_data/center/index.html">대푯값</a></li>
         <li class="bs-live"><a href="pages/01_data/spread/index.html">산포도와 상자그림</a></li>
@@ -62,7 +64,11 @@ toc: false
       <div class="bs-sub">확률과 통계</div>
       <ul>
         <li class="bs-live"><a href="pages/02_prob/counting/index.html">순열과 조합</a></li>
+        <li class="bs-live"><a href="pages/02_prob/perm_various/index.html">여러 가지 순열</a></li>
+        <li class="bs-live"><a href="pages/02_prob/combi_repeat/index.html">중복조합</a></li>
+        <li class="bs-live"><a href="pages/02_prob/binom_thm/index.html">이항정리</a></li>
         <li class="bs-live"><a href="pages/02_prob/prob_basic/index.html">확률의 뜻</a></li>
+        <li class="bs-live"><a href="pages/02_prob/add_rule/index.html">확률의 덧셈정리</a></li>
         <li class="bs-live"><a href="pages/02_prob/conditional/index.html">조건부확률과 독립</a></li>
       </ul>
     </div>
@@ -73,6 +79,7 @@ toc: false
       <ul>
         <li class="bs-live"><a href="pages/03_dist/random_var/index.html">확률변수와 기댓값</a></li>
         <li class="bs-live"><a href="pages/03_dist/binomial/index.html">이항분포</a></li>
+        <li class="bs-live"><a href="pages/03_dist/continuous_rv/index.html">연속확률변수와 확률분포</a></li>
         <li class="bs-live"><a href="pages/03_dist/normal/index.html">정규분포와 표준화</a></li>
       </ul>
     </div>

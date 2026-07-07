@@ -1,0 +1,167 @@
+---
+title: "자료와 정보"
+---
+
+::: {.hs-back}
+[← 빛스탯 HS 홈](../../../index.qmd)
+:::
+
+::: {.hs-meta}
+단원 01 자료와 그래프 · 중등 정보교과 연계 · 도입
+:::
+
+## 개념
+
+관찰이나 측정으로 얻은 가공 전의 사실이 **자료(data)** 입니다. 숫자·문자·그림·소리처럼
+그 자체로는 아직 의미가 잘 드러나지 않습니다. 이 자료를 문제 해결에 도움이 되도록
+정리·가공한 것이 **정보(information)** 이고, 정보가 쌓여 판단의 근거가 되면 **지식**이 됩니다.
+
+$$\text{자료(data)} \;\longrightarrow\; \text{정보(information)} \;\longrightarrow\; \text{지식(knowledge)}$$
+
+::: {.column-margin}
+중등 「정보」 교과서는 자료를 *"컴퓨터가 처리할 수 있는 문자·숫자·소리·그림 형태의 것"*,
+정보를 *"관찰이나 측정을 통해 수집한 자료를 실제 문제에 도움이 될 수 있도록 정리한 지식"* 으로
+구분합니다. 통계는 바로 이 **자료 → 정보** 변환을 다루는 과목입니다.
+:::
+
+자료는 값의 성격에 따라 나뉩니다. 인구수·키·가격처럼 크기를 재는 **수치형(양적)** 자료와,
+행정구역·성별·선호도처럼 종류를 나누는 **범주형(질적)** 자료입니다. 어떤 유형이냐에 따라
+쓸 수 있는 그래프와 대푯값이 달라지므로, 분석에 앞서 자료의 유형부터 확인해야 합니다.
+
+문제를 데이터로 해결할 때는 대체로 네 단계를 거칩니다 — **① 문제 분석**(무엇이 필요한가) →
+**② 자료 수집**(인터넷·설문으로 모으기) → **③ 분류·관리**(스프레드시트로 정렬·선택·분석) →
+**④ 공유**(정리한 결과를 함께 보기). 아래 앱은 이 가운데 ③의 핵심인 **정렬**을 다룹니다.
+같은 표라도 정렬하고 상위 몇 개만 추리면, 뒤섞인 자료가 곧바로 읽히는 정보로 바뀝니다.
+
+## 만지며 배우기
+
+::: {.panel-tabset}
+
+### 인터랙티브 앱
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 680
+
+from shiny import App, render, ui
+
+ACCENT = "#2563eb"
+
+# 우리나라 시도별 인구수 — 중등 「정보」 교과서 예시 표
+# (matplotlib 대신 HTML 막대를 쓰는 이유: Pyodide에는 한글 폰트가 없어
+#  차트 축 라벨의 한글이 깨진다. HTML 막대는 브라우저 폰트로 그려 정상 표시된다.)
+POP = [
+    ("서울", 10022181), ("부산", 3513777), ("대구", 2487829),
+    ("인천", 2925815), ("광주", 1472199), ("대전", 1518775),
+    ("울산", 1173534), ("세종", 210884), ("경기", 12522606),
+    ("강원", 1549507), ("충북", 1583952), ("충남", 2077649),
+    ("전북", 1869711), ("전남", 1908996), ("경북", 2702826),
+    ("경남", 3364702), ("제주", 624395),
+]
+POP_MAX = max(p for _, p in POP)
+
+app_ui = ui.page_sidebar(
+    ui.sidebar(
+        ui.input_select(
+            "order", "정렬 기준",
+            {"desc": "인구 많은 순", "asc": "인구 적은 순", "name": "가나다 순"},
+            selected="desc",
+        ),
+        ui.input_slider("topn", "상위 몇 개 시도만 보기", min=3, max=17, value=8, step=1),
+        width=250,
+    ),
+    ui.card(
+        ui.card_header("시도별 인구수 — 정렬하면 뒤섞인 자료가 정보가 됩니다"),
+        ui.output_ui("bars"),
+    ),
+    ui.card(ui.output_ui("readout")),
+    fillable=True,
+)
+
+def server(input, output, session):
+    def arranged():
+        data = list(POP)
+        if input.order() == "desc":
+            data.sort(key=lambda r: r[1], reverse=True)
+        elif input.order() == "asc":
+            data.sort(key=lambda r: r[1])
+        else:
+            data.sort(key=lambda r: r[0])
+        # 가나다 순일 때는 전체를, 크기순일 때는 상위 N개를 보여 준다
+        if input.order() == "name":
+            return data
+        return data[: input.topn()]
+
+    @render.ui
+    def bars():
+        rows = ""
+        for name, p in arranged():
+            w = p / POP_MAX * 100
+            rows += (
+                '<div style="display:flex; align-items:center; margin:5px 0;">'
+                f'<div style="width:44px; text-align:right; padding-right:10px;'
+                f' font-size:0.9em; flex:none;">{name}</div>'
+                f'<div style="height:19px; width:{w:.1f}%; background:{ACCENT};'
+                f' border-radius:3px; flex:none;"></div>'
+                f'<div style="padding-left:8px; font-size:0.82em; color:#6b7280;'
+                f' flex:none;">{p/10000:,.0f}만</div></div>'
+            )
+        return ui.HTML(f'<div style="padding:0.4em 0.2em;">{rows}</div>')
+
+    @render.ui
+    def readout():
+        data = arranged()
+        top = max(POP, key=lambda r: r[1])
+        bot = min(POP, key=lambda r: r[1])
+        total = sum(r[1] for r in POP)
+        return ui.HTML(
+            '<p class="hs-readline">'
+            f"17개 시도 인구를 모두 더하면 약 {total/10000:,.0f}만 명입니다. "
+            f"가장 많은 곳은 {top[0]}({top[1]:,}명), 가장 적은 곳은 {bot[0]}({bot[1]:,}명)로 "
+            f"약 {top[1]/bot[1]:.0f}배 차이가 납니다. "
+            "정렬 기준과 개수를 바꿔 보세요. 표의 숫자는 그대로지만, "
+            "무엇을 위로 올리고 몇 개만 남기느냐에 따라 전혀 다른 사실이 눈에 들어옵니다. "
+            "이것이 자료를 정보로 바꾸는 가장 기본적인 가공입니다.</p>"
+        )
+
+app = App(app_ui, server)
+```
+
+### 파이썬 코드
+
+정렬과 상위 N개 추리기는 `sorted` 한 줄이면 됩니다.
+
+```python
+pop = [
+    ("서울", 10022181), ("경기", 12522606), ("부산", 3513777),
+    ("세종", 210884), ("제주", 624395),
+]
+
+# 인구 많은 순으로 정렬 (뒤섞인 자료 → 읽히는 정보)
+ranked = sorted(pop, key=lambda r: r[1], reverse=True)
+
+for name, n in ranked[:3]:          # 상위 3개만
+    print(f"{name}: {n:,}명")
+```
+
+:::
+
+## 스스로 확인
+
+::: {.callout-tip collapse="true" title="문제 1 — '서울 10,022,181'은 자료인가 정보인가?"}
+숫자 하나만 놓고 보면 아직 가공 전의 **자료**입니다. 이 값을 17개 시도와 함께
+인구 많은 순으로 정렬해 "서울이 두 번째로 인구가 많다"처럼 문제 해결에 쓸 수 있게
+정리하면 비로소 **정보**가 됩니다. 같은 값도 정리·해석의 목적에 따라 자료가 되기도,
+정보가 되기도 합니다.
+:::
+
+::: {.callout-tip collapse="true" title="문제 2 — 행정구역과 인구수는 각각 어떤 유형의 자료인가?"}
+행정구역(서울·부산…)은 종류를 나누는 **범주형(질적)** 자료, 인구수는 크기를 재는
+**수치형(양적)** 자료입니다. 범주형은 막대그래프·원그래프로, 수치형은 히스토그램·
+상자그림으로 요약하는 것이 자연스럽습니다. 다음 모듈부터 이 그래프들을 하나씩 다룹니다.
+:::
+
+::: {.hs-prevnext}
+[← 홈](../../../index.qmd)
+[다음: 정보의 구조화 →](../structure/index.qmd)
+:::

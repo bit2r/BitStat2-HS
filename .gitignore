@@ -44,3 +44,6 @@ vignettes/*.pdf
 # Quarto 렌더 산출물 — gh-pages 브랜치로 배포 (자매 저장소 규약)
 /docs/
 /.venv/
+
+# 저작권 자료(교과서 등) — 외부 노출 금지
+/document/

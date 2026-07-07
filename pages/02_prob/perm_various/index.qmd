@@ -1,0 +1,147 @@
+---
+title: "여러 가지 순열"
+---
+
+::: {.hs-back}
+[← 빛스탯 HS 홈](../../../index.qmd)
+:::
+
+::: {.hs-meta}
+단원 02 경우의 수와 확률 · 「확률과 통계」 · 순열의 확장
+:::
+
+## 개념
+
+기본 순열을 세 방향으로 넓히면 자리 배치 문제 대부분을 다룰 수 있습니다.
+
+**원순열**은 서로 다른 것을 원형으로 늘어놓는 배열입니다. 원형에서는 전체를
+돌려 겹치는 배치를 같은 것으로 보므로, 한 자리를 고정하고 나머지를 세면 됩니다.
+
+$$\text{서로 다른 } n\text{개의 원순열} = \frac{n!}{n} = (n-1)!$$
+
+::: {.column-margin}
+회전 대칭이 핵심입니다. 일렬 배치 $n!$가지는 원형에서 $n$개씩
+같은 배치로 겹치므로, 그만큼 나눠 준 것이 $(n-1)!$입니다.
+:::
+
+**중복순열**은 같은 것을 다시 뽑아도 되는 나열입니다. 서로 다른 $n$개에서
+중복을 허용해 $r$개를 뽑아 늘어놓으면, 매 자리마다 $n$가지 선택이 있으므로
+
+$${}_n\Pi_r = n^r$$
+
+**같은 것이 있는 순열**은 구별되지 않는 것이 섞인 나열입니다. $n$개 중 같은 것이
+각각 $p,\,q,\,\dots,\,r$개 있으면, 자기들끼리 자리를 바꿔도 같은 배열이므로 그만큼 나눕니다.
+
+$$\frac{n!}{p!\,q!\cdots r!}\quad(p+q+\cdots+r=n)$$
+
+아래 앱은 이 중 원순열을 눈으로 보여 줍니다. 사람 수를 바꾸며 원형 배치 수
+$(n-1)!$가 일렬 배치 수 $n!$의 $\tfrac{1}{n}$임을 확인해 보세요.
+
+## 만지며 배우기
+
+::: {.panel-tabset}
+
+### 인터랙티브 앱
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 640
+
+from math import factorial
+from shiny import App, render, ui
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+
+matplotlib.rcParams["font.size"] = 10
+ACCENT = "#2563eb"
+INK = "#111827"
+MUTED = "#6b7280"
+
+app_ui = ui.page_sidebar(
+    ui.sidebar(
+        ui.input_slider("n", "원형 탁자에 앉는 사람 수", min=3, max=9, value=5, step=1),
+        width=250,
+    ),
+    ui.card(
+        ui.card_header("원형 배치 — 통째로 돌리면 같은 배치입니다"),
+        ui.output_plot("circle", height="330px"),
+    ),
+    ui.card(ui.output_ui("readout")),
+    fillable=True,
+)
+
+def server(input, output, session):
+    @render.plot(alt="원형으로 앉은 사람들의 자리 번호")
+    def circle():
+        n = input.n()
+        ang = np.linspace(0, 2 * np.pi, n, endpoint=False) + np.pi / 2
+        x, y = np.cos(ang), np.sin(ang)
+
+        fig, ax = plt.subplots()
+        t = np.linspace(0, 2 * np.pi, 200)
+        ax.plot(np.cos(t), np.sin(t), color="#d1d5db", linewidth=1)
+        ax.scatter(x, y, s=520, color=ACCENT, alpha=0.9, zorder=3)
+        for i, (xi, yi) in enumerate(zip(x, y)):
+            ax.text(xi, yi, str(i + 1), color="white", ha="center",
+                    va="center", fontsize=11, fontweight="bold", zorder=4)
+        ax.set_xlim(-1.3, 1.3)
+        ax.set_ylim(-1.3, 1.3)
+        ax.set_aspect("equal")
+        ax.axis("off")
+        return fig
+
+    @render.ui
+    def readout():
+        n = input.n()
+        circular = factorial(n - 1)
+        linear = factorial(n)
+        return ui.HTML(
+            '<p class="hs-readline">'
+            f"{n}명을 원형으로 앉히는 방법은 (n-1)! = {n - 1}! = <b>{circular:,}가지</b>입니다. "
+            f"같은 사람들을 일렬로 세우면 n! = {n}! = {linear:,}가지지만, "
+            f"원형에서는 통째로 돌린 {n}가지가 모두 한 배치로 겹칩니다. "
+            f"그래서 {linear:,} ÷ {n} = {circular:,}가지가 됩니다.</p>"
+        )
+
+app = App(app_ui, server)
+```
+
+### 파이썬 코드
+
+세 가지 순열 모두 `factorial` 로 바로 계산됩니다.
+
+```python
+from math import factorial
+
+# 원순열: 6명을 원탁에 앉히기
+print(factorial(6 - 1))              # (n-1)! = 120
+
+# 중복순열: 0~9 숫자로 4자리 잠금번호
+print(10 ** 4)                       # n^r = 10000
+
+# 같은 것이 있는 순열: 앞3·뒤2로 동전 5개 늘어놓기
+print(factorial(5) // (factorial(3) * factorial(2)))   # 5!/(3!2!) = 10
+```
+
+:::
+
+## 스스로 확인
+
+::: {.callout-tip collapse="true" title="문제 1 — 6명을 원탁에 앉히는 방법과 일렬로 세우는 방법은 몇 배 차이인가?"}
+원순열은 $(6-1)! = 120$가지, 일렬 순열은 $6! = 720$가지로 정확히
+**6배** 차이입니다. 원형에서는 전체를 한 칸씩 돌린 6가지 배치가
+모두 같은 것으로 묶이기 때문에, 일렬 배치 수를 자리 수 6으로 나눈 값이 됩니다.
+:::
+
+::: {.callout-tip collapse="true" title="문제 2 — 빨간 공 3개와 파란 공 2개를 일렬로 놓는 방법은 몇 가지인가?"}
+색이 같은 공끼리는 구별되지 않으므로 같은 것이 있는 순열입니다.
+$\dfrac{5!}{3!\,2!} = \dfrac{120}{12} = 10$가지입니다. 만약 다섯 공이 모두
+색이 달랐다면 $5! = 120$가지지만, 같은 색끼리 자리를 바꿔도 구별되지 않는
+만큼($3!\times2!$배) 나눠 준 것입니다.
+:::
+
+::: {.hs-prevnext}
+[← 이전: 순열과 조합](../counting/index.qmd)
+[다음: 중복조합 →](../combi_repeat/index.qmd)
+:::
