@@ -201,36 +201,50 @@ window.Quarto = {
 #| standalone: true
 #| viewerHeight: 640
 
+# matplotlib·numpy 없이 stdlib + 인라인 SVG 로만 그린다
+import random
 from shiny import App, reactive, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
 INK = "#111827"
 MUTED = "#6b7280"
 
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
-
 # 모집단: 전교생 400명의 키 (고정된 시드 → 항상 같은 학교)
-rng = np.random.default_rng(42)
-male = np.clip(rng.normal(173, 6, 200), 145, 195)    # 앞 200명: 남
-female = np.clip(rng.normal(161, 5, 200), 145, 195)  # 뒤 200명: 여
-POP = np.concatenate([male, female])
-POP_MEAN = POP.mean()
+random.seed(42)
+def _clip(v, lo, hi):
+    return max(lo, min(hi, v))
+male = [_clip(random.gauss(173, 6), 145, 195) for _ in range(200)]    # 앞 200명: 남
+female = [_clip(random.gauss(161, 5), 145, 195) for _ in range(200)]  # 뒤 200명: 여
+POP = male + female
+POP_MEAN = sum(POP) / len(POP)
 
 METHOD_NOTE = {
     "srs": "단순임의추출은 모두에게 같은 확률을 주는 제비뽑기입니다. 어디에도 치우치지 않지만, 우연히 한쪽 층이 많이 뽑힐 수도 있습니다.",
     "sys": "계통추출은 명부에서 일정 간격으로 뽑아 빠르고 간편합니다. 다만 명부에 규칙적인 배열이 있으면 치우칠 수 있습니다.",
     "strat": "층화추출은 남녀 비율(200:200)을 표본에서도 그대로 유지하므로, 남녀 키 차이 때문에 생기는 치우침이 적습니다.",
 }
+
+def grid_svg(idx):
+    idxs = set(idx)
+    cell, ox, oy = 16, 26, 8
+    body = ""
+    for i in range(400):
+        c, r = i % 20, i // 20
+        x, y = ox + c * cell, oy + r * cell
+        if i in idxs:
+            body += f'&lt;circle cx="{x}" cy="{y}" r="4.5" fill="{ACCENT}"/&gt;'
+        else:
+            body += f'&lt;circle cx="{x}" cy="{y}" r="2.4" fill="#d1d5db"/&gt;'
+    ydiv = oy + 10 * cell - cell / 2
+    body += (f'&lt;line x1="{ox-6}" y1="{ydiv}" x2="{ox+19*cell+6}" y2="{ydiv}" '
+             f'stroke="#9ca3af" stroke-width="0.8" stroke-dasharray="2 3"/&gt;'
+             f'&lt;text x="12" y="{oy+4.5*cell:.0f}" font-size="12" fill="{MUTED}" '
+             f'text-anchor="middle"&gt;남&lt;/text&gt;'
+             f'&lt;text x="12" y="{oy+14.5*cell:.0f}" font-size="12" fill="{MUTED}" '
+             f'text-anchor="middle"&gt;여&lt;/text&gt;')
+    W, H = ox + 20 * cell + 6, oy + 20 * cell
+    return (f'&lt;svg viewBox="0 0 {W} {H}" style="width:100%;max-height:340px;'
+            f'height:auto;font-family:-apple-system,sans-serif;"&gt;{body}&lt;/svg&gt;')
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
@@ -244,7 +258,7 @@ app_ui = ui.page_sidebar(
     ),
     ui.card(
         ui.card_header("전교생 400명(회색) 중 이번에 뽑힌 표본(파랑)"),
-        ui.output_plot("grid_plot", height="340px"),
+        ui.output_ui("grid_plot"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
@@ -257,39 +271,25 @@ def server(input, output, session):
         n = input.n()
         method = input.method()
         if method == "srs":
-            return np.random.choice(400, size=n, replace=False)
+            return random.sample(range(400), n)
         if method == "sys":
             k = 400 // n
-            start = np.random.randint(0, k)
-            return np.arange(start, 400, k)[:n]
+            start = random.randrange(k)
+            return list(range(start, 400, k))[:n]
         # 층화추출: 남녀에서 절반씩
         half = n // 2
-        idx_m = np.random.choice(200, size=half, replace=False)
-        idx_f = 200 + np.random.choice(200, size=n - half, replace=False)
-        return np.concatenate([idx_m, idx_f])
+        idx_m = random.sample(range(200), half)
+        idx_f = [200 + i for i in random.sample(range(200), n - half)]
+        return idx_m + idx_f
 
-    @render.plot(alt="모집단 격자와 추출된 표본")
+    @render.ui
     def grid_plot():
-        idx = sample_idx()
-        all_i = np.arange(400)
-        xs, ys = all_i % 20, all_i // 20  # 행 우선 배치: 0~9행 남, 10~19행 여
-
-        fig, ax = plt.subplots()
-        ax.scatter(xs, ys, s=18, color="#d1d5db")
-        ax.scatter(xs[idx], ys[idx], s=42, color=ACCENT, zorder=3)
-        ax.text(-1.8, 4.5, "M", color=MUTED, ha="center", va="center", fontsize=11)
-        ax.text(-1.8, 14.5, "F", color=MUTED, ha="center", va="center", fontsize=11)
-        ax.axhline(9.5, color="#9ca3af", linewidth=0.7, linestyle=":")
-        ax.invert_yaxis()
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_aspect("equal")
-        tufte(ax)
-        return fig
+        return ui.HTML(grid_svg(sample_idx()))
 
     @render.ui
     def readout():
-        xbar = POP[sample_idx()].mean()
+        idx = sample_idx()
+        xbar = sum(POP[i] for i in idx) / len(idx)
         return ui.HTML(
             f'&lt;p class="hs-readline"&gt;'
             f"모평균 m = {POP_MEAN:.2f} cm · 이번 표본평균 x̄ = {xbar:.2f} cm · "
@@ -301,18 +301,16 @@ app = App(app_ui, server)</code></pre>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <p>세 가지 추출 방법의 핵심은 인덱스를 고르는 방식의 차이입니다.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>pop <span class="op">=</span> np.arange(<span class="dv">400</span>)                       <span class="co"># 전교생 400명의 번호</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>srs <span class="op">=</span> random.sample(<span class="bu">range</span>(<span class="dv">400</span>), <span class="dv">40</span>)              <span class="co"># 단순임의추출</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>srs <span class="op">=</span> np.random.choice(<span class="dv">400</span>, <span class="dv">40</span>, replace<span class="op">=</span><span class="va">False</span>)   <span class="co"># 단순임의추출</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> <span class="dv">400</span> <span class="op">//</span> <span class="dv">40</span>                                    <span class="co"># 계통추출: 간격 10</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>sys_ <span class="op">=</span> np.arange(np.random.randint(k), <span class="dv">400</span>, k)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>boys <span class="op">=</span> np.random.choice(<span class="dv">200</span>, <span class="dv">20</span>, replace<span class="op">=</span><span class="va">False</span>)  <span class="co"># 층화추출: 남 20 + 여 20</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>girls <span class="op">=</span> <span class="dv">200</span> <span class="op">+</span> np.random.choice(<span class="dv">200</span>, <span class="dv">20</span>, replace<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>strat <span class="op">=</span> np.concatenate([boys, girls])</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> <span class="dv">400</span> <span class="op">//</span> <span class="dv">40</span>                                     <span class="co"># 계통추출: 간격 10</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>sys_ <span class="op">=</span> <span class="bu">list</span>(<span class="bu">range</span>(random.randrange(k), <span class="dv">400</span>, k))</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>boys <span class="op">=</span> random.sample(<span class="bu">range</span>(<span class="dv">200</span>), <span class="dv">20</span>)             <span class="co"># 층화추출: 남 20 + 여 20</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>girls <span class="op">=</span> [<span class="dv">200</span> <span class="op">+</span> i <span class="cf">for</span> i <span class="kw">in</span> random.sample(<span class="bu">range</span>(<span class="dv">200</span>), <span class="dv">20</span>)]</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>strat <span class="op">=</span> boys <span class="op">+</span> girls</span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>

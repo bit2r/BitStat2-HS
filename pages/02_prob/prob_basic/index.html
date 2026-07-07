@@ -201,28 +201,58 @@ window.Quarto = {
 #| standalone: true
 #| viewerHeight: 640
 
+# matplotlib·numpy 없이 stdlib + 인라인 SVG 로만 그린다
+import random
 from shiny import App, reactive, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
 INK = "#111827"
 MUTED = "#6b7280"
+GRID = "#e5e7eb"
 
 TRIALS = {
     "coin": {"name": "동전 던지기 — 앞면", "p": 0.5, "label": "1/2"},
     "die": {"name": "주사위 던지기 — 6의 눈", "p": 1 / 6, "label": "1/6"},
 }
 
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
+def running_mean(hits):
+    out = []
+    s = 0
+    for i, h in enumerate(hits):
+        s += h
+        out.append(s / (i + 1))
+    return out
+
+def line_svg(run, p):
+    n = len(run)
+    W, H, ml, mr, mt, mb = 470, 300, 40, 12, 14, 32
+    pw, ph = W - ml - mr, H - mt - mb
+    def X(i):
+        return ml + (i / max(1, n - 1)) * pw
+    def Y(v):
+        return mt + ph - v * ph
+    grid = ""
+    for v in (0.0, 0.25, 0.5, 0.75, 1.0):
+        yy = Y(v)
+        grid += (f'&lt;line x1="{ml}" y1="{yy:.1f}" x2="{W-mr}" y2="{yy:.1f}" stroke="{GRID}"/&gt;'
+                 f'&lt;text x="{ml-6}" y="{yy+3:.1f}" font-size="9" fill="{MUTED}" '
+                 f'text-anchor="end"&gt;{v:.2f}&lt;/text&gt;')
+    step = max(1, n // 400)
+    idx = list(range(0, n, step))
+    if idx[-1] != n - 1:
+        idx.append(n - 1)
+    path = "M" + " L".join(f"{X(i):.1f},{Y(run[i]):.1f}" for i in idx)
+    pline = (f'&lt;line x1="{ml}" y1="{Y(p):.1f}" x2="{W-mr}" y2="{Y(p):.1f}" '
+             f'stroke="{INK}" stroke-width="1" stroke-dasharray="5 3"/&gt;')
+    return (
+        f'&lt;svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;'
+        'font-family:-apple-system,sans-serif;"&gt;'
+        f'{grid}{pline}&lt;path d="{path}" fill="none" stroke="{ACCENT}" stroke-width="1.4"/&gt;'
+        f'&lt;text x="{ml+pw/2:.0f}" y="{H-4}" font-size="10" fill="{MUTED}" '
+        'text-anchor="middle"&gt;시행 횟수&lt;/text&gt;'
+        f'&lt;text x="6" y="{mt-2}" font-size="10" fill="{MUTED}"&gt;상대도수&lt;/text&gt;'
+        '&lt;/svg&gt;'
+    )
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
@@ -236,7 +266,7 @@ app_ui = ui.page_sidebar(
     ),
     ui.card(
         ui.card_header("상대도수의 변화(파랑) vs 수학적 확률(점선)"),
-        ui.output_plot("freq_plot", height="340px"),
+        ui.output_ui("freq_plot"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
@@ -247,30 +277,19 @@ def server(input, output, session):
     def draws():
         input.redraw()  # 버튼을 누르면 새로 시행
         p = TRIALS[input.trial()]["p"]
-        return (np.random.random(input.n()) &lt; p).astype(float)
+        return [1 if random.random() &lt; p else 0 for _ in range(input.n())]
 
-    @render.plot(alt="시행 횟수에 따른 상대도수의 변화 곡선")
+    @render.ui
     def freq_plot():
         p = TRIALS[input.trial()]["p"]
-        hits = draws()
-        n = len(hits)
-        run = np.cumsum(hits) / np.arange(1, n + 1)
-
-        fig, ax = plt.subplots()
-        ax.plot(np.arange(1, n + 1), run, color=ACCENT, linewidth=1.2)
-        ax.axhline(p, color=INK, linewidth=1.0, linestyle="--")
-        ax.set_ylim(0, 1)
-        ax.set_xlabel("trials", color=MUTED)
-        ax.set_ylabel("relative freq.", color=MUTED)
-        tufte(ax)
-        return fig
+        return ui.HTML(line_svg(running_mean(draws()), p))
 
     @render.ui
     def readout():
         sc = TRIALS[input.trial()]
         hits = draws()
         n = len(hits)
-        rel = hits.mean()
+        rel = sum(hits) / n
         return ui.HTML(
             f'&lt;p class="hs-readline"&gt;'
             f"{n:,}번 시행했을 때 상대도수는 {rel:.4f}, "
@@ -284,15 +303,19 @@ app = App(app_ui, server)</code></pre>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <p>앱의 핵심 계산은 이 몇 줄이 전부입니다.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">6</span>                                <span class="co"># 주사위 6의 눈의 수학적 확률</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">10000</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>hits <span class="op">=</span> np.random.random(n) <span class="op">&lt;</span> p           <span class="co"># n번 시행 (성공 여부)</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>run <span class="op">=</span> np.cumsum(hits) <span class="op">/</span> np.arange(<span class="dv">1</span>, n <span class="op">+</span> <span class="dv">1</span>)  <span class="co"># 시점별 상대도수</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(run[<span class="dv">9</span>], run[<span class="dv">99</span>], run[<span class="op">-</span><span class="dv">1</span>], p)       <span class="co"># n이 커질수록 p에 접근</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>hits <span class="op">=</span> [<span class="dv">1</span> <span class="cf">if</span> random.random() <span class="op">&lt;</span> p <span class="cf">else</span> <span class="dv">0</span> <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n)]</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>run, s <span class="op">=</span> [], <span class="dv">0</span>                           <span class="co"># 시점별 상대도수</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, h <span class="kw">in</span> <span class="bu">enumerate</span>(hits):</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    s <span class="op">+=</span> h</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    run.append(s <span class="op">/</span> (i <span class="op">+</span> <span class="dv">1</span>))</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(run[<span class="dv">9</span>], run[<span class="dv">99</span>], run[<span class="op">-</span><span class="dv">1</span>], p)       <span class="co"># n이 커질수록 p에 접근</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>

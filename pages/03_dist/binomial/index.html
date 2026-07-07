@@ -202,27 +202,67 @@ E(X) = np, \qquad \sigma = \sqrt{np(1-p)}\]</span></p>
 #| standalone: true
 #| viewerHeight: 640
 
-from math import comb, sqrt, floor, ceil
+# matplotlib·numpy 없이 stdlib + 인라인 SVG 로만 그린다
+from math import comb, sqrt, floor, ceil, exp, pi
 from shiny import App, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
 INK = "#111827"
 MUTED = "#6b7280"
-
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
+GRID = "#e5e7eb"
 
 def pmf(n, p):
-    return np.array([comb(n, k) * p**k * (1 - p)**(n - k) for k in range(n + 1)])
+    return [comb(n, k) * p**k * (1 - p)**(n - k) for k in range(n + 1)]
+
+def pmf_svg(n, p, probs, mean, sd, approx):
+    lo = max(0, floor(mean - 4 * sd))
+    hi = min(n, ceil(mean + 4 * sd))
+    W, H, ml, mr, mt, mb = 470, 320, 50, 12, 16, 34
+    pw, ph = W - ml - mr, H - mt - mb
+    span = max(1, hi - lo)
+    def X(k):
+        return ml + ((k - lo) / span) * pw
+    window = probs[lo:hi + 1]
+    ymax = max(window)
+    peak = 1.0 / (sd * sqrt(2 * pi)) if sd &gt; 0 else ymax
+    if approx:
+        ymax = max(ymax, peak)
+    def Y(v):
+        return mt + ph - (v / ymax) * ph
+    grid = ""
+    for t in range(5):
+        v = ymax * t / 4
+        yy = Y(v)
+        grid += (f'&lt;line x1="{ml}" y1="{yy:.1f}" x2="{W-mr}" y2="{yy:.1f}" stroke="{GRID}"/&gt;'
+                 f'&lt;text x="{ml-6}" y="{yy+3:.1f}" font-size="9" fill="{MUTED}" '
+                 f'text-anchor="end"&gt;{v:.3f}&lt;/text&gt;')
+    bw = pw / (span + 1) * 0.8
+    bars = ""
+    tick = max(1, span // 10)
+    for k in range(lo, hi + 1):
+        h = Y(0) - Y(probs[k])
+        bars += (f'&lt;rect x="{X(k)-bw/2:.1f}" y="{Y(probs[k]):.1f}" width="{bw:.1f}" '
+                 f'height="{h:.1f}" fill="{ACCENT}" opacity="0.85"/&gt;')
+        if (k - lo) % tick == 0:
+            bars += (f'&lt;text x="{X(k):.1f}" y="{mt+ph+14:.1f}" font-size="9" '
+                     f'fill="{MUTED}" text-anchor="middle"&gt;{k}&lt;/text&gt;')
+    mline = (f'&lt;line x1="{X(mean):.1f}" y1="{mt}" x2="{X(mean):.1f}" y2="{mt+ph}" '
+             f'stroke="{INK}" stroke-width="0.9" stroke-dasharray="2 3"/&gt;'
+             f'&lt;text x="{X(mean)+3:.1f}" y="{mt+10}" font-size="9" fill="{INK}"&gt;E(X)=np&lt;/text&gt;')
+    curve = ""
+    if approx and sd &gt; 0:
+        pts = []
+        for i in range(121):
+            xv = lo - 0.5 + (hi + 0.5 - (lo - 0.5)) * i / 120
+            yv = exp(-((xv - mean) ** 2) / (2 * sd * sd)) / (sd * sqrt(2 * pi))
+            pts.append((X(xv), Y(yv)))
+        curve = ('&lt;path d="M' + " L".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+                 + f'" fill="none" stroke="{INK}" stroke-width="1.5"/&gt;')
+    return (f'&lt;svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;'
+            f'font-family:-apple-system,sans-serif;"&gt;{grid}{bars}{mline}{curve}'
+            f'&lt;text x="{ml+pw/2:.0f}" y="{H-4}" font-size="10" fill="{MUTED}" '
+            f'text-anchor="middle"&gt;k&lt;/text&gt;'
+            f'&lt;text x="6" y="{mt+8}" font-size="10" fill="{MUTED}"&gt;P(X=k)&lt;/text&gt;&lt;/svg&gt;')
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
@@ -233,46 +273,26 @@ app_ui = ui.page_sidebar(
     ),
     ui.card(
         ui.card_header("이항분포 B(n, p)"),
-        ui.output_plot("pmf_plot", height="340px"),
+        ui.output_ui("pmf_plot"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
 )
 
 def server(input, output, session):
-    @render.plot(alt="이항분포 확률질량함수")
+    @render.ui
     def pmf_plot():
         n, p = input.n(), input.p()
         probs = pmf(n, p)
         mean, sd = n * p, sqrt(n * p * (1 - p))
-
-        # 보기 좋은 구간만 표시 (평균 ± 4σ)
-        lo = max(0, floor(mean - 4 * sd))
-        hi = min(n, ceil(mean + 4 * sd))
-        ks = np.arange(lo, hi + 1)
-
-        fig, ax = plt.subplots()
-        ax.bar(ks, probs[lo:hi + 1], width=0.8, color=ACCENT, alpha=0.85)
-        ax.axvline(mean, color=INK, linewidth=0.8, linestyle=":")
-        ax.text(mean, ax.get_ylim()[1] * 0.97, " E(X)=np",
-                color=INK, fontsize=9, va="top")
-
-        if input.approx():
-            xs = np.linspace(lo - 0.5, hi + 0.5, 300)
-            ys = np.exp(-((xs - mean) ** 2) / (2 * sd * sd)) / (sd * sqrt(2 * np.pi))
-            ax.plot(xs, ys, color=INK, linewidth=1.4)
-
-        ax.set_xlabel("k", color=MUTED)
-        ax.set_ylabel("P(X = k)", color=MUTED)
-        tufte(ax)
-        return fig
+        return ui.HTML(pmf_svg(n, p, probs, mean, sd, input.approx()))
 
     @render.ui
     def readout():
         n, p = input.n(), input.p()
         mean, sd = n * p, sqrt(n * p * (1 - p))
         probs = pmf(n, p)
-        within = probs[max(0, ceil(mean - sd)):floor(mean + sd) + 1].sum()
+        within = sum(probs[max(0, ceil(mean - sd)):floor(mean + sd) + 1])
         return ui.HTML(
             f'&lt;p class="hs-readline"&gt;'
             f"E(X) = np = {mean:.1f} · σ = √np(1−p) = {sd:.2f} — "
@@ -332,7 +352,7 @@ app = App(app_ui, server)</code></pre>
 </div>
 </div>
 <div class="hs-prevnext">
-<p><a href="../../../pages/03_dist/random_var/index.html">← 이전: 확률변수와 기댓값</a> <a href="../../../pages/03_dist/continuous_rv/index.html">다음: 연속확률변수와 확률분포 →</a></p>
+<p><a href="../../../pages/03_dist/random_var/index.html">← 이전: 확률변수의 평균과 표준편차</a> <a href="../../../pages/03_dist/continuous_rv/index.html">다음: 연속확률변수와 확률분포 →</a></p>
 </div>
 
 

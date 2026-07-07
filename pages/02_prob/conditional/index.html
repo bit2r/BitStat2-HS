@@ -187,7 +187,9 @@ window.Quarto = {
 
 <div class="no-row-height column-margin column-container"><div class="">
 <p>“비 오는 날”이라는 정보를 알면 “지각”의 확률이 달라지듯, 조건부확률은 새 정보로 확률을 다시 재는 것입니다.</p>
-</div></div><p>조건 <span class="math inline">\(B\)</span>를 알아도 <span class="math inline">\(A\)</span>의 확률이 변하지 않으면, 즉 <span class="math inline">\(P(A \mid B) = P(A)\)</span>이면 두 사건은 <strong>서로 독립</strong>이라 하고, 이때 <span class="math inline">\(P(A \cap B) = P(A)\,P(B)\)</span>가 성립합니다. 그렇지 않으면 <strong>서로 종속</strong>입니다. 아래 앱은 학생 100명을 정사각형 100칸으로 나타냅니다. 사건 <span class="math inline">\(A\)</span>는 “아침 운동을 함”, 사건 <span class="math inline">\(B\)</span>는 “아침밥을 먹음”입니다. <span class="math inline">\(P(A)\)</span>, <span class="math inline">\(P(B \mid A)\)</span>, <span class="math inline">\(P(B \mid A^c)\)</span>를 움직여 네 영역의 칸 수가 어떻게 변하는지, 그리고 언제 두 사건이 독립이 되는지 살펴보세요.</p>
+</div></div><p>이 정의를 정리하면 두 사건이 <strong>함께 일어날 확률</strong>을 곱으로 구하는 <strong>확률의 곱셈정리</strong>가 됩니다.</p>
+<p><span class="math display">\[P(A \cap B) = P(B)\,P(A \mid B) = P(A)\,P(B \mid A)\]</span></p>
+<p>카드를 연달아 뽑을 때처럼 앞 사건이 뒤 사건의 확률을 바꾸는 경우, 두 사건이 잇따라 일어날 확률은 이 곱셈정리로 구합니다. 한편 조건 <span class="math inline">\(B\)</span>를 알아도 <span class="math inline">\(A\)</span>의 확률이 변하지 않으면, 즉 <span class="math inline">\(P(A \mid B) = P(A)\)</span>이면 두 사건은 <strong>서로 독립</strong>이라 하고, 이때 곱셈정리는 <span class="math inline">\(P(A \cap B) = P(A)\,P(B)\)</span>로 간단해집니다. 그렇지 않으면 <strong>서로 종속</strong>입니다. 아래 앱은 학생 100명을 정사각형 100칸으로 나타냅니다. 사건 <span class="math inline">\(A\)</span>는 “아침 운동을 함”, 사건 <span class="math inline">\(B\)</span>는 “아침밥을 먹음”입니다. <span class="math inline">\(P(A)\)</span>, <span class="math inline">\(P(B \mid A)\)</span>, <span class="math inline">\(P(B \mid A^c)\)</span>를 움직여 네 영역의 칸 수가 어떻게 변하는지, 그리고 언제 두 사건이 독립이 되는지 살펴보세요.</p>
 </section>
 <section id="만지며-배우기" class="level2">
 <h2 class="anchored" data-anchor-id="만지며-배우기">만지며 배우기</h2>
@@ -201,30 +203,50 @@ window.Quarto = {
 #| standalone: true
 #| viewerHeight: 660
 
+# matplotlib·numpy 없이 stdlib + 인라인 SVG 로만 그린다
 from shiny import App, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
 INK = "#111827"
 MUTED = "#6b7280"
-
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
 
 def counts(pa, pba, pbac):
     n_a = round(100 * pa)
     n_ab = min(round(100 * pa * pba), n_a)
     n_acb = min(round(100 * (1 - pa) * pbac), 100 - n_a)
     return n_a, n_ab, n_acb
+
+def grid_svg(n_a, n_ab, n_acb):
+    cell, gap, ox, oy = 24, 3, 6, 6
+    body = ""
+    for i in range(100):
+        c, r = i % 10, i // 10
+        x, y = ox + c * (cell + gap), oy + r * (cell + gap)
+        if i &lt; n_ab:
+            fill, stroke = ACCENT, ACCENT
+        elif i &lt; n_a:
+            fill, stroke = "none", ACCENT
+        elif i &lt; n_a + n_acb:
+            fill, stroke = "#9ca3af", "#9ca3af"
+        else:
+            fill, stroke = "none", "#d1d5db"
+        body += (f'&lt;rect x="{x}" y="{y}" width="{cell}" height="{cell}" rx="3" '
+                 f'fill="{fill}" stroke="{stroke}" stroke-width="1.4"/&gt;')
+    gx = ox + 10 * (cell + gap) + 18
+    legend = [
+        (f"A∩B ({n_ab})", ACCENT, ACCENT),
+        (f"A만 ({n_a - n_ab})", "none", ACCENT),
+        (f"B만 ({n_acb})", "#9ca3af", "#9ca3af"),
+        (f"둘 다 아님 ({100 - n_a - n_acb})", "none", "#d1d5db"),
+    ]
+    for j, (lab, fill, stroke) in enumerate(legend):
+        yy = oy + 8 + j * 30
+        body += (f'&lt;rect x="{gx}" y="{yy}" width="18" height="18" rx="3" '
+                 f'fill="{fill}" stroke="{stroke}" stroke-width="1.4"/&gt;'
+                 f'&lt;text x="{gx+26}" y="{yy+14}" font-size="12" fill="{INK}"&gt;{lab}&lt;/text&gt;')
+    W, H = gx + 170, oy + 10 * (cell + gap)
+    return (f'&lt;svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;'
+            f'font-family:-apple-system,sans-serif;"&gt;{body}&lt;/svg&gt;')
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
@@ -238,52 +260,17 @@ app_ui = ui.page_sidebar(
     ),
     ui.card(
         ui.card_header("학생 100명 — A: 아침 운동, B: 아침밥"),
-        ui.output_plot("grid", height="340px"),
+        ui.output_ui("grid"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
 )
 
 def server(input, output, session):
-    @render.plot(alt="100명의 학생을 네 영역으로 나눈 격자")
+    @render.ui
     def grid():
         n_a, n_ab, n_acb = counts(input.pa(), input.pba(), input.pbac())
-
-        fig, ax = plt.subplots()
-        for i in range(100):
-            x, y = i % 10, i // 10
-            if i &lt; n_ab:                       # A∩B
-                fc, ec, lw = ACCENT, ACCENT, 0.8
-            elif i &lt; n_a:                      # A∩Bᶜ
-                fc, ec, lw = "none", ACCENT, 1.2
-            elif i &lt; n_a + n_acb:              # Aᶜ∩B
-                fc, ec, lw = "#9ca3af", "#9ca3af", 0.8
-            else:                              # Aᶜ∩Bᶜ
-                fc, ec, lw = "none", "#d1d5db", 0.8
-            ax.add_patch(Rectangle((x, 9 - y), 0.88, 0.88,
-                                   facecolor=fc, edgecolor=ec, linewidth=lw))
-
-        legend = [
-            (f"A∩B ({n_ab})", ACCENT, ACCENT, 0.8),
-            (f"A only ({n_a - n_ab})", "none", ACCENT, 1.2),
-            (f"B only ({n_acb})", "#9ca3af", "#9ca3af", 0.8),
-            (f"neither ({100 - n_a - n_acb})", "none", "#d1d5db", 0.8),
-        ]
-        for j, (label, fc, ec, lw) in enumerate(legend):
-            yy = 8.2 - 1.6 * j
-            ax.add_patch(Rectangle((10.8, yy), 0.7, 0.7,
-                                   facecolor=fc, edgecolor=ec, linewidth=lw))
-            ax.text(11.8, yy + 0.35, label, va="center",
-                    fontsize=9, color=INK)
-
-        ax.set_xlim(-0.3, 16.5)
-        ax.set_ylim(-0.3, 10.2)
-        ax.set_aspect("equal")
-        ax.set_xticks([])
-        ax.set_yticks([])
-        for side in ("top", "right", "left", "bottom"):
-            ax.spines[side].set_visible(False)
-        return fig
+        return ui.HTML(grid_svg(n_a, n_ab, n_acb))
 
     @render.ui
     def readout():

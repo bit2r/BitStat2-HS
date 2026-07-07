@@ -202,27 +202,42 @@ window.Quarto = {
 #| standalone: true
 #| viewerHeight: 640
 
+# matplotlib·numpy 없이 stdlib + 인라인 SVG 로만 그린다
+import random
 from math import sqrt
 from shiny import App, reactive, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
 INK = "#111827"
 MUTED = "#6b7280"
 
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
-
 M, SIGMA = 70, 10          # 진짜 모평균(조사자는 모른다고 가정)
 Z = {"90": 1.645, "95": 1.96, "99": 2.576}
+
+def ci_svg(intervals):
+    W, H, ml, mr, mt, mb = 470, 320, 16, 16, 10, 26
+    pw, ph = W - ml - mr, H - mt - mb
+    xmin = min(lo for lo, hi in intervals)
+    xmax = max(hi for lo, hi in intervals)
+    pad = (xmax - xmin) * 0.05 or 1.0
+    xmin, xmax = xmin - pad, xmax + pad
+    def X(v):
+        return ml + ((v - xmin) / (xmax - xmin)) * pw
+    N = len(intervals)
+    body = ""
+    for k, (lo, hi) in enumerate(intervals):
+        y = mt + (k + 0.5) * (ph / N)
+        hit = lo &lt;= M &lt;= hi
+        col = "#9ca3af" if hit else ACCENT
+        w = 1 if hit else 2.2
+        body += (f'&lt;line x1="{X(lo):.1f}" y1="{y:.1f}" x2="{X(hi):.1f}" '
+                 f'y2="{y:.1f}" stroke="{col}" stroke-width="{w}"/&gt;')
+    body += (f'&lt;line x1="{X(M):.1f}" y1="{mt}" x2="{X(M):.1f}" y2="{mt+ph}" '
+             f'stroke="{INK}" stroke-width="1" stroke-dasharray="5 3"/&gt;'
+             f'&lt;text x="{X(M):.1f}" y="{mt+ph+16:.0f}" font-size="10" fill="{INK}" '
+             f'text-anchor="middle"&gt;m = {M}&lt;/text&gt;')
+    return (f'&lt;svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;'
+            f'font-family:-apple-system,sans-serif;"&gt;{body}&lt;/svg&gt;')
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
@@ -233,7 +248,7 @@ app_ui = ui.page_sidebar(
     ),
     ui.card(
         ui.card_header("100개의 신뢰구간 — 모평균을 놓친 구간은 파랑"),
-        ui.output_plot("ci_plot", height="340px"),
+        ui.output_ui("ci_plot"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
@@ -245,29 +260,21 @@ def server(input, output, session):
         input.redraw()  # 버튼을 누르면 새로 100번 조사
         n = input.n()
         z = Z[input.level()]
-        xbar = np.random.normal(M, SIGMA, (100, n)).mean(axis=1)
         half = z * SIGMA / sqrt(n)
-        return xbar - half, xbar + half
+        out = []
+        for _ in range(100):
+            xbar = sum(random.gauss(M, SIGMA) for _ in range(n)) / n
+            out.append((xbar - half, xbar + half))
+        return out
 
-    @render.plot(alt="100개의 신뢰구간과 모평균")
+    @render.ui
     def ci_plot():
-        lo, hi = intervals()
-        ys = np.arange(100)
-        hit = (lo &lt;= M) &amp; (M &lt;= hi)
-
-        fig, ax = plt.subplots()
-        ax.hlines(ys[hit], lo[hit], hi[hit], color="#9ca3af", linewidth=1)
-        ax.hlines(ys[~hit], lo[~hit], hi[~hit], color=ACCENT, linewidth=2.2)
-        ax.axvline(M, color=INK, linewidth=1, linestyle="--")
-        ax.set_xlabel("x", color=MUTED)
-        ax.set_yticks([])
-        tufte(ax)
-        return fig
+        return ui.HTML(ci_svg(intervals()))
 
     @render.ui
     def readout():
-        lo, hi = intervals()
-        hits = int(((lo &lt;= M) &amp; (M &lt;= hi)).sum())
+        ivs = intervals()
+        hits = sum(1 for lo, hi in ivs if lo &lt;= M &lt;= hi)
         return ui.HTML(
             f'&lt;p class="hs-readline"&gt;'
             f"이번 100번의 조사 중 &lt;b&gt;{hits}개&lt;/b&gt; 구간이 모평균 m을 포함했습니다. "
@@ -281,15 +288,16 @@ app = App(app_ui, server)</code></pre>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <p>신뢰구간 계산은 공식 그대로 몇 줄이면 충분합니다.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>sigma, n, z <span class="op">=</span> <span class="dv">10</span>, <span class="dv">25</span>, <span class="fl">1.96</span>          <span class="co"># σ를 아는 경우, 95% → z = 1.96</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>sample <span class="op">=</span> np.random.normal(<span class="dv">70</span>, sigma, n)   <span class="co"># 조사 한 번</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>xbar <span class="op">=</span> sample.mean()</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>half <span class="op">=</span> z <span class="op">*</span> sigma <span class="op">/</span> np.sqrt(n)             <span class="co"># 오차의 한계</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(xbar <span class="op">-</span> half, xbar <span class="op">+</span> half)           <span class="co"># 95% 신뢰구간 [x̄−1.96σ/√n, x̄+1.96σ/√n]</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> math <span class="im">import</span> sqrt</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>sigma, n, z <span class="op">=</span> <span class="dv">10</span>, <span class="dv">25</span>, <span class="fl">1.96</span>          <span class="co"># σ를 아는 경우, 95% → z = 1.96</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>sample <span class="op">=</span> [random.gauss(<span class="dv">70</span>, sigma) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n)]   <span class="co"># 조사 한 번</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>xbar <span class="op">=</span> <span class="bu">sum</span>(sample) <span class="op">/</span> n</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>half <span class="op">=</span> z <span class="op">*</span> sigma <span class="op">/</span> sqrt(n)                <span class="co"># 오차의 한계</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(xbar <span class="op">-</span> half, xbar <span class="op">+</span> half)           <span class="co"># 95% 신뢰구간 [x̄−1.96σ/√n, x̄+1.96σ/√n]</span></span></code></pre></div><button title="클립보드 복사" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
