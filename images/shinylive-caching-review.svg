@@ -10,78 +10,76 @@
   </style>
   <rect class="bg" x="0" y="0" width="880" height="560"/>
 
-  <!-- Title -->
-  <text class="ink" x="40" y="40" font-size="21" font-weight="700">shinylive 캐시 — 무엇이 공유되고 무엇이 안 되나</text>
-  <text class="muted" x="40" y="61" font-size="12.5">모든 모듈이 같은 shinylive-0.10.12 에셋을 공유 · 다운로드(MB) 기준 · 20 Mbps 가정 · 서비스워커 지속캐시는 꺼짐(HTTP 캐시 의존)</text>
+  <text class="ink" x="40" y="40" font-size="21" font-weight="700">shinylive 캐시 — 무엇이 공유되고 무엇이 안 되나 (실측)</text>
+  <text class="muted" x="40" y="61" font-size="12.5">전 모듈이 같은 shinylive-0.10.12 에셋 공유 · 다운로드(MB) 기준 · 20 Mbps 가정 · 서비스워커 지속캐시는 꺼짐(HTTP 캐시 의존)</text>
 
   <!-- Legend -->
   <g font-size="12">
-    <rect class="core" x="40" y="80" width="13" height="13" rx="2"/><text class="muted" x="58" y="91">코어(런타임) 18.4</text>
-    <rect class="mpl"  x="200" y="80" width="13" height="13" rx="2"/><text class="muted" x="218" y="91">matplotlib 스택 8.4</text>
+    <rect class="core" x="40" y="80" width="13" height="13" rx="2"/><text class="muted" x="58" y="91">런타임+shiny 22.6</text>
+    <rect class="mpl"  x="200" y="80" width="13" height="13" rx="2"/><text class="muted" x="218" y="91">matplotlib 스택 9.4</text>
     <rect class="np"   x="380" y="80" width="13" height="13" rx="2"/><text class="muted" x="398" y="91">numpy 2.9</text>
     <rect class="cachex" x="510" y="80" width="13" height="13" rx="2"/><text class="muted" x="528" y="91">캐시됨 = 다운로드 생략</text>
   </g>
 
-  <!-- x ticks: 0->250,10->430,20->610,30->790 ; 18px/MB -->
+  <!-- x ticks: 15px/MB, x0=250 → 0:250,10:400,20:550,30:700 -->
   <g class="rule" stroke-width="1">
-    <line x1="250" y1="118" x2="250" y2="272"/><line x1="430" y1="118" x2="430" y2="272"/>
-    <line x1="610" y1="118" x2="610" y2="272"/><line x1="790" y1="118" x2="790" y2="272"/>
+    <line x1="250" y1="118" x2="250" y2="272"/><line x1="400" y1="118" x2="400" y2="272"/>
+    <line x1="550" y1="118" x2="550" y2="272"/><line x1="700" y1="118" x2="700" y2="272"/>
   </g>
   <g class="muted" font-size="10.5" text-anchor="middle">
-    <text x="250" y="286">0</text><text x="430" y="286">10</text><text x="610" y="286">20</text><text x="790" y="286">30 MB</text>
+    <text x="250" y="286">0</text><text x="400" y="286">10</text><text x="550" y="286">20</text><text x="700" y="286">30 MB</text>
   </g>
 
-  <!-- Panel A header -->
   <text class="ink" x="40" y="112" font-size="14" font-weight="700">① 같은 브라우저에서 다음 모듈 열기 — 새로 받는 다운로드</text>
 
-  <!-- A1: 첫 앱 로드 (matplotlib) = 29.7 -->
+  <!-- A1: 첫 앱 로드 34.9 -->
   <text class="ink" x="240" y="140" font-size="12.5" font-weight="600" text-anchor="end">첫 앱 로드</text>
   <text class="muted" x="240" y="155" font-size="10.5" text-anchor="end">matplotlib 앱</text>
-  <rect class="core" x="250"   y="128" width="331.2" height="27"/>
-  <rect class="mpl"  x="581.2" y="128" width="151.2" height="27"/>
-  <rect class="np"   x="732.4" y="128" width="52.2"  height="27"/>
-  <text class="ink" x="792" y="146" font-size="12.5" font-weight="700">29.7 MB</text>
+  <rect class="core" x="250"    y="128" width="339"    height="27"/>
+  <rect class="mpl"  x="589"    y="128" width="140.25" height="27"/>
+  <rect class="np"   x="729.25" y="128" width="43.5"   height="27"/>
+  <text class="ink" x="780" y="146" font-size="12.5" font-weight="700">34.9 MB</text>
 
-  <!-- A2: 다음 모듈 mpl->mpl ~0 -->
+  <!-- A2: mpl->mpl ~0 -->
   <text class="ink" x="240" y="185" font-size="12.5" font-weight="600" text-anchor="end">다음 모듈</text>
   <text class="muted" x="240" y="200" font-size="10.5" text-anchor="end">matplotlib → matplotlib</text>
-  <rect class="cachex" x="250" y="173" width="331.2" height="27"/>
+  <rect class="cachex" x="250" y="173" width="522.75" height="27"/>
   <text class="ink" x="262" y="191" font-size="11.5" font-weight="600">≈ 0 MB · 전부 캐시 재사용 (다운로드 생략)</text>
 
-  <!-- A3: 다음 모듈 stdlib->mpl = 11.3 -->
+  <!-- A3: stdlib->mpl 12.3 -->
   <text class="ink" x="240" y="230" font-size="12.5" font-weight="600" text-anchor="end">다음 모듈</text>
   <text class="muted" x="240" y="245" font-size="10.5" text-anchor="end">stdlib → matplotlib</text>
-  <rect class="cachex" x="250"   y="218" width="331.2" height="27"/>
-  <rect class="mpl"    x="581.2" y="218" width="151.2" height="27"/>
-  <rect class="np"     x="732.4" y="218" width="52.2"  height="27"/>
-  <text class="ink" x="792" y="236" font-size="12" font-weight="700">11.3 MB</text>
+  <rect class="cachex" x="250"    y="218" width="339"    height="27"/>
+  <rect class="mpl"    x="589"    y="218" width="140.25" height="27"/>
+  <rect class="np"     x="729.25" y="218" width="43.5"   height="27"/>
+  <text class="ink" x="780" y="236" font-size="12" font-weight="700">12.3 MB</text>
   <text class="muted" x="262" y="236" font-size="10.5">코어는 캐시 · 앞에서 안 받은 패키지만 새로</text>
 
   <!-- init note -->
-  <text class="muted" x="250" y="308" font-size="11.5">＋ 재초기화 수 초는 <tspan class="ink" font-weight="600">모든 페이지마다</tspan> 별도 — 캐시가 없애 주지 못함(다운로드가 아니라 CPU 시간)</text>
+  <text class="muted" x="250" y="308" font-size="11.5">＋ 재초기화 ≈21초(실측)는 <tspan class="ink" font-weight="600">모든 페이지마다</tspan> 별도 — 캐시가 없애 주지 못함(다운로드가 아니라 CPU 시간)</text>
 
   <!-- Panel B -->
   <line class="rule" x1="40" y1="326" x2="840" y2="326" stroke-width="1"/>
   <text class="ink" x="40" y="352" font-size="14" font-weight="700">② 그러나 '공유'는 다르다 — 캐시는 브라우저별</text>
 
-  <!-- B1: 나 다음 페이지 ~0 -->
+  <!-- B1: 나 ~0 -->
   <text class="ink" x="240" y="380" font-size="12.5" font-weight="600" text-anchor="end">나</text>
   <text class="muted" x="240" y="395" font-size="10.5" text-anchor="end">다음 페이지(같은 브라우저)</text>
-  <rect class="cachex" x="250" y="368" width="331.2" height="27"/>
+  <rect class="cachex" x="250" y="368" width="339" height="27"/>
   <text class="ink" x="262" y="386" font-size="11.5" font-weight="600">≈ 0 MB · 캐시 재사용</text>
 
-  <!-- B2: 공유받은 다른 사람 29.7 full -->
+  <!-- B2: 공유받은 다른 사람 34.9 -->
   <text class="warn" x="240" y="425" font-size="12.5" font-weight="700" text-anchor="end">공유받은 다른 사람</text>
   <text class="muted" x="240" y="440" font-size="10.5" text-anchor="end">링크 첫 방문(빈 캐시)</text>
-  <rect class="core" x="250"   y="413" width="331.2" height="27"/>
-  <rect class="mpl"  x="581.2" y="413" width="151.2" height="27"/>
-  <rect class="np"   x="732.4" y="413" width="52.2"  height="27"/>
-  <text class="warn" x="792" y="431" font-size="12.5" font-weight="700">29.7 MB</text>
+  <rect class="core" x="250"    y="413" width="339"    height="27"/>
+  <rect class="mpl"  x="589"    y="413" width="140.25" height="27"/>
+  <rect class="np"   x="729.25" y="413" width="43.5"   height="27"/>
+  <text class="warn" x="780" y="431" font-size="12.5" font-weight="700">34.9 MB</text>
   <text class="warn" x="262" y="431" font-size="11" font-weight="600">전체 새로 다운로드 · 캐시 이득 0</text>
 
   <!-- Takeaway -->
   <line class="rule" x1="40" y1="462" x2="840" y2="462" stroke-width="1"/>
   <text class="ink" x="40" y="486" font-size="13" font-weight="700">캐시는 '다운로드'를 <tspan class="mpl">같은 브라우저 안에서만</tspan> 공유한다 — '초기화'도, '다른 사용자'도 공유하지 않는다.</text>
   <text class="muted" x="40" y="506" font-size="11.5">체감 속도를 확실히 올리는 지렛대: (1) 홈에서 런타임 프리로드·워밍업  (2) matplotlib→HTML/SVG로 페이로드 축소</text>
-  <text class="muted" x="40" y="530" font-size="10.5">근거: 전 모듈이 동일 shinylive-0.10.12 경로 참조(URL 동일→HTTP 캐시 공유) · shinylive-sw.js useCaching=false · 20 Mbps에서 29.7 MB≈11.9초</text>
+  <text class="muted" x="40" y="530" font-size="10.5">실측(Playwright, 2026-07-07): freq_table 50개 자산 34.9 MB · 첫 플롯까지 ≈21초 · stdlib 하한 22.6 MB · 34.9 MB@20Mbps≈14.0초 · SW useCaching=false</text>
 </svg>

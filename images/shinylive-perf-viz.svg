@@ -1,114 +1,87 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 610" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
   <style>
-    .bg   { fill: #ffffff; }
-    .ink  { fill: #111827; }
-    .muted{ fill: #6b7280; }
-    .rule { stroke: #e5e7eb; }
-    .refl { stroke: #9ca3af; }
-    .core { fill: #cbd5e1; }
-    .mpl  { fill: #2563eb; }
-    .np   { fill: #f59e0b; }
-    @media (prefers-color-scheme: dark) {
-      .bg    { fill: #0b0f19; }
-      .ink   { fill: #e5e7eb; }
-      .muted { fill: #9ca3af; }
-      .rule  { stroke: #1f2937; }
-      .refl  { stroke: #6b7280; }
-      .core  { fill: #475569; }
+    .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#6b7280}
+    .rule{stroke:#e5e7eb}.refl{stroke:#9ca3af}
+    .core{fill:#cbd5e1}.mpl{fill:#2563eb}.np{fill:#f59e0b}
+    @media (prefers-color-scheme: dark){
+      .bg{fill:#0b0f19}.ink{fill:#e5e7eb}.muted{fill:#9ca3af}
+      .rule{stroke:#1f2937}.refl{stroke:#6b7280}.core{fill:#475569}
     }
   </style>
+  <rect class="bg" x="0" y="0" width="880" height="600"/>
 
-  <rect class="bg" x="0" y="0" width="860" height="610"/>
-
-  <!-- Title -->
-  <text class="ink" x="40" y="42" font-size="22" font-weight="700">shinylive(Python) 속도 개선 — 첫 방문 다운로드 페이로드</text>
-  <text class="muted" x="40" y="64" font-size="13">대표 무거운 모듈(matplotlib+numpy) 기준 · 원본 크기 실측 · 다운로드 시간은 20 Mbps 가정 · 재방문은 캐시로 빠름</text>
+  <text class="ink" x="40" y="40" font-size="21" font-weight="700">shinylive(Python) 속도 개선 — 첫 방문 다운로드 페이로드 (실측)</text>
+  <text class="muted" x="40" y="61" font-size="12.5">freq_table 모듈 브라우저 실측 · 50개 자산 34.9 MB · 20 Mbps 가정 · 재방문은 캐시로 빠름</text>
 
   <!-- Legend -->
-  <g font-size="12.5">
-    <rect class="core" x="40" y="84" width="14" height="14" rx="2"/>
-    <text class="muted" x="60" y="96">코어(런타임·shiny·stdlib) 18.4 MB — 현 구조상 하한</text>
-    <rect class="mpl" x="330" y="84" width="14" height="14" rx="2"/>
-    <text class="muted" x="350" y="96">matplotlib 스택 8.4 MB</text>
-    <rect class="np" x="520" y="84" width="14" height="14" rx="2"/>
-    <text class="muted" x="540" y="96">numpy 2.9 MB</text>
+  <g font-size="12">
+    <rect class="core" x="40" y="80" width="13" height="13" rx="2"/><text class="muted" x="58" y="91">런타임+shiny 하한 22.6 MB — 현 구조상 바닥</text>
+    <rect class="mpl" x="330" y="80" width="13" height="13" rx="2"/><text class="muted" x="348" y="91">matplotlib 스택 9.4 MB</text>
+    <rect class="np" x="510" y="80" width="13" height="13" rx="2"/><text class="muted" x="528" y="91">numpy 2.9 MB</text>
   </g>
 
-  <!-- ===== Panel B: waterfall of stacked bars (18 px per MB, x0 = 235) ===== -->
-  <!-- x-axis ticks: 0->235, 10->415, 20->595, 30->775 -->
+  <!-- x ticks: 15px/MB, x0=235 → 0:235,10:385,20:535,30:685 -->
   <g class="rule" stroke-width="1">
-    <line x1="235" y1="140" x2="235" y2="330"/>
-    <line x1="415" y1="140" x2="415" y2="330"/>
-    <line x1="595" y1="140" x2="595" y2="330"/>
-    <line x1="775" y1="140" x2="775" y2="330"/>
+    <line x1="235" y1="128" x2="235" y2="268"/><line x1="385" y1="128" x2="385" y2="268"/>
+    <line x1="535" y1="128" x2="535" y2="268"/><line x1="685" y1="128" x2="685" y2="268"/>
   </g>
-  <g class="muted" font-size="11" text-anchor="middle">
-    <text x="235" y="346">0</text>
-    <text x="415" y="346">10</text>
-    <text x="595" y="346">20</text>
-    <text x="775" y="346">30 MB</text>
+  <g class="muted" font-size="10.5" text-anchor="middle">
+    <text x="235" y="284">0</text><text x="385" y="284">10</text><text x="535" y="284">20</text><text x="685" y="284">30 MB</text>
   </g>
 
-  <!-- reference line at core floor (18.4 MB -> x = 235 + 331.2 = 566.2) -->
-  <line class="refl" x1="566.2" y1="150" x2="566.2" y2="316" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <!-- reference line: floor 22.6 → x = 235 + 339 = 574 -->
+  <line class="refl" x1="574" y1="132" x2="574" y2="263" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text class="muted" x="574" y="124" font-size="10" text-anchor="middle">런타임+shiny 하한(실측)</text>
 
-  <!-- Bar 1: 현재 29.7 MB  core+mpl+numpy -->
-  <text class="ink"   x="225" y="176" font-size="13" font-weight="600" text-anchor="end">현재</text>
-  <text class="muted" x="225" y="192" font-size="11" text-anchor="end">matplotlib+numpy 앱 (20/25개)</text>
-  <rect class="core" x="235"   y="163" width="331.2" height="30"/>
-  <rect class="mpl"  x="566.2" y="163" width="151.2" height="30"/>
-  <rect class="np"   x="717.4" y="163" width="52.2"  height="30"/>
-  <text class="ink" x="779" y="183" font-size="13" font-weight="700">29.7 MB</text>
+  <!-- Bar1: 현재 34.9 -->
+  <text class="ink" x="225" y="156" font-size="12.5" font-weight="600" text-anchor="end">현재</text>
+  <text class="muted" x="225" y="171" font-size="10.5" text-anchor="end">matplotlib 앱 (측정)</text>
+  <rect class="core" x="235"    y="145" width="339"    height="28"/>
+  <rect class="mpl"  x="574"    y="145" width="140.25" height="28"/>
+  <rect class="np"   x="714.25" y="145" width="43.5"   height="28"/>
+  <text class="ink" x="765" y="163" font-size="12.5" font-weight="700">34.9 MB</text>
 
-  <!-- Bar 2: 권고 ① 21.3 MB  core+numpy -->
-  <text class="ink"   x="225" y="230" font-size="13" font-weight="600" text-anchor="end">권고 ①</text>
-  <text class="muted" x="225" y="246" font-size="11" text-anchor="end">차트 → HTML/SVG</text>
-  <rect class="core" x="235"   y="217" width="331.2" height="30"/>
-  <rect class="np"   x="566.2" y="217" width="52.2"  height="30"/>
-  <text class="ink"   x="630" y="237" font-size="13" font-weight="700">21.3 MB</text>
-  <text class="muted" x="700" y="237" font-size="11.5">−8.4 MB (−28%)</text>
+  <!-- Bar2: ① 25.6 -->
+  <text class="ink" x="225" y="201" font-size="12.5" font-weight="600" text-anchor="end">권고 ①</text>
+  <text class="muted" x="225" y="216" font-size="10.5" text-anchor="end">차트 → HTML/SVG</text>
+  <rect class="core" x="235" y="190" width="339"  height="28"/>
+  <rect class="np"   x="574" y="190" width="43.5" height="28"/>
+  <text class="ink" x="626" y="208" font-size="12.5" font-weight="700">25.6 MB</text>
+  <text class="muted" x="700" y="208" font-size="11">−9.4 MB (−27%)</text>
 
-  <!-- Bar 3: 권고 ①+② 18.4 MB  core only -->
-  <text class="ink"   x="225" y="284" font-size="13" font-weight="600" text-anchor="end">권고 ①+②</text>
-  <text class="muted" x="225" y="300" font-size="11" text-anchor="end">numpy → stdlib</text>
-  <rect class="core" x="235" y="271" width="331.2" height="30"/>
-  <text class="ink"   x="578" y="291" font-size="13" font-weight="700">18.4 MB</text>
-  <text class="muted" x="648" y="291" font-size="11.5">−11.3 MB (−38%)</text>
+  <!-- Bar3: ①+② 22.6 -->
+  <text class="ink" x="225" y="246" font-size="12.5" font-weight="600" text-anchor="end">권고 ①+②</text>
+  <text class="muted" x="225" y="261" font-size="10.5" text-anchor="end">numpy → stdlib</text>
+  <rect class="core" x="235" y="235" width="339" height="28"/>
+  <text class="ink" x="582" y="253" font-size="12.5" font-weight="700">22.6 MB</text>
+  <text class="muted" x="656" y="253" font-size="11">−12.3 MB (−35%)</text>
 
-  <!-- download-time annotation -->
-  <text class="muted" x="235" y="372" font-size="12">
-    20 Mbps 다운로드 시간:  <tspan class="ink" font-weight="600">11.9초</tspan>  →  8.5초  →  <tspan class="ink" font-weight="600">7.4초</tspan>   (초기화 시간 별도)
-  </text>
+  <!-- time annotation -->
+  <text class="muted" x="235" y="306" font-size="12">20 Mbps 다운로드: <tspan class="ink" font-weight="600">14.0초</tspan> → 10.2초 → <tspan class="ink" font-weight="600">9.1초</tspan>  ＋ 초기화 ≈21초(실측)는 매 페이지 별도 · 캐시로 안 줄어듦</text>
 
-  <!-- ===== Panel C: non-byte recommendations ===== -->
-  <line class="rule" x1="40" y1="398" x2="820" y2="398" stroke-width="1"/>
-  <text class="ink" x="40" y="424" font-size="15" font-weight="700">바이트로는 줄지 않지만 체감·전송을 개선하는 권고</text>
-
+  <!-- Panel C -->
+  <line class="rule" x1="40" y1="330" x2="840" y2="330" stroke-width="1"/>
+  <text class="ink" x="40" y="356" font-size="14" font-weight="700">바이트로는 줄지 않지만 체감·전송을 개선하는 권고</text>
   <g font-size="12.5">
-    <!-- row 3 -->
-    <text class="mpl"  x="40"  y="452" font-weight="700">③</text>
-    <text class="ink"  x="60"  y="452" font-weight="600">프리로드 / 워밍업</text>
-    <text class="muted" x="205" y="452">홈에서 런타임 선다운로드 → 대기를 읽는 시간 뒤로 은닉</text>
-    <text class="mpl"  x="690" y="452" font-size="11.5">체감 시간 ↓</text>
-    <!-- row 5 -->
-    <text class="mpl"  x="40"  y="478" font-weight="700">⑤</text>
-    <text class="ink"  x="60"  y="478" font-weight="600">브로틀리 CDN</text>
-    <text class="muted" x="205" y="478">Cloudflare/Netlify로 전환 → 위 막대에 추가로 적용</text>
-    <text class="mpl"  x="690" y="478" font-size="11.5">전송량 −15~20%</text>
-    <!-- row 4 -->
-    <text class="muted" x="40"  y="504" font-weight="700">④</text>
-    <text class="ink"  x="60"  y="504" font-weight="600">COOP/COEP 격리</text>
-    <text class="muted" x="205" y="504">SharedArrayBuffer 활성화 → 초기화 소폭 (실측 후 도입)</text>
-    <text class="muted" x="690" y="504" font-size="11.5">초기화 소폭</text>
-    <!-- row 6 -->
-    <text class="muted" x="40"  y="530" font-weight="700">⑥</text>
-    <text class="ink"  x="60"  y="530" font-weight="600">shinylive 업그레이드</text>
-    <text class="muted" x="205" y="530">최신 Pyodide → 초기화·용량 소폭, 저비용 유지보수</text>
-    <text class="muted" x="690" y="530" font-size="11.5">소폭 / 무비용</text>
+    <text class="mpl" x="40" y="384" font-weight="700">③</text>
+    <text class="ink" x="60" y="384" font-weight="600">프리로드 / 워밍업</text>
+    <text class="muted" x="205" y="384">홈에서 런타임 선다운로드 → 대기를 읽는 시간 뒤로 은닉</text>
+    <text class="mpl" x="695" y="384" font-size="11.5">체감 시간 ↓</text>
+    <text class="mpl" x="40" y="410" font-weight="700">⑤</text>
+    <text class="ink" x="60" y="410" font-weight="600">브로틀리 CDN</text>
+    <text class="muted" x="205" y="410">Cloudflare/Netlify로 전환 → 위 막대에 추가로 적용</text>
+    <text class="mpl" x="695" y="410" font-size="11.5">전송량 −15~20%</text>
+    <text class="muted" x="40" y="436" font-weight="700">④</text>
+    <text class="ink" x="60" y="436" font-weight="600">COOP/COEP 격리</text>
+    <text class="muted" x="205" y="436">shinylive SW가 이미 COEP 주입 → 별도 도입 우선순위 낮음</text>
+    <text class="muted" x="695" y="436" font-size="11.5">부분 적용됨</text>
+    <text class="muted" x="40" y="462" font-weight="700">⑥</text>
+    <text class="ink" x="60" y="462" font-weight="600">shinylive 업그레이드</text>
+    <text class="muted" x="205" y="462">최신 Pyodide → 초기화·용량 소폭, 저비용 유지보수</text>
+    <text class="muted" x="695" y="462" font-size="11.5">소폭 / 무비용</text>
   </g>
 
-  <!-- Footer -->
-  <line class="rule" x1="40" y1="556" x2="820" y2="556" stroke-width="1"/>
-  <text class="muted" x="40" y="578" font-size="11">측정: docs/site_libs/…/shinylive-0.10.12 원본 크기 (pyodide.asm.wasm 9.6 · matplotlib 6.4 +fonttools 1.0 +pillow 1.0 · numpy 2.9 · shiny 3.8 · stdlib 2.3 · shinylive.js 1.5)</text>
-  <text class="muted" x="40" y="594" font-size="11">핵심: 코어 18.4 MB는 현 구조상 하한 — 권고 ①(차트 HTML/SVG화)이 최대 효과이며 한글 폰트 깨짐도 함께 해결. 이미 5/25개 모듈이 이 패턴으로 검증됨.</text>
+  <line class="rule" x1="40" y1="486" x2="840" y2="486" stroke-width="1"/>
+  <text class="muted" x="40" y="508" font-size="11">실측(Playwright, 2026-07-07): freq_table 50개 자산 34.9 MB · 첫 플롯까지 ≈21초(localhost, 다운로드 0=전부 초기화) · stdlib 앱 하한 22.6 MB(combi_repeat)</text>
+  <text class="muted" x="40" y="524" font-size="11">핵심: 권고 ①(차트 HTML/SVG화)이 최대 효과 — 다운로드 −9.4 MB에 더해 matplotlib import·폰트 캐시 구축 시간까지 줄여 초기화도 단축. 한글 폰트 깨짐도 함께 해결.</text>
 </svg>
