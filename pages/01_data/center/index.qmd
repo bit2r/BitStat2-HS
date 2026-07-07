@@ -39,34 +39,72 @@ $$\text{평균} = \frac{x_1 + x_2 + \cdots + x_n}{n}$$
 #| standalone: true
 #| viewerHeight: 640
 
+# matplotlib·numpy 없이 stdlib(statistics) + 인라인 SVG 로만 그린다
+import statistics
+from collections import Counter
 from shiny import App, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
 INK = "#111827"
 MUTED = "#6b7280"
 
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
-
 # 학생 15명의 한 달 독서 권수
 READS = [0, 1, 2, 2, 3, 3, 3, 3, 3, 4, 4, 5, 5, 6, 8]
 
 def stats(data):
-    arr = np.array(data)
-    mean = arr.mean()
-    median = np.median(arr)
-    vals, counts = np.unique(arr, return_counts=True)
-    mode = vals[np.argmax(counts)]
+    mean = statistics.mean(data)
+    median = statistics.median(data)
+    mode = Counter(data).most_common(1)[0][0]
     return mean, median, mode
+
+def dots_svg(data, mean, median, mode):
+    W, H, ml, mr, mt, mb = 480, 320, 24, 12, 14, 34
+    pw, ph = W - ml - mr, H - mt - mb
+    xmax = max(10, max(data))
+    def px(v):
+        return ml + (v / xmax) * pw
+    seen = {}
+    stacks = []
+    for v in sorted(data):
+        seen[v] = seen.get(v, 0) + 1
+        stacks.append((v, seen[v]))
+    ymax = max(seen.values())
+    step = min(20, ph / (ymax + 1))
+    baseline = mt + ph
+    dots = ""
+    for v, k in stacks:
+        cy = baseline - (k - 0.5) * step
+        dots += (f'<circle cx="{px(v):.1f}" cy="{cy:.1f}" r="6" '
+                 f'fill="{ACCENT}" opacity="0.8"/>')
+    # 범례를 겹치지 않게 세 줄로
+    lx = W - 96
+    leg = (f'<rect x="{lx}" y="{mt+2}" width="11" height="11" fill="{ACCENT}"/>'
+           f'<text x="{lx+15}" y="{mt+11}" font-size="11" fill="{MUTED}">평균</text>'
+           f'<rect x="{lx}" y="{mt+18}" width="11" height="11" fill="{INK}"/>'
+           f'<text x="{lx+15}" y="{mt+27}" font-size="11" fill="{MUTED}">중앙값</text>'
+           f'<rect x="{lx}" y="{mt+34}" width="11" height="11" fill="{MUTED}"/>'
+           f'<text x="{lx+15}" y="{mt+43}" font-size="11" fill="{MUTED}">최빈값</text>')
+    lines = (
+        f'<line x1="{px(mean):.1f}" y1="{mt}" x2="{px(mean):.1f}" y2="{baseline}" '
+        f'stroke="{ACCENT}" stroke-width="1.8"/>'
+        f'<line x1="{px(median):.1f}" y1="{mt}" x2="{px(median):.1f}" y2="{baseline}" '
+        f'stroke="{INK}" stroke-width="1.5" stroke-dasharray="5 3"/>'
+        f'<line x1="{px(mode):.1f}" y1="{mt}" x2="{px(mode):.1f}" y2="{baseline}" '
+        f'stroke="{MUTED}" stroke-width="1.5" stroke-dasharray="2 3"/>'
+    )
+    axis = ""
+    for t in range(0, xmax + 1, max(1, xmax // 10)):
+        axis += (f'<text x="{px(t):.1f}" y="{baseline+16:.1f}" font-size="9" '
+                 f'fill="{MUTED}" text-anchor="middle">{t}</text>')
+    return (
+        f'<svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;'
+        'font-family:-apple-system,sans-serif;">'
+        f'<line x1="{ml}" y1="{baseline}" x2="{W-mr}" y2="{baseline}" stroke="#9ca3af"/>'
+        f'{lines}{dots}{axis}{leg}'
+        f'<text x="{ml+pw/2:.0f}" y="{H-4}" font-size="10" fill="{MUTED}" '
+        'text-anchor="middle">독서 권수(권)</text>'
+        '</svg>'
+    )
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
@@ -75,38 +113,18 @@ app_ui = ui.page_sidebar(
     ),
     ui.card(
         ui.card_header("점그래프 — 세로선이 평균·중앙값·최빈값입니다"),
-        ui.output_plot("dots", height="340px"),
+        ui.output_ui("dots"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
 )
 
 def server(input, output, session):
-    @render.plot(alt="독서 권수 점그래프와 세 대푯값")
+    @render.ui
     def dots():
         data = READS + [input.newbie()]
         mean, median, mode = stats(data)
-
-        fig, ax = plt.subplots()
-        seen = {}
-        for v in sorted(data):
-            seen[v] = seen.get(v, 0) + 1
-            ax.scatter(v, seen[v], s=60, color=ACCENT, alpha=0.8, zorder=3)
-
-        ax.axvline(mean, color=ACCENT, linewidth=1.6,
-                   linestyle="-", label="mean")
-        ax.axvline(median, color=INK, linewidth=1.4,
-                   linestyle="--", label="median")
-        ax.axvline(mode, color=MUTED, linewidth=1.4,
-                   linestyle=":", label="mode")
-
-        ax.set_xlim(-1, max(10, input.newbie() + 2))
-        ax.set_ylim(0, max(seen.values()) + 1.5)
-        ax.set_yticks([])
-        ax.set_xlabel("x (books)", color=MUTED)
-        ax.legend(frameon=False, fontsize=9, loc="upper right")
-        tufte(ax)
-        return fig
+        return ui.HTML(dots_svg(data, mean, median, mode))
 
     @render.ui
     def readout():
@@ -125,19 +143,18 @@ app = App(app_ui, server)
 
 ### 파이썬 코드
 
-세 대푯값은 numpy로 이렇게 구합니다.
+세 대푯값은 표준 라이브러리 `statistics`로 이렇게 구합니다(numpy 불필요).
 
 ```python
-import numpy as np
+import statistics
+from collections import Counter
 
 reads = [0, 1, 2, 2, 3, 3, 3, 3, 3, 4, 4, 5, 5, 6, 8]
-arr = np.array(reads + [100])            # 극단값 하나 추가
+data = reads + [100]                     # 극단값 하나 추가
 
-print(arr.mean())                        # 평균 — 크게 끌려감
-print(np.median(arr))                    # 중앙값 — 거의 그대로
-
-vals, counts = np.unique(arr, return_counts=True)
-print(vals[np.argmax(counts)])           # 최빈값 — 그대로 3
+print(statistics.mean(data))             # 평균 — 크게 끌려감
+print(statistics.median(data))           # 중앙값 — 거의 그대로
+print(Counter(data).most_common(1)[0][0])  # 최빈값 — 그대로 3
 ```
 
 :::

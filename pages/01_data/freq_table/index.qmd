@@ -38,24 +38,15 @@ $$\text{상대도수} = \frac{\text{그 계급의 도수}}{\text{전체 도수}}
 #| standalone: true
 #| viewerHeight: 700
 
+# matplotlib·numpy 없이 stdlib + 인라인 SVG 로만 그린다
+# (다운로드 약 12 MB 절감 + Pyodide 한글 폰트 문제 근본 해소)
 import math
 from shiny import App, render, ui
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams["font.size"] = 10
 
 ACCENT = "#2563eb"
 INK = "#111827"
 MUTED = "#6b7280"
-
-def tufte(ax):
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#9ca3af")
-    ax.tick_params(colors=MUTED, labelsize=9)
+GRID = "#e5e7eb"
 
 # 학생 40명의 하루 스마트폰 사용 시간(분)
 DATA = [
@@ -71,6 +62,57 @@ def bin_edges(width):
     n_bins = int(math.ceil((max(DATA) - LO) / width))
     return [LO + width * i for i in range(n_bins + 1)]
 
+def histogram(edges):
+    counts = [0] * (len(edges) - 1)
+    last = len(edges) - 2
+    for x in DATA:
+        for i in range(len(edges) - 1):
+            if edges[i] <= x < edges[i + 1] or (i == last and x == edges[-1]):
+                counts[i] += 1
+                break
+    return counts
+
+def hist_svg(edges, counts, relative):
+    n = len(DATA)
+    vals = [c / n for c in counts] if relative else list(counts)
+    W, H, ml, mr, mt, mb = 480, 300, 46, 12, 14, 42
+    pw, ph = W - ml - mr, H - mt - mb
+    vmax = max(vals) or 1
+    nb = len(counts)
+    bw = pw / nb
+    grid = ""
+    for t in range(5):
+        v = vmax * t / 4
+        yy = mt + ph - (v / vmax) * ph
+        lbl = f"{v:.2f}" if relative else f"{int(round(v))}"
+        grid += (f'<line x1="{ml}" y1="{yy:.1f}" x2="{W-mr}" y2="{yy:.1f}" '
+                 f'stroke="{GRID}"/>'
+                 f'<text x="{ml-6}" y="{yy+3:.1f}" font-size="10" fill="{MUTED}" '
+                 f'text-anchor="end">{lbl}</text>')
+    bars = ""
+    for i, v in enumerate(vals):
+        bh = (v / vmax) * ph
+        x = ml + i * bw
+        y = mt + ph - bh
+        bars += (f'<rect x="{x:.1f}" y="{y:.1f}" width="{bw-1:.1f}" '
+                 f'height="{bh:.1f}" fill="{ACCENT}" opacity="0.85" '
+                 f'stroke="{INK}" stroke-width="0.6"/>')
+    xlab = ""
+    for i in range(nb + 1):
+        xx = ml + i * bw
+        xlab += (f'<text x="{xx:.1f}" y="{mt+ph+14:.1f}" font-size="9" '
+                 f'fill="{MUTED}" text-anchor="middle">{edges[i]}</text>')
+    ylab = "상대도수" if relative else "도수(명)"
+    return (
+        f'<svg viewBox="0 0 {W} {H}" style="width:100%;height:auto;'
+        'font-family:-apple-system,sans-serif;">'
+        f'{grid}{bars}{xlab}'
+        f'<text x="{ml+pw/2:.0f}" y="{H-4}" font-size="10" fill="{MUTED}" '
+        'text-anchor="middle">사용 시간(분)</text>'
+        f'<text x="10" y="{mt-2}" font-size="10" fill="{MUTED}">{ylab}</text>'
+        '</svg>'
+    )
+
 app_ui = ui.page_sidebar(
     ui.sidebar(
         ui.input_slider("width", "계급의 크기(분)", min=10, max=60, value=30, step=10),
@@ -79,33 +121,23 @@ app_ui = ui.page_sidebar(
     ),
     ui.card(
         ui.card_header("히스토그램 — 계급의 크기에 따라 모양이 달라집니다"),
-        ui.output_plot("hist", height="340px"),
+        ui.output_ui("hist"),
     ),
     ui.card(ui.output_ui("readout")),
     fillable=True,
 )
 
 def server(input, output, session):
-    @render.plot(alt="스마트폰 사용 시간 히스토그램")
+    @render.ui
     def hist():
         edges = bin_edges(input.width())
-        n = len(DATA)
-        weights = [1 / n] * n if input.relative() else None
-
-        fig, ax = plt.subplots()
-        ax.hist(DATA, bins=edges, weights=weights,
-                color=ACCENT, alpha=0.85, edgecolor=INK, linewidth=0.8)
-        ax.set_xlabel("x (min)", color=MUTED)
-        ax.set_ylabel("relative freq." if input.relative() else "freq.",
-                      color=MUTED)
-        ax.set_xticks(edges)
-        tufte(ax)
-        return fig
+        counts = histogram(edges)
+        return ui.HTML(hist_svg(edges, counts, input.relative()))
 
     @render.ui
     def readout():
         edges = bin_edges(input.width())
-        counts, _ = np.histogram(DATA, bins=edges)
+        counts = histogram(edges)
         n = len(DATA)
 
         td = 'style="border:1px solid #d1d5db; padding:2px 10px; text-align:center;"'
@@ -135,15 +167,18 @@ app = App(app_ui, server)
 
 ### 파이썬 코드
 
-도수분포표의 핵심은 `np.histogram` 한 줄입니다.
+도수분포표는 표준 라이브러리만으로 셀 수 있습니다(numpy 불필요).
 
 ```python
-import numpy as np
-
 data = [42, 55, 63, 71, 78, 84, 90, 96, 101, 107]  # 사용 시간(분)
+edges = [40, 70, 100, 130]                          # 계급의 경계 (크기 30)
 
-edges = [40, 70, 100, 130]                 # 계급의 경계 (크기 30)
-counts, _ = np.histogram(data, bins=edges) # 각 계급의 도수
+counts = [0] * (len(edges) - 1)
+for x in data:
+    for i in range(len(edges) - 1):
+        if edges[i] <= x < edges[i + 1]:
+            counts[i] += 1
+            break
 
 for i, c in enumerate(counts):
     print(f"{edges[i]} 이상 ~ {edges[i+1]} 미만: 도수 {c}, "
