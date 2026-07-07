@@ -64,6 +64,14 @@
 즉 **matplotlib+numpy를 쓰는 앱 ≈ 29 MB**, **순수 stdlib 앱 ≈ 18 MB**.
 차트를 HTML로 바꾸면 해당 앱에서 **약 11 MB(≈ −38%)** 를 덜 받는다.
 
+> 📏 **실측 보정(2026-07-07):** 브라우저로 `freq_table`을 실제 로드해 보니
+> 요청 자산은 **50개·34.9 MB**로, 위 개략치(29 MB)보다 크다 — matplotlib·shiny가
+> 각각 의존성 트리(contourpy·pillow·fonttools·pytz / starlette·anyio·orjson·openssl 등)를
+> 끌고 오기 때문. 또한 **초기화만으로 첫 플롯까지 ≈ 21초**(localhost, 다운로드 0)로,
+> 다운로드 못지않게 초기화가 큰 병목임이 확인됐다. matplotlib 제거는 다운로드뿐
+> 아니라 **import·폰트 캐시 구축 시간까지** 줄여 초기화도 단축한다.
+> 자세한 측정은 [캐시 공유 검토 §6](shinylive-caching-review.md) 참조.
+
 ### 1.2 모듈별 무거운 패키지 사용 (25개 앱)
 
 | 분류 | 개수 | 모듈 |
